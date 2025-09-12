@@ -1,42 +1,30 @@
-import React, { useContext } from "react";
+import React from "react";
 import { easing } from "maath";
-// import { useSnapshot } from "valtio";
 import { useFrame } from "@react-three/fiber";
 import { Decal, useGLTF, useTexture } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
 import { useAppContext } from "../contexts/AppContext";
 
 const Shirt = () => {
-  // const snap = {
-  // intro: true,
-  // color: "#EFBD48",
-  // isLogoTexture: false,
-  // isFullTexture: false,
-  // logoDecal: "assets/threejs.png",
-  // fullDecal: "assets/threejs.png",
-  // };
   const {
-    state: { color },
+    state: { color, shirtPatternUrl },
   } = useAppContext();
 
   const { gl } = useThree();
 
   const { nodes, materials } = useGLTF("assets/shirt_baked.glb");
 
-  const logoTexture = useTexture("assets/threejs.png");
+  const logoTexture = useTexture(shirtPatternUrl || "assets/threejs.png");
   if (logoTexture) {
     logoTexture.anisotropy = gl.capabilities.getMaxAnisotropy();
   }
-  // const fullTexture = useTexture(snap.fullDecal);
 
   useFrame((state, delta) =>
     easing.dampC(materials.lambert1.color, color, 0.25, delta)
   );
 
-  // const stateString = JSON.stringify(snap);
-
   return (
-    <group key="">
+    <group>
       <mesh
         castShadow
         geometry={nodes.T_Shirt_male.geometry}
@@ -44,15 +32,6 @@ const Shirt = () => {
         material-roughness={1}
         dispose={null}
       >
-        {/* {snap.isFullTexture && (
-          <Decal
-            position={[0, 0, 0]}
-            rotation={[0, 0, 0]}
-            scale={1}
-            map={fullTexture}
-          />
-        )} */}
-
         {logoTexture && (
           <Decal
             position={[0.02, 0.02, 0.15]}

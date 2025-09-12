@@ -3,6 +3,9 @@ import React, { createContext, useContext, useState, ReactNode } from "react";
 interface AppState {
   color: string;
   shirtPatternUrl: string;
+  gender: "male" | "female";
+  size: "S" | "M" | "L" | "XL";
+  imageUrl: string;
 }
 
 interface AppContextType {
@@ -16,6 +19,9 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
   const [state, setState] = useState<AppState>({
     color: "#EFBD48",
     shirtPatternUrl: "",
+    gender: "male",
+    size: "M",
+    imageUrl: "",
   });
 
   return (

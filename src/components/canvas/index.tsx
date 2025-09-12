@@ -6,7 +6,7 @@ import Shirt from "./Shirt";
 import Backdrop from "./Backdrop";
 import CameraRig from "./CameraRig";
 
-const CanvasModel = () => {
+const CanvasModel = React.memo(() => {
   return (
     <Canvas
       shadows
@@ -25,6 +25,8 @@ const CanvasModel = () => {
       </CameraRig>
     </Canvas>
   );
-};
+});
+
+CanvasModel.displayName = "CanvasModel";
 
 export default CanvasModel;
