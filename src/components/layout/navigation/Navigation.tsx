@@ -1,21 +1,17 @@
 "use client";
 
-import {
-  Button,
-  Navbar,
-  NavbarBrand,
-  NavbarContent,
-  NavbarItem,
-} from "@heroui/react";
-import Link from "next/link";
+import { Navbar, NavbarBrand, NavbarContent } from "@heroui/react";
 import React from "react";
+import logo from "@/../public/assets/kreativko.png";
+import Image from "next/image";
 
 export default function Navigation() {
   return (
     <Navbar isBordered>
       <NavbarBrand>
         {/* <AcmeLogo /> */}
-        <p className="font-bold text-inherit">KREATIVKO</p>
+        <Image className="w-[150px]" src={logo} alt="KREATIVKO" />
+        {/* <p className="font-bold text-inherit">KREATIVKO</p> */}
       </NavbarBrand>
       <NavbarContent className="hidden sm:flex gap-4" justify="center">
         {/* <NavbarItem>
