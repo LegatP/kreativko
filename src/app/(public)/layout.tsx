@@ -8,7 +8,7 @@ export default function Layout({
   return (
     <>
       <Navigation />
-      <div className="pt-10 flex flex-col items-center">{children}</div>
+      <div className="flex flex-col">{children}</div>
     </>
   );
 }

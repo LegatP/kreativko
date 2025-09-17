@@ -7,7 +7,7 @@ import Image from "next/image";
 
 export default function Navigation() {
   return (
-    <Navbar isBordered>
+    <Navbar isBordered maxWidth="full" position="static">
       <NavbarBrand>
         {/* <AcmeLogo /> */}
         <Image className="w-[150px]" src={logo} alt="KREATIVKO" />

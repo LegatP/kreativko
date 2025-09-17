@@ -3,12 +3,12 @@ import { easing } from "maath";
 import { useFrame } from "@react-three/fiber";
 import { Decal, useGLTF, useTexture } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
-import { useAppContext } from "../contexts/AppContext";
+import { useAppStateContext } from "../contexts/AppContext";
 
 const Shirt = () => {
   const {
     state: { color, shirtPatternUrl },
-  } = useAppContext();
+  } = useAppStateContext();
 
   const { gl } = useThree();
 

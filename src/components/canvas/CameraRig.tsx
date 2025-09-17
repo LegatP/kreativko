@@ -22,7 +22,7 @@ const CameraRig = ({ children }) => {
     //   else targetPosition = [0, 0, 2];
     // }
 
-    const targetPosition = new Vector3(0, 0, 2);
+    const targetPosition = new Vector3(0, -0.075, 2);
 
     // set model camera position
     easing.damp3(state.camera.position, targetPosition, 0.25, delta);
@@ -30,7 +30,7 @@ const CameraRig = ({ children }) => {
     // set the model rotation smoothly
     easing.dampE(
       group.current?.rotation || [0, 0, 0],
-      [state.pointer.y / 10, -state.pointer.x / 5, 0],
+      [state.pointer.y / 7, -state.pointer.x / 3, 0],
       0.25,
       delta
     );

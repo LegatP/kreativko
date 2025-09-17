@@ -9,10 +9,11 @@ const Backdrop = () => {
       ref={shadows}
       temporal
       frames={60}
-      alphaTest={0.85}
-      scale={10}
+      alphaTest={0.19}
+      scale={4}
       rotation={[Math.PI / 2, 0, 0]}
-      position={[0, 0, -0.14]}
+      position={[0, 0, -0.12]}
+      opacity={0.65}
     >
       <RandomizedLight
         amount={4}
@@ -33,3 +34,15 @@ const Backdrop = () => {
 };
 
 export default Backdrop;
+
+// frames?: number;
+// blend?: number;
+// limit?: number;
+// scale?: number;
+// temporal?: boolean;
+// opacity?: number;
+// alphaTest?: number;
+// color?: string;
+// colorBlend?: number;
+// resolution?: number;
+// toneMapped?: boolean;

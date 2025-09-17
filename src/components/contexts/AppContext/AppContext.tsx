@@ -31,10 +31,12 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export const useAppContext = () => {
+export const useAppStateContext = () => {
   const context = useContext(AppContext);
   if (!context) {
-    throw new Error("useAppContext must be used within an AppContextProvider");
+    throw new Error(
+      "useAppStateContext must be used within an AppContextProvider"
+    );
   }
   return context;
 };
