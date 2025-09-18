@@ -10,15 +10,16 @@ export interface Asset {
 
 const collectionName = "assets";
 
-export async function createAsset(data: Omit<Asset, "createdAt">) {
+export async function createAsset(
+  data: Omit<Asset, "createdAt" | "userId">
+): Promise<(Asset & { id: string }) | undefined> {
   try {
     console.log("Creating asset with data:", collectionName, data);
     console.log("Current user:", auth.currentUser);
-    const docRef = await addDoc(collectionName, {
+    return await addDoc(collectionName, {
       ...data,
       userId: auth.currentUser!.uid,
     });
-    return docRef;
   } catch (error) {
     console.error("Error adding document: ", error);
   }

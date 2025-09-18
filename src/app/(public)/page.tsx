@@ -1,11 +1,13 @@
 "use client";
 
 import {
+  addToast,
   Button,
   Card,
   CardBody,
   CardFooter,
   CardHeader,
+  closeToast,
   Divider,
   Textarea,
 } from "@heroui/react";
@@ -15,6 +17,9 @@ import ShirtConfigurator from "@/components/ShirtConfigurator";
 import { createShirtPattern } from "@/actions/openai";
 import { useState } from "react";
 import { useAppStateContext } from "@/components/contexts/AppContext";
+import { uploadFile } from "@/lib/firebase/storage";
+import { createAsset } from "@/db/assets";
+import { set } from "firebase/database";
 
 // UX
 // Homepahe: input with dropdown and prompt suggestions, similar to
@@ -25,13 +30,42 @@ export default function Home() {
   const [prompt, setPrompt] = useState("");
 
   async function onCreate() {
-    const base64 = await createShirtPattern(prompt);
+    console.log("generating");
+    const toastId = addToast({
+      title: "Kreiram motiv.",
+      color: "default",
+      description: "To lahko traja nekaj časa. Prosim ne zapirajte okna.",
+      isClosing: false,
+      promise: new Promise(() => {}),
+    });
+    const response = await createShirtPattern(prompt);
+    console.log(response);
 
-    if (base64) {
-      setState({
-        ...state,
-        shirtPatternUrl: `data:image/png;base64,${base64}`,
-      });
+    if (!response?.b64_json) return;
+
+    try {
+      console.log("uploading");
+      const url = await uploadFile(response?.b64_json);
+
+      const asset = await createAsset({ url, type: "image/png" });
+
+      if (asset) {
+        setState({
+          ...state,
+          assets: [...state.assets, asset],
+          assetIds: [...state.assetIds, asset.id],
+          shirtConfig: {
+            ...state.shirtConfig,
+            frontPatternUrl: asset.url,
+          },
+        });
+        setPrompt("");
+      }
+      toastId && closeToast(toastId);
+    } catch (error) {
+      console.log("Error generating ai file:", error);
+      toastId && closeToast(toastId);
+      addToast({ title: "Napaka pri generiranju motiva.", color: "danger" });
     }
   }
 
@@ -46,7 +80,7 @@ export default function Home() {
           {/* <Card>
             <CardHeader className="font-bold">Predogled</CardHeader>
           </Card> */}
-          <Card className="w-xs p-2 h-full" isBlurred>
+          <Card className="w-xs h-full" isBlurred>
             <CardHeader className="font-bold">Moje naročilo</CardHeader>
             <Divider />
             <CardBody>

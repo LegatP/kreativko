@@ -12,7 +12,7 @@ const CanvasModel = React.memo(() => {
       shadows
       camera={{ position: [0, 0, 0], fov: 30 }}
       gl={{ preserveDrawingBuffer: true }}
-      className="w-full h-full transition-all ease-in aspect-square bg-gray-200"
+      className="w-full h-full transition-all ease-in aspect-square bg-gray-100"
     >
       <directionalLight
         castShadow

@@ -7,14 +7,15 @@ import { useAppStateContext } from "../contexts/AppContext";
 
 const Shirt = () => {
   const {
-    state: { color, shirtPatternUrl },
+    state: { shirtConfig: { color, frontPatternUrl } = {} },
   } = useAppStateContext();
 
   const { gl } = useThree();
 
   const { nodes, materials } = useGLTF("assets/shirt_baked.glb");
 
-  const logoTexture = useTexture(shirtPatternUrl || "assets/threejs.png");
+  console.log("Front pattern URL:", frontPatternUrl);
+  const logoTexture = useTexture(frontPatternUrl || "assets/threejs.png");
   if (logoTexture) {
     logoTexture.anisotropy = gl.capabilities.getMaxAnisotropy();
   }

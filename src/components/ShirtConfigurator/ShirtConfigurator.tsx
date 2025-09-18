@@ -18,63 +18,60 @@ export default function ShirtConfigurator() {
       >
         <AccordionItem key="1" title="Barva">
           <SelectColor
-            color={state.color}
-            setColor={(color) => setState({ ...state, color })}
+            color={state.shirtConfig?.color || "#FFFFFF"}
+            setColor={(color) =>
+              setState({
+                ...state,
+                shirtConfig: { ...state.shirtConfig, color },
+              })
+            }
           />
         </AccordionItem>
         <AccordionItem key="2" title="Model">
           <SelectGender
-            gender={state.gender}
-            setGender={(gender) => setState({ ...state, gender })}
+            gender={state.shirtConfig?.gender || "male"}
+            setGender={(gender) =>
+              setState({
+                ...state,
+                shirtConfig: { ...state.shirtConfig, gender },
+              })
+            }
           />
         </AccordionItem>
-        <AccordionItem key="3" title="Velikost in število">
-          <SelectSizes
-            size={state.size}
-            setSize={(size) => setState({ ...state, size })}
-          />
-        </AccordionItem>
-        <AccordionItem key="4" title="Izberi motiv">
+        <AccordionItem key="3" title="Motiv">
           <SelectDesign
-            designUrls={[state.shirtPatternUrl]}
-            setDesignUrl={(url) => setState({ ...state, shirtPatternUrl: url })}
+            assets={state.assets}
+            onAssetUpload={(asset) =>
+              setState({
+                ...state,
+                assets: [...state.assets, asset],
+                assetIds: [...state.assetIds, asset.id],
+              })
+            }
+            onAssetSelect={(asset) =>
+              setState({
+                ...state,
+                shirtConfig: {
+                  ...state.shirtConfig,
+                  frontPatternUrl: asset.url,
+                },
+              })
+            }
+            selectedAssetUrl={state.shirtConfig?.frontPatternUrl}
+          />
+        </AccordionItem>
+        <AccordionItem key="4" title="Velikost in število">
+          <SelectSizes
+            size={state.shirtConfig?.size || "M"}
+            setSize={(size) =>
+              setState({
+                ...state,
+                shirtConfig: { ...state.shirtConfig, size },
+              })
+            }
           />
         </AccordionItem>
       </Accordion>
-      {/* <div className="font-semibold mb-2">
-        Izberi ali naloži sliko za majico:
-      </div>
-      <div className="flex gap-2 mb-4 items-center">
-        <input
-          type="file"
-          accept="image/*"
-          onChange={async (e) => {
-            const file = e.target.files?.[0];
-            if (file) {
-              const reader = new FileReader();
-              reader.onloadend = () => {
-                if (reader.result && typeof reader.result === "string") {
-                  setState({ ...state, shirtPatternUrl: reader.result });
-                }
-              };
-              reader.readAsDataURL(file);
-            }
-          }}
-        />
-        {state.shirtPatternUrl && (
-          <img
-            src={state.shirtPatternUrl}
-            alt="Majica vzorec"
-            style={{
-              width: 40,
-              height: 40,
-              borderRadius: 8,
-              objectFit: "cover",
-              border: "1px solid #ccc",
-            }}
-          />
-        )}
-      </div> */}
     </>
   );
 }
