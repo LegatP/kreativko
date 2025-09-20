@@ -25,7 +25,7 @@ import React, {
 // }
 
 interface LocalConfiguration extends Configuration {
-  assets: Asset[];
+  // assets: Asset[];
 }
 
 interface AppContextType {
@@ -43,8 +43,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
       frontPatternUrl: "",
       model: "male",
     },
-    assetIds: [],
-    assets: [],
+    assets: {},
   });
 
   const configDoc = useRef<DocumentReference | undefined>(undefined);

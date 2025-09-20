@@ -1,7 +1,7 @@
-import fb from "./init";
+import app from "./init";
 import { getAuth, signInAnonymously, User } from "firebase/auth";
 
-const auth = getAuth(fb);
+const auth = getAuth(app);
 
 // TODO: handle auth state changes and persist user session
 // https://firebase.google.com/codelabs/firebase-nextjs#5

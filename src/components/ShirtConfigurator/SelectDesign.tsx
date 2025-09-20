@@ -1,21 +1,20 @@
 import { Asset, createAsset } from "@/db/assets";
 import { uploadFile } from "@/lib/firebase/storage";
-import { addToast, Card } from "@heroui/react";
+import { addToast, Card, Spinner } from "@heroui/react";
 import Image from "next/image";
-import React from "react";
+import React, { useState } from "react";
 import cx from "classnames";
-import {
-  FileArrowUpIcon,
-  FileDashedIcon,
-  FileIcon,
-  UploadIcon,
-  UploadSimpleIcon,
-} from "@phosphor-icons/react";
+import { FileArrowUpIcon } from "@phosphor-icons/react";
+
+interface DisplayedAsset {
+  id: string;
+  url: string;
+}
 
 interface SelectDesignProps {
-  assets: Asset[];
+  assets: DisplayedAsset[];
   onAssetUpload: (asset: Asset & { id: string }) => void;
-  onAssetSelect?: (asset: Asset) => void;
+  onAssetSelect?: (asset: DisplayedAsset) => void;
   selectedAssetUrl?: string;
 }
 
@@ -26,8 +25,10 @@ export default function SelectDesign({
   selectedAssetUrl,
 }: SelectDesignProps) {
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const [numOfAssetsUploading, setNumOfAssetsUploading] = useState(0);
 
   async function uploadFilePrivate(e: React.ChangeEvent<HTMLInputElement>) {
+    setNumOfAssetsUploading((prev) => prev + 1);
     const file = e.target.files?.[0];
 
     if (!file) return;
@@ -43,6 +44,8 @@ export default function SelectDesign({
     } catch (error) {
       console.log("Error uploading file:", error);
       addToast({ title: "Napaka pri nalaganju datoteke.", color: "danger" });
+    } finally {
+      setNumOfAssetsUploading((prev) => prev - 1);
     }
   }
 
@@ -63,6 +66,14 @@ export default function SelectDesign({
         />
         <FileArrowUpIcon size={40} weight="fill" className="absolute " />
       </Card>
+      {Array.from({ length: numOfAssetsUploading }).map((_, index) => (
+        <Card
+          key={index}
+          className="aspect-square p-0 overflow-hidden items-center justify-center"
+        >
+          <Spinner color="primary" size="md" />
+        </Card>
+      ))}
       {assets.map((asset) => (
         <Card
           key={asset.url}

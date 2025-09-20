@@ -4,6 +4,9 @@ import React from "react";
 import { useEffect } from "react";
 import auth, { onIdTokenChanged, signIn } from "@/lib/firebase/auth";
 import { deleteCookie, setCookie } from "cookies-next";
+import { getAnalytics } from "firebase/analytics";
+import { getPerformance } from "firebase/performance";
+import app from "@/lib/firebase/init";
 
 export default function FirebaseProvider({
   children,
@@ -16,6 +19,15 @@ export default function FirebaseProvider({
     if (!auth.currentUser) {
       signIn();
     }
+  }, []);
+
+  useEffect(() => {
+    const initializeAnalytics = async () => {
+      getAnalytics(app);
+      getPerformance(app);
+    };
+
+    initializeAnalytics();
   }, []);
 
   useEffect(() => {

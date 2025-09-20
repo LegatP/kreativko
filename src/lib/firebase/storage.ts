@@ -1,5 +1,5 @@
 import auth from "./auth";
-import fb from "./init";
+import app from "./init";
 import {
   getDownloadURL,
   getStorage,
@@ -8,7 +8,7 @@ import {
   uploadString,
 } from "firebase/storage";
 
-const storage = getStorage(fb);
+const storage = getStorage(app);
 
 export const uploadFile = async (file: File | string) => {
   const fileName = `${auth.currentUser!.uid}/${Date.now()}_${file.name}`;

@@ -5,21 +5,17 @@ export interface Asset {
   url: string;
   type: string;
   createdAt: Date;
-  userId: string;
 }
 
-const collectionName = "assets";
+const collectionPath = function () {
+  return `users/${auth.currentUser!.uid}/assets`;
+};
 
 export async function createAsset(
   data: Omit<Asset, "createdAt" | "userId">
 ): Promise<(Asset & { id: string }) | undefined> {
   try {
-    console.log("Creating asset with data:", collectionName, data);
-    console.log("Current user:", auth.currentUser);
-    return await addDoc(collectionName, {
-      ...data,
-      userId: auth.currentUser!.uid,
-    });
+    return await addDoc(collectionPath(), data);
   } catch (error) {
     console.error("Error adding document: ", error);
   }

@@ -1,18 +1,20 @@
 import React from "react";
 import { Canvas } from "@react-three/fiber";
-import { Environment, Center } from "@react-three/drei";
+import { Environment, Center, OrbitControls } from "@react-three/drei";
 
 import Shirt from "./Shirt";
 import Backdrop from "./Backdrop";
 import CameraRig from "./CameraRig";
+import Mug from "./Mug";
+import { Pen } from "./Pen";
 
 const CanvasModel = React.memo(() => {
   return (
     <Canvas
       shadows
-      camera={{ position: [0, 0, 0], fov: 30 }}
+      camera={{ position: [0, 0, 0], fov: 26 }}
       gl={{ preserveDrawingBuffer: true }}
-      className="w-full h-full transition-all ease-in aspect-square bg-gray-100"
+      className="w-full h-full transition-all ease-in aspect-square"
     >
       <directionalLight
         castShadow

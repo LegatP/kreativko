@@ -1,12 +1,16 @@
+import auth from "@/lib/firebase/auth";
 import db, { updateDoc } from "@/lib/firebase/firestore";
 import { addDoc, collection, DocumentReference } from "firebase/firestore";
 
-const collectionName = "configurations";
+const collectionPath = function () {
+  return `users/${auth.currentUser!.uid}/configurations`;
+};
 
 export interface Configuration {
   product: string;
-  assetIds: string[];
-  shirtConfig?: {
+  // key: assetId, value: url
+  assets: Record<string, string>;
+  shirtConfig: {
     color: string;
     frontPatternUrl: string;
     model: "male" | "female";
@@ -15,7 +19,7 @@ export interface Configuration {
 
 export async function createConfiguration(data: Configuration) {
   try {
-    const docRef = await addDoc(collection(db, collectionName), data);
+    const docRef = await addDoc(collection(db, collectionPath()), data);
     return docRef;
   } catch (error) {
     console.error("Error adding document: ", error);

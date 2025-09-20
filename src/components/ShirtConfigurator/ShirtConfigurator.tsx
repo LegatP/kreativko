@@ -40,12 +40,14 @@ export default function ShirtConfigurator() {
         </AccordionItem>
         <AccordionItem key="3" title="Motiv">
           <SelectDesign
-            assets={state.assets}
+            assets={Object.entries(state.assets).map(([id, url]) => ({
+              id,
+              url,
+            }))}
             onAssetUpload={(asset) =>
               setState({
                 ...state,
-                assets: [...state.assets, asset],
-                assetIds: [...state.assetIds, asset.id],
+                assets: { ...state.assets, [asset.id]: asset.url },
               })
             }
             onAssetSelect={(asset) =>

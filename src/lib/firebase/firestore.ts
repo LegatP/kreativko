@@ -1,4 +1,4 @@
-import fb from "./init";
+import app from "./init";
 import {
   addDoc as firestoreAddDoc,
   updateDoc as firestoreUpdateDoc,
@@ -11,7 +11,7 @@ import {
   DocumentReference,
 } from "firebase/firestore";
 
-const db = initializeFirestore(fb, {}, "default");
+const db = initializeFirestore(app, {}, "default");
 
 export async function addDoc<T>(
   ref: string | CollectionReference<DocumentData>,
