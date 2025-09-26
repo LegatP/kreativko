@@ -5,7 +5,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { easing } from "maath";
 import { Mesh, MeshStandardMaterial } from "three";
 
-useGLTF.preload("assets/umbrella.glb");
+// useGLTF.preload("/assets/umbrella.glb");
 
 export function Umbrella() {
   const { nodes, materials } = useGLTF("assets/umbrella.glb");

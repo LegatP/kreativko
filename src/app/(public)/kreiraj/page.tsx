@@ -19,10 +19,15 @@ import { uploadFile } from "@/lib/firebase/storage";
 import { createAsset } from "@/db/assets";
 
 import cx from "classnames";
-import { ArrowRightIcon, StarFourIcon } from "@phosphor-icons/react";
+import {
+  ArrowRightIcon,
+  PaperPlaneTiltIcon,
+  StarFourIcon,
+} from "@phosphor-icons/react";
 import { Product } from "@/types/product.types";
 import PromptToolbar from "@/components/layout/PromptToolbar";
 import { ProductIcons } from "@/config";
+import { createAiReponse } from "@/db/ai-reponses";
 
 // UX
 // Homepahe: input with dropdown and prompt suggestions, similar to
@@ -44,8 +49,9 @@ export default function Page() {
       title: "Kreativko ustvarja tvoj motiv.",
       color: "default",
       description: "To lahko traja nekaj časa. Ne zapiraj brskalnika.",
-      isClosing: false,
+      isClosing: true,
       promise: new Promise(() => {}),
+      hideCloseButton: true,
     });
     try {
       const response = await createShirtPattern(prompt, state.designStyle);
@@ -71,6 +77,11 @@ export default function Page() {
       if (toastId) {
         closeToast(toastId);
       }
+
+      createAiReponse({
+        ...response,
+        imageUrl: url,
+      });
     } catch (error) {
       console.log("Error generating ai file:", error);
       if (toastId) {
@@ -125,8 +136,29 @@ export default function Page() {
             </CardFooter>
           </Card>
         </div>
-        <div className="flex w-full flex-col h-full">
-          <CanvasModel />
+        <div className="flex w-full flex-col h-full relative">
+          <Card
+            className="w-10 aspect-square mb-4 absolute right-0 items-center justify-center z-10"
+            isBlurred
+            isPressable
+            onPress={() => {
+              const url = `${window.location.origin}/predogled/${state?.id}`;
+              // TODO: test on mobile
+              if (navigator.canShare?.({ url })) {
+                navigator.share({ url });
+              } else {
+                navigator.clipboard.writeText(url);
+                addToast({
+                  title: "Povezava kopirana",
+                  description: "Povezava je bila kopirana v odložišče.",
+                  color: "success",
+                });
+              }
+            }}
+          >
+            <PaperPlaneTiltIcon weight="fill" size={20} />
+          </Card>
+          <CanvasModel state={state} />
           <PromptToolbar />
           <div className="relative w-full flex flex-col">
             <Textarea

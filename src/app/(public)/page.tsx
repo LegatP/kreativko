@@ -8,5 +8,6 @@ import AnimatedHeading from "../../components/layout/AnimatedHeading/AnimatedHea
 // /kreiraj => similar to adobe firefrefly
 
 export default function Page() {
-  return <AnimatedHeading />;
+  return null;
+  // return <AnimatedHeading />;
 }

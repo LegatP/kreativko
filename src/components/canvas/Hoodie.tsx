@@ -4,7 +4,7 @@ import { useThree } from "@react-three/fiber";
 import { useAppStateContext } from "../contexts/AppContext";
 import { MeshStandardMaterial, Mesh } from "three";
 
-useGLTF.preload("assets/hoodie.glb");
+// useGLTF.preload("/assets/hoodie.glb");
 export function Hoodie() {
   const { nodes, materials } = useGLTF("assets/hoodie.glb");
   console.log(nodes);

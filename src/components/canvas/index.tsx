@@ -6,9 +6,9 @@ import Shirt from "./Shirt";
 import Backdrop from "./Backdrop";
 import CameraRig from "./CameraRig";
 import { Umbrella } from "./Umbrella";
-import { useAppStateContext } from "../contexts/AppContext";
 import { Hoodie } from "./Hoodie";
 import { Product } from "@/types/product.types";
+import { Configuration } from "@/db/configurations";
 
 const productToModel = {
   [Product.Shirt]: Shirt,
@@ -16,8 +16,11 @@ const productToModel = {
   [Product.Hoodie]: Hoodie,
 };
 
-const CanvasModel = React.memo(() => {
-  const { state } = useAppStateContext();
+interface CanvasModelProps {
+  state: Configuration;
+}
+
+const CanvasModel = React.memo(({ state }: CanvasModelProps) => {
   if (!state.selectedProduct) return null;
 
   const Model = productToModel[state.selectedProduct];

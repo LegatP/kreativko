@@ -6,7 +6,7 @@ import { useThree } from "@react-three/fiber";
 import { useAppStateContext } from "../contexts/AppContext";
 import { Mesh, MeshStandardMaterial } from "three";
 
-useGLTF.preload("assets/shirt_baked.glb");
+// useGLTF.preload("/assets/shirt_baked.glb");
 const Shirt = () => {
   const {
     // @ts-expect-error frontPatternUrl not in all products
@@ -15,10 +15,10 @@ const Shirt = () => {
 
   const { gl } = useThree();
 
-  const { nodes, materials } = useGLTF("assets/shirt_baked.glb");
+  const { nodes, materials } = useGLTF("/assets/shirt_baked.glb");
 
   console.log("Front pattern URL:", frontPatternUrl);
-  const logoTexture = useTexture(frontPatternUrl || "assets/threejs.png");
+  const logoTexture = useTexture(frontPatternUrl || "/assets/threejs.png");
   if (logoTexture) {
     logoTexture.anisotropy = gl.capabilities.getMaxAnisotropy();
   }

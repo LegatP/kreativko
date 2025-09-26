@@ -24,14 +24,14 @@ function getScreenPrintingPromot(prompt: string): string {
 function getDigitalPrintPromot(prompt: string): string {
   return `You are a designer creating images specifically for DTF printing (Direct-to-Film). The image must follow these rules:
 
-    1. The design should be vibrant and multicolor, but suitable for printing – avoid very thin lines or overly intricate details.  
+    1. The design must be suitable for printing – avoid very thin lines or overly intricate details.  
     2. The image should not contain any text, unless the design description explicitly requires it.  
-    3. The design must clearly represent the user's description in a bold, attractive, and modern multicolor style, suitable for DTF printing.
+    3. The design must clearly represent the user's description, suitable for DTF printing.
+    4. The background must be transparent if it does not contain elements that cover the entire canvas.
     
     Design description: ${prompt}
     `;
 }
-// 4. The background must be transparent.
 // 2. If the design description specifies multiple colors, the colors should be clearly defined and visually harmonious.
 
 // Create a screen-print-ready image based on the following design description (in Slovenian). The image must follow these rules: it should be easy to trace in Adobe Illustrator with no thin lines or overly intricate details; use only one color unless the description explicitly specifies multiple colors and their placement; do not include any text unless the description explicitly says so; the background must be transparent; and the design should be bold, simple, and clean, suitable for screen printing.
@@ -43,8 +43,10 @@ export interface CreateShirtPatternResponse {
   b64_json?: string;
   duration?: number;
   prompt: string;
+  finalPrompt: string;
   model: string;
   size: string;
+  quality: string;
 }
 
 async function createShirtPattern(
@@ -64,21 +66,26 @@ async function createShirtPattern(
     }
     const model = "gpt-image-1";
     const size = "1024x1024";
+    const quality = "high";
     const start = Date.now();
     const response = await client.images.generate({
       model,
       prompt: finalPrompt,
       size,
       n: 1,
+      // TODO: remove when in production
+      quality,
     });
     const duration = Date.now() - start;
     return {
       api: "openai",
       b64_json: response?.data?.[0].b64_json || undefined,
       duration,
-      prompt: prompt,
+      prompt,
+      finalPrompt,
       model,
       size,
+      quality,
     };
   } catch (error) {
     console.error("Error generating image:", error);

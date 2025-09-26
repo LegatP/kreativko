@@ -1,17 +1,36 @@
 import auth from "@/lib/firebase/auth";
-import db, { updateDoc } from "@/lib/firebase/firestore";
+import db, { addDoc, updateDoc } from "@/lib/firebase/firestore";
 import { DesignStyle, Product, ProductConfigs } from "@/types/product.types";
-import { addDoc, collection, DocumentReference } from "firebase/firestore";
+import { collection, doc, DocumentReference, getDoc } from "firebase/firestore";
 
 const collectionPath = function () {
   return `users/${auth.currentUser!.uid}/configurations`;
 };
 
 export interface Configuration {
+  id?: string;
   assets: Record<string, string>;
   configs: ProductConfigs;
   designStyle: DesignStyle;
   selectedProduct: Product;
+}
+
+export async function getConfigurationById(id: string) {
+  try {
+    const docRef = doc(collection(db, collectionPath()), id);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return { id: docSnap.id, ...docSnap.data() } as Configuration & {
+        id: string;
+      };
+    } else {
+      console.log("No such document!");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error getting document:", error);
+    return null;
+  }
 }
 
 export async function createConfiguration(data: Configuration) {
@@ -24,7 +43,7 @@ export async function createConfiguration(data: Configuration) {
 }
 
 export async function updateConfiguration(
-  ref: DocumentReference,
+  ref: DocumentReference | string,
   data: Partial<Configuration>
 ) {
   try {

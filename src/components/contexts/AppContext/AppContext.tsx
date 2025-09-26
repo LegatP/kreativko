@@ -11,7 +11,7 @@ import {
   ShirtSizes,
   UmbrellaSizes,
 } from "@/types/product.types";
-import { DocumentReference } from "firebase/firestore";
+import { DocumentData, DocumentReference } from "firebase/firestore";
 import React, {
   createContext,
   useContext,
@@ -85,13 +85,14 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
     assets: {},
   });
 
-  const configDoc = useRef<DocumentReference | undefined>(undefined);
+  const configDoc = useRef<{ id: string } | undefined>(undefined);
 
   useEffect(() => {
     if (configDoc.current) return;
     async function create() {
       const config = await createConfiguration(state);
       configDoc.current = config;
+      setState((prev) => ({ ...prev, id: config?.id } as Configuration));
     }
 
     create();
@@ -102,10 +103,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 
     if (!configDoc.current) return;
 
-    // Remove local-only properties before updating
-    // delete state.assets;
-
-    await updateConfiguration(configDoc.current, state);
+    await updateConfiguration(configDoc.current.id, state);
   }
 
   function setCurrentProductConfig(
