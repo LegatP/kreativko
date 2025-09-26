@@ -5,10 +5,22 @@ import { Environment, Center, OrbitControls } from "@react-three/drei";
 import Shirt from "./Shirt";
 import Backdrop from "./Backdrop";
 import CameraRig from "./CameraRig";
-import Mug from "./Mug";
-import { Pen } from "./Pen";
+import { Umbrella } from "./Umbrella";
+import { useAppStateContext } from "../contexts/AppContext";
+import { Hoodie } from "./Hoodie";
+import { Product } from "@/types/product.types";
+
+const productToModel = {
+  [Product.Shirt]: Shirt,
+  [Product.Umbrella]: Umbrella,
+  [Product.Hoodie]: Hoodie,
+};
 
 const CanvasModel = React.memo(() => {
+  const { state } = useAppStateContext();
+  if (!state.selectedProduct) return null;
+
+  const Model = productToModel[state.selectedProduct];
   return (
     <Canvas
       shadows
@@ -29,9 +41,10 @@ const CanvasModel = React.memo(() => {
       <CameraRig>
         <Backdrop />
         <Center>
-          <Shirt />
+          <Model />
         </Center>
       </CameraRig>
+      <OrbitControls />
     </Canvas>
   );
 });

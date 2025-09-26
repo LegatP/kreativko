@@ -1,5 +1,6 @@
 import auth from "@/lib/firebase/auth";
 import db, { updateDoc } from "@/lib/firebase/firestore";
+import { DesignStyle, Product, ProductConfigs } from "@/types/product.types";
 import { addDoc, collection, DocumentReference } from "firebase/firestore";
 
 const collectionPath = function () {
@@ -7,14 +8,10 @@ const collectionPath = function () {
 };
 
 export interface Configuration {
-  product: string;
-  // key: assetId, value: url
   assets: Record<string, string>;
-  shirtConfig: {
-    color: string;
-    frontPatternUrl: string;
-    model: "male" | "female";
-  };
+  configs: ProductConfigs;
+  designStyle: DesignStyle;
+  selectedProduct: Product;
 }
 
 export async function createConfiguration(data: Configuration) {

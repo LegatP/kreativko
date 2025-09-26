@@ -11,7 +11,9 @@ import {
 const storage = getStorage(app);
 
 export const uploadFile = async (file: File | string) => {
-  const fileName = `${auth.currentUser!.uid}/${Date.now()}_${file.name}`;
+  const fileName = `${auth.currentUser!.uid}/${Date.now()}_${
+    file instanceof File ? file.name : `ai_generated.png`
+  }`;
   const storageRef = ref(storage, fileName);
 
   try {

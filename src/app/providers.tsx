@@ -8,9 +8,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <HeroUIProvider>
       <ToastProvider placement="top-right" />
-      <AppContextProvider>
-        <FirebaseProvider>{children}</FirebaseProvider>
-      </AppContextProvider>
+      <FirebaseProvider>
+        <AppContextProvider>{children}</AppContextProvider>
+      </FirebaseProvider>
     </HeroUIProvider>
   );
 }

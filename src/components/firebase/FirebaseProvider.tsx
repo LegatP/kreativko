@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useEffect } from "react";
 import auth, { onIdTokenChanged, signIn } from "@/lib/firebase/auth";
 import { deleteCookie, setCookie } from "cookies-next";
@@ -13,7 +13,7 @@ export default function FirebaseProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [loading, setLoading] = React.useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!auth.currentUser) {
@@ -38,6 +38,7 @@ export default function FirebaseProvider({
       } else {
         await deleteCookie("__session");
       }
+      console.log("Firebase auth state changed. User:", user);
       setLoading(false);
     });
   }, []);

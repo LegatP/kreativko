@@ -4,10 +4,13 @@ import { useFrame } from "@react-three/fiber";
 import { Decal, useGLTF, useTexture } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
 import { useAppStateContext } from "../contexts/AppContext";
+import { Mesh, MeshStandardMaterial } from "three";
 
+useGLTF.preload("assets/shirt_baked.glb");
 const Shirt = () => {
   const {
-    state: { shirtConfig: { color, frontPatternUrl } = {} },
+    // @ts-expect-error frontPatternUrl not in all products
+    currentProductConfig: { color, frontPatternUrl },
   } = useAppStateContext();
 
   const { gl } = useThree();
@@ -21,14 +24,19 @@ const Shirt = () => {
   }
 
   useFrame((state, delta) =>
-    easing.dampC(materials.lambert1.color, color, 0.25, delta)
+    easing.dampC(
+      (materials.lambert1 as MeshStandardMaterial).color,
+      color,
+      0.25,
+      delta
+    )
   );
 
   return (
     <group>
       <mesh
         castShadow
-        geometry={nodes.T_Shirt_male.geometry}
+        geometry={(nodes.T_Shirt_male as Mesh).geometry}
         material={materials.lambert1}
         material-roughness={1}
         dispose={null}

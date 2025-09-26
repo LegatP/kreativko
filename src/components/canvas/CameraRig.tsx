@@ -3,10 +3,14 @@
 import React, { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { easing } from "maath";
-import { Vector3 } from "three";
+import { Euler, Group, Vector3 } from "three";
 
-const CameraRig = ({ children }) => {
-  const group = useRef(null);
+interface CameraRigProps {
+  children: React.ReactNode;
+}
+
+const CameraRig = ({ children }: CameraRigProps) => {
+  const group = useRef<Group>(null);
 
   useFrame((state, delta) => {
     // const isBreakpoint = window.innerWidth <= 1260;
@@ -29,7 +33,7 @@ const CameraRig = ({ children }) => {
 
     // set the model rotation smoothly
     easing.dampE(
-      group.current?.rotation || [0, 0, 0],
+      group.current?.rotation || new Euler(0, 0, 0),
       [state.pointer.y / 7, -state.pointer.x / 3, 0],
       0.25,
       delta

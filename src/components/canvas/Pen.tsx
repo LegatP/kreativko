@@ -9,27 +9,27 @@ Title: Pen
 
 import React from "react";
 import { useGLTF } from "@react-three/drei";
-
-export function Pen(props) {
+import * as THREE from "three";
+export function Pen() {
   const { nodes, materials } = useGLTF("/assets/pen.glb");
   return (
-    <group {...props} dispose={null}>
+    <group dispose={null}>
       <group scale={0.01}>
         <group scale={0.09}>
           <mesh
-            geometry={nodes.Cylinder_Material001_0.geometry}
+            geometry={(nodes.Cylinder_Material001_0 as THREE.Mesh).geometry}
             material={materials["Material.001"]}
           />
           <mesh
-            geometry={nodes.Cylinder001_Material_0.geometry}
+            geometry={(nodes.Cylinder001_Material_0 as THREE.Mesh).geometry}
             material={materials.Material}
           />
           <mesh
-            geometry={nodes.Cylinder002_Material002_0.geometry}
+            geometry={(nodes.Cylinder002_Material002_0 as THREE.Mesh).geometry}
             material={materials["Material.002"]}
           />
           <mesh
-            geometry={nodes.Cylinder003_Material003_0.geometry}
+            geometry={(nodes.Cylinder003_Material003_0 as THREE.Mesh).geometry}
             material={materials["Material.003"]}
           />
         </group>
@@ -37,5 +37,3 @@ export function Pen(props) {
     </group>
   );
 }
-
-useGLTF.preload("/assets/pen.glb");

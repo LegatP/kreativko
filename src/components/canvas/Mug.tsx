@@ -1,18 +1,14 @@
 import React from "react";
-import { easing } from "maath";
-import { useFrame } from "@react-three/fiber";
-import { Decal, useGLTF, useTexture } from "@react-three/drei";
-import { useThree } from "@react-three/fiber";
-import { useAppStateContext } from "../contexts/AppContext";
+import { useGLTF } from "@react-three/drei";
 
 const Mug = () => {
-  const {
-    state: { shirtConfig: { color, frontPatternUrl } = {} },
-  } = useAppStateContext();
+  // const {
+  //   currentProductConfig: { color, frontPatternUrl },
+  // } = useAppStateContext();
 
-  const { gl } = useThree();
+  // const { gl } = useThree();
 
-  const { scene, nodes } = useGLTF("assets/mug.glb");
+  const { scene } = useGLTF("assets/mug.glb");
   console.log("Mug scene:", scene);
 
   // console.log("Front pattern URL:", frontPatternUrl);

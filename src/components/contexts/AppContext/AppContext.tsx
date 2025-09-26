@@ -1,11 +1,16 @@
-import { Asset } from "@/db/assets";
 import {
   Configuration,
   createConfiguration,
   updateConfiguration,
 } from "@/db/configurations";
-import { create } from "domain";
-import { set } from "firebase/database";
+import {
+  DesignStyle,
+  HoodieSizes,
+  Product,
+  ProductConfigs,
+  ShirtSizes,
+  UmbrellaSizes,
+} from "@/types/product.types";
 import { DocumentReference } from "firebase/firestore";
 import React, {
   createContext,
@@ -24,24 +29,58 @@ import React, {
 //   imageUrl: string;
 // }
 
-interface LocalConfiguration extends Configuration {
-  // assets: Asset[];
-}
+// interface AppState {
+//   designStyle: DesignStyle;
+//   selectedProduct: Product;
+//   productConfigs: ProductConfigs;
+// }
 
 interface AppContextType {
-  state: LocalConfiguration;
-  setState: (state: LocalConfiguration) => void;
+  state: Configuration;
+  setState: (state: Configuration) => void;
+  currentProductConfig: ProductConfigs[keyof ProductConfigs];
+  setCurrentProductConfig: (
+    configs: Partial<ProductConfigs[keyof ProductConfigs]>
+  ) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppContextProvider = ({ children }: { children: ReactNode }) => {
-  const [state, setState] = useState<LocalConfiguration>({
-    product: "shirt",
-    shirtConfig: {
-      color: "#EFBD48",
-      frontPatternUrl: "",
-      model: "male",
+  const [state, setState] = useState<Configuration>({
+    designStyle: DesignStyle.Monotone,
+    selectedProduct: Product.Shirt,
+    configs: {
+      [Product.Shirt]: {
+        color: "#EFBD48",
+        frontPatternUrl: "",
+        sizes: {
+          [ShirtSizes.S]: 0,
+          [ShirtSizes.M]: 0,
+          [ShirtSizes.L]: 0,
+          [ShirtSizes.XL]: 0,
+          [ShirtSizes.XXL]: 0,
+        },
+        model: "male",
+      },
+      [Product.Hoodie]: {
+        color: "#EFBD48",
+        frontPatternUrl: "",
+        sizes: {
+          [HoodieSizes.S]: 0,
+          [HoodieSizes.M]: 0,
+          [HoodieSizes.L]: 0,
+          [HoodieSizes.XL]: 0,
+          [HoodieSizes.XXL]: 0,
+        },
+      },
+      [Product.Umbrella]: {
+        color: "#EFBD48",
+        patternUrl: "",
+        sizes: {
+          [UmbrellaSizes.Standard]: 0,
+        },
+      },
     },
     assets: {},
   });
@@ -58,19 +97,44 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
     create();
   });
 
-  async function setStatePrivate(state: Partial<LocalConfiguration>) {
+  async function setStatePrivate(state: Partial<Configuration>) {
     setState((prev) => ({ ...prev, ...state }));
 
     if (!configDoc.current) return;
 
     // Remove local-only properties before updating
-    delete state.assets;
+    // delete state.assets;
 
     await updateConfiguration(configDoc.current, state);
   }
 
+  function setCurrentProductConfig(
+    configs: Partial<ProductConfigs[keyof ProductConfigs]>
+  ) {
+    console.log("Updating configs:", configs);
+    setState((prev) => ({
+      ...prev,
+      configs: {
+        ...prev.configs,
+        [prev.selectedProduct]: {
+          ...prev.configs[prev.selectedProduct],
+          ...configs,
+        },
+      },
+    }));
+  }
+
+  const currentProductConfig = state.configs[state.selectedProduct];
+
   return (
-    <AppContext.Provider value={{ state, setState: setStatePrivate }}>
+    <AppContext.Provider
+      value={{
+        state,
+        setState: setStatePrivate,
+        setCurrentProductConfig,
+        currentProductConfig,
+      }}
+    >
       {children}
     </AppContext.Provider>
   );
