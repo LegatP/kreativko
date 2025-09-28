@@ -9,6 +9,7 @@ import {
   CollectionReference,
   initializeFirestore,
   DocumentReference,
+  Timestamp,
 } from "firebase/firestore";
 
 const db = initializeFirestore(app, {}, "default");
@@ -17,7 +18,7 @@ export async function addDoc<T>(
   ref: string | CollectionReference<DocumentData>,
   data: WithFieldValue<DocumentData>
 ): Promise<T & { id: string }> {
-  const finalData = { ...data, createdAt: new Date() };
+  const finalData = { ...data, createdAt: Timestamp.now() };
 
   let docRef;
   if (typeof ref === "string") {

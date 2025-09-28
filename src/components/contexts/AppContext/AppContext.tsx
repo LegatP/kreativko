@@ -11,7 +11,6 @@ import {
   ShirtSizes,
   UmbrellaSizes,
 } from "@/types/product.types";
-import { DocumentData, DocumentReference } from "firebase/firestore";
 import React, {
   createContext,
   useContext,

@@ -76,11 +76,10 @@ export default function ProductConfigurator() {
       <AccordionItem key="4" title="Velikost in število">
         <SelectSizes
           sizes={sizes || {}}
-          setSize={(size) =>
+          setSize={(size, value) =>
             // @ts-expect-error index signature. TODO: fix
             setCurrentProductConfig({
               ...currentProductConfig,
-              // @ts-expect-error index signature
               sizes: { ...currentProductConfig.sizes, [size]: value },
             })
           }

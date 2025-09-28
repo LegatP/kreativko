@@ -1,11 +1,22 @@
 "use client";
 
-import { Navbar, NavbarBrand, NavbarContent } from "@heroui/react";
+import {
+  Button,
+  Card,
+  Navbar,
+  NavbarBrand,
+  NavbarContent,
+  NavbarItem,
+} from "@heroui/react";
 import React from "react";
 import logo from "@/../public/assets/kreativko.png";
 import Image from "next/image";
+import Link from "next/link";
+import { BasketIcon } from "@phosphor-icons/react";
+import { useCheckoutContext } from "@/components/contexts/AppContext/CheckoutContext";
 
 export default function Navigation() {
+  const { onOpen } = useCheckoutContext();
   return (
     <Navbar isBordered maxWidth="full" position="static">
       <NavbarBrand>
@@ -28,17 +39,21 @@ export default function Navigation() {
           <Link color="foreground" href="#">
             Integrations
           </Link>
-        </NavbarItem>
+        </NavbarItem> */}
       </NavbarContent>
       <NavbarContent justify="end">
-        <NavbarItem className="hidden lg:flex">
-          <Link href="#">Login</Link>
-        </NavbarItem>
         <NavbarItem>
-          <Button as={Link} color="primary" href="#" variant="flat">
-            Sign Up
+          <Button
+            onPress={onOpen}
+            as={Link}
+            color="primary"
+            href="#"
+            variant="flat"
+            size="md"
+          >
+            <BasketIcon size={16} weight="duotone" /> Na blagajno
           </Button>
-        </NavbarItem> */}
+        </NavbarItem>
       </NavbarContent>
     </Navbar>
   );

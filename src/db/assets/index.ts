@@ -1,10 +1,11 @@
 import auth from "@/lib/firebase/auth";
 import { addDoc } from "@/lib/firebase/firestore";
+import { Timestamp } from "firebase/firestore";
 
 export interface Asset {
   url: string;
   type: string;
-  createdAt: Date;
+  createdAt: Timestamp;
 }
 
 const collectionPath = function () {

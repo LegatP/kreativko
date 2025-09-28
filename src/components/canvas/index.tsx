@@ -47,7 +47,7 @@ const CanvasModel = React.memo(({ state }: CanvasModelProps) => {
           <Model />
         </Center>
       </CameraRig>
-      <OrbitControls />
+      {/* <OrbitControls /> */}
     </Canvas>
   );
 });

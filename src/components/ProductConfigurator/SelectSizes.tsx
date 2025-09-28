@@ -1,16 +1,9 @@
 import { Avatar, NumberInput } from "@heroui/react";
 import React from "react";
 
-enum ShirtSizes {
-  S = "S",
-  M = "M",
-  L = "L",
-  XL = "XL",
-}
-
 interface SelectSizesProps {
-  sizes: Record<keyof typeof ShirtSizes, number>;
-  setSize: (size: keyof typeof ShirtSizes, value: number) => void;
+  sizes: Record<string, number>;
+  setSize: (size: string, value: number) => void;
 }
 
 export default function SelectSizes({ sizes, setSize }: SelectSizesProps) {
@@ -26,10 +19,8 @@ export default function SelectSizes({ sizes, setSize }: SelectSizesProps) {
             labelPlacement="outside"
             minValue={0}
             maxValue={100}
-            value={sizes[s as keyof typeof ShirtSizes]}
-            onChange={(value) =>
-              setSize(s as keyof typeof ShirtSizes, value as number)
-            }
+            value={sizes[s]}
+            onValueChange={(value) => setSize(s, value)}
           />
         </div>
       ))}

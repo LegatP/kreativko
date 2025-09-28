@@ -95,7 +95,7 @@ export default function Page() {
 
   return (
     <div className="relative h-[calc(100vh-65px)] bg-gray-100">
-      <div className="flex flex-row gap-4 p-8 items-end h-full">
+      <div className="flex flex-row gap-4 p-6 items-end h-full">
         <div className="hidden md:flex flex-col h-full gap-2">
           <div className="flex flex-row gap-2">
             {Object.values(Product).map((key, index) => {
@@ -122,8 +122,8 @@ export default function Page() {
             <CardBody>
               <ProductConfigurator />
             </CardBody>
-            <Divider />
-            <CardFooter>
+            {/* <Divider /> */}
+            {/* <CardFooter>
               <Button
                 color="primary"
                 fullWidth
@@ -133,7 +133,7 @@ export default function Page() {
               >
                 <span className="text-white font-medium">Naprej</span>
               </Button>
-            </CardFooter>
+            </CardFooter> */}
           </Card>
         </div>
         <div className="flex w-full flex-col h-full relative">

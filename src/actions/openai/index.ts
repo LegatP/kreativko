@@ -41,7 +41,7 @@ function getDigitalPrintPromot(prompt: string): string {
 export interface CreateShirtPatternResponse {
   api: string;
   b64_json?: string;
-  duration?: number;
+  duration: number;
   prompt: string;
   finalPrompt: string;
   model: string;
@@ -67,12 +67,16 @@ async function createShirtPattern(
     const model = "gpt-image-1";
     const size = "1024x1024";
     const quality = "high";
+    // const model = "dall-e-3";
+    // const size = "1024x1024";
+    // const quality = "standard";
     const start = Date.now();
     const response = await client.images.generate({
       model,
       prompt: finalPrompt,
       size,
       n: 1,
+      background: "transparent",
       // TODO: remove when in production
       quality,
     });
