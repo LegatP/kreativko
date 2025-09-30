@@ -13,6 +13,7 @@
     "@phosphor-icons/react": "^2.1.10",
     "@react-three/drei": "^10.7.6",
     "@react-three/fiber": "^9.3.0",
+    "@vercel/analytics": "^1.5.0",
     "axios": "^1.12.2",
     "classnames": "^2.5.1",
     "cookie": "^1.0.2",
@@ -23,8 +24,8 @@
     "openai": "^5.20.2",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "three": "^0.180.0",
-    "@vercel/analytics": "^1.5.0"
+    "react-firebase-hooks": "^5.1.1",
+    "three": "^0.180.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

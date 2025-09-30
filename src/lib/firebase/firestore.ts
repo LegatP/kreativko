@@ -10,6 +10,7 @@ import {
   initializeFirestore,
   DocumentReference,
   Timestamp,
+  setDoc as firestoreSetDoc,
 } from "firebase/firestore";
 
 const db = initializeFirestore(app, {}, "default");
@@ -28,6 +29,23 @@ export async function addDoc<T>(
     docRef = await firestoreAddDoc(ref, finalData);
   }
 
+  return { ...(data as T), id: docRef.id };
+}
+
+export async function setDoc<T>(params: {
+  ref: string | DocumentReference<DocumentData>;
+  data: WithFieldValue<DocumentData>;
+}): Promise<T & { id: string }> {
+  const { ref, data } = params;
+
+  let docRef;
+  if (typeof ref === "string") {
+    docRef = doc(db, ref);
+  } else {
+    docRef = ref;
+  }
+
+  await firestoreSetDoc(docRef, data);
   return { ...(data as T), id: docRef.id };
 }
 

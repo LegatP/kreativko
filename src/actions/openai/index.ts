@@ -79,6 +79,7 @@ async function createShirtPattern(
       background: "transparent",
       // TODO: remove when in production
       quality,
+      moderation: "low",
     });
     const duration = Date.now() - start;
     return {
