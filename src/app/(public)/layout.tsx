@@ -1,4 +1,5 @@
-import { Drawer } from "@heroui/react";
+"use client";
+
 import Navigation from "../../components/layout/Navigation";
 import CheckoutDrawer from "@/components/layout/CheckoutDrawer/CheckoutDrawer";
 
@@ -10,7 +11,7 @@ export default function Layout({
   return (
     <>
       <Navigation />
-      <div className="flex flex-col">{children}</div>
+      {children}
       <CheckoutDrawer />
     </>
   );

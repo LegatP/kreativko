@@ -8,6 +8,6 @@ import AnimatedHeading from "../../components/layout/AnimatedHeading/AnimatedHea
 // /kreiraj => similar to adobe firefrefly
 
 export default function Page() {
-  return null;
+  return <p>Welcome to Kreativko - Your AI-Powered Design Companion!</p>;
   // return <AnimatedHeading />;
 }

@@ -11,27 +11,54 @@ import {
   TableCell,
   TableRow,
 } from "@heroui/react";
-import { Timestamp } from "firebase/firestore";
+import {
+  collection,
+  DocumentData,
+  FirestoreDataConverter,
+  query,
+  Timestamp,
+} from "firebase/firestore";
+import { useParams } from "next/navigation";
+import { useCollectionDataOnce } from "react-firebase-hooks/firestore";
+import db from "@/lib/firebase/firestore";
+import {
+  WithFieldValue,
+  QueryDocumentSnapshot,
+  SnapshotOptions,
+} from "firebase/firestore";
+
+export const coverter: FirestoreDataConverter<DocumentData> = {
+  toFirestore(data: WithFieldValue<DocumentData>): DocumentData {
+    return data;
+  },
+  fromFirestore(
+    snapshot: QueryDocumentSnapshot,
+    options: SnapshotOptions
+  ): DocumentData {
+    const data = snapshot.data(options);
+    return {
+      id: snapshot.id,
+      // ref: snapshot.ref,
+      ...data,
+    };
+  },
+};
 
 // TODO: admin only access
 export default function Page() {
-  const [aiResponses, setAiResponses] = useState<AiReponse[]>([]);
+  const { collection: collectionName } = useParams();
 
-  useEffect(() => {
-    async function fetchAiResponses() {
-      const responses = await getAiReponses();
-      setAiResponses(responses);
-    }
-    fetchAiResponses();
-  }, []);
+  const col = collection(db, collectionName as string).withConverter(coverter);
+  const [data] = useCollectionDataOnce<DocumentData>(
+    collectionName ? query(col) : null
+  );
 
-  function renderCell(item: AiReponse, columnKey: string | number) {
+  function renderCell(item: DocumentData, columnKey: string | number) {
     try {
       const key = String(columnKey);
       switch (columnKey) {
-        case "prompt":
-          return item.prompt;
         case "createdAt":
+        case "updatedAt":
           return new Timestamp(
             item.createdAt.seconds,
             item.createdAt.nanoseconds
@@ -41,39 +68,30 @@ export default function Page() {
         case "duration":
           return `${((item.duration || 0) / 1000).toFixed(2)} s`;
         case "image":
-          return (
-            <img
-              src={item.imageUrl}
-              alt={item.prompt}
-              className="w-32 h-32 object-cover"
-            />
-          );
+          return <img src={item.imageUrl} className="w-32 h-32 object-cover" />;
         default:
-          return null;
+          if (typeof item[key] === "object") {
+            return JSON.stringify(item[key]);
+          }
+          return item[key] as string;
       }
     } catch (error) {
-      console.error("Error rendering cell:", error);
+      console.log("Error rendering cell:", error);
       return "Error";
     }
   }
+
   return (
-    <Table aria-label="AI Responses" isCompact sepera>
+    <Table aria-label="AI Responses" isCompact>
       <TableHeader>
-        <TableColumn width={500} key="prompt">
-          Opis
-        </TableColumn>
-        <TableColumn width={100} key="image">
-          Motiv
-        </TableColumn>
-        <TableColumn width={100} key="createdAt">
-          Ustvarjeno
-        </TableColumn>
-        <TableColumn width={100} key="duration">
-          Trajanje
-        </TableColumn>
+        {Object.keys((data && data[0]) || {}).map((key) => (
+          <TableColumn width={200} key={key}>
+            {key}
+          </TableColumn>
+        ))}
       </TableHeader>
-      <TableBody items={aiResponses}>
-        {(item) => (
+      <TableBody items={data || []}>
+        {(item: DocumentData) => (
           <TableRow key={item.id}>
             {(columnKey) => (
               <TableCell>{renderCell(item, columnKey)}</TableCell>

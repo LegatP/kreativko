@@ -11,10 +11,13 @@ import { useFormStatus } from "react-dom";
 import { useUncontrolledForm } from "@/hooks/useUncontrolledForm";
 import { setUserProfile } from "@/db/users";
 import { UserProfile } from "firebase/auth";
+import { useRouter } from "next/navigation";
+import ROUTES from "@/utils/routes.utils";
 
 export default function SignUpForm() {
   const [isInitalView, setIsInitalView] = useState(true);
   const { pending } = useFormStatus();
+  const router = useRouter();
   const { handleSubmit } = useUncontrolledForm<{
     firstName: string;
     lastName: string;
@@ -86,49 +89,14 @@ export default function SignUpForm() {
             deliveryAddress: { address, city, postCode, country },
           };
         }
-        console.log("User to be saved:", userData);
         await setUserProfile(user.uid, userData);
 
-        // router.push("/");
+        router.push(ROUTES.home);
       }
     }
   );
 
   const [error, setError] = useState("");
-
-  // const handleSubmit = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   setError("");
-
-  //   if (!acceptTerms) {
-  //     setError("Prosimo, sprejmite pogoje uporabe.");
-  //     return;
-  //   }
-
-  //   const displayName = `${firstName} ${lastName}`.trim();
-  //   const { user, error: authError } = await signUpWithEmail(
-  //     email,
-  //     password,
-  //     displayName
-  //   );
-
-  //   if (authError) {
-  //     setError(getErrorMessage(authError));
-  //   } else if (user) {
-  //     // Here you could save the billing information to your database
-  //     console.log("Billing info:", {
-  //       billingAddress,
-  //       billingCity,
-  //       billingPostalCode,
-  //       billingCountry,
-  //       company,
-  //       taxNumber,
-  //       phone,
-  //       acceptMarketing,
-  //     });
-  //     router.push("/");
-  //   }
-  // };
 
   const getErrorMessage = (error: string) => {
     if (error.includes("email-already-in-use")) {

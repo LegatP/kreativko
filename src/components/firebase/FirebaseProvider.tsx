@@ -31,7 +31,7 @@ export default function FirebaseProvider({
   }, []);
 
   useEffect(() => {
-    return onIdTokenChanged(async (user) => {
+    const unsubscribe = onIdTokenChanged(async (user) => {
       if (user) {
         const idToken = await user.getIdToken();
         await setCookie("__session", idToken);
@@ -41,6 +41,7 @@ export default function FirebaseProvider({
       console.log("Firebase auth state changed. User:", user);
       setLoading(false);
     });
+    return () => unsubscribe();
   }, []);
 
   return <>{loading ? null : children}</>;
