@@ -2,8 +2,6 @@
 
 import React from "react";
 import { Card, Tab, Tabs } from "@heroui/react";
-import SignInForm from "@/components/auth/SignInForm";
-import SignUpForm from "@/components/auth/SignUpForm";
 import usePathHash from "@/hooks/usePathHash";
 
 export default function Page() {
