@@ -47,7 +47,7 @@ export default function ProductCard({
   };
 
   return (
-    <Link href={`/majice/za-abrahama/${id}`}>
+    <Link href={`/majice/za-abrahama/funny-cake-shirt`}>
       <Card shadow="sm" className="w-full" radius="sm">
         <CardHeader className="p-0 relative">
           {isPopular && (

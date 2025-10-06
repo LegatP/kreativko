@@ -8,11 +8,5 @@ export default function Layout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <>
-      <Navigation />
-      {children}
-      <CheckoutDrawer />
-    </>
-  );
+  return <div className="max-w-7xl w-full mx-auto px-6 pt-6">{children}</div>;
 }

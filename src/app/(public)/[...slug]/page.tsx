@@ -124,6 +124,7 @@ function ProductDetailsPage({ product }: { product: ProductType }) {
                   height={600}
                   className="w-full h-auto rounded-xl"
                   isZoomed
+                  quality={100}
                 />
               </div>
             )}
