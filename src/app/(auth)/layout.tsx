@@ -1,5 +1,5 @@
 "use client";
-import Navigation from "../../components/layout/Navigation";
+import Navigation from "@/components/layout/Navigation";
 import CheckoutDrawer from "@/components/layout/CheckoutDrawer/CheckoutDrawer";
 import ROUTES from "@/utils/routes.utils";
 import { useAuthState } from "react-firebase-hooks/auth";
