@@ -1,6 +1,6 @@
 "use client";
 
-import Navigation from "@/components/layout/Navigation";
+import Navigation from "@/components/layout/mavigation";
 import CheckoutDrawer from "@/components/layout/CheckoutDrawer/CheckoutDrawer";
 
 export default function Layout({

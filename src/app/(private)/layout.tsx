@@ -1,6 +1,6 @@
 "use client";
 
-import Navigation from "@/components/layout/Navigation";
+import Navigation from "@/components/layout/mavigation";
 import CheckoutDrawer from "@/components/layout/CheckoutDrawer/CheckoutDrawer";
 import auth from "@/lib/firebase/auth";
 import ROUTES from "@/utils/routes.utils";
