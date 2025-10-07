@@ -5,6 +5,7 @@ interface CheckoutContextType {
   isOpen: boolean;
   onOpen: () => void;
   onOpenChange: (isOpen: boolean) => void;
+  onClose: () => void;
 }
 
 const CheckoutContext = createContext<CheckoutContextType | undefined>(

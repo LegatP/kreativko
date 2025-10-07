@@ -110,7 +110,8 @@ export default function ProductsOverview({
       <Divider className="my-4 bg-gray-400" />
       <div className="flex justify-between font-bold">
         <span>Za plačilo</span>
-        <span>{calculateTotal(products)}€</span>
+
+        {/* <span>{calculateTotal(products)}€</span> */}
       </div>
     </div>
   );

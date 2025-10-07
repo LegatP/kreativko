@@ -44,7 +44,7 @@ export default function ProductConfigurator() {
           }
         />
       </AccordionItem>
-      <AccordionItem key="2" title="Model">
+      {/* <AccordionItem key="2" title="Model">
         <SelectGender
           gender={(model as "male" | "female") || "male"}
           setGender={(gender) =>
@@ -54,8 +54,8 @@ export default function ProductConfigurator() {
             })
           }
         />
-      </AccordionItem>
-      <AccordionItem key="3" title="Motiv">
+      </AccordionItem> */}
+      {/* <AccordionItem key="3" title="Motiv">
         <SelectDesign
           assets={assets}
           onAssetUpload={(asset) =>
@@ -72,7 +72,7 @@ export default function ProductConfigurator() {
           }
           selectedAssetUrl={frontPatternUrl}
         />
-      </AccordionItem>
+      </AccordionItem> */}
       <AccordionItem key="4" title="Velikost in število">
         <SelectSizes
           sizes={sizes || {}}

@@ -56,6 +56,11 @@ export default function Page() {
   function renderCell(item: DocumentData, columnKey: string | number) {
     try {
       const key = String(columnKey);
+      if (String(columnKey).includes("At")) {
+        return new Timestamp(item[key].seconds, item[key].nanoseconds)
+          .toDate()
+          .toLocaleString();
+      }
       switch (columnKey) {
         case "createdAt":
         case "updatedAt":
@@ -68,7 +73,8 @@ export default function Page() {
         case "duration":
           return `${((item.duration || 0) / 1000).toFixed(2)} s`;
         case "image":
-          return <img src={item.imageUrl} className="w-32 h-32 object-cover" />;
+        case "imageUrl":
+          return <img src={item[key]} className="w-32 h-32 object-cover" />;
         default:
           if (typeof item[key] === "object") {
             return JSON.stringify(item[key]);

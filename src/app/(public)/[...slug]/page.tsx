@@ -60,7 +60,7 @@ const mockProducts = {
 
 type ProductType = (typeof mockProducts)[keyof typeof mockProducts];
 
-function ProductDetailsPage({ product }: { product: ProductType }) {
+export function ProductDetailsPage({ product }: { product: ProductType }) {
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState(product.colors[0]);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);

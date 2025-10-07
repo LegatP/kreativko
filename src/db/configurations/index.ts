@@ -13,6 +13,10 @@ export interface Configuration {
   configs: ProductConfigs;
   designStyle: DesignStyle;
   selectedProduct: Product;
+  viewState?: {
+    currentView: "front" | "back";
+    umbrellaRotation: number;
+  };
 }
 
 export async function getConfigurationById(id: string) {
@@ -20,9 +24,17 @@ export async function getConfigurationById(id: string) {
     const docRef = doc(collection(db, collectionPath()), id);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
-      return { id: docSnap.id, ...docSnap.data() } as Configuration & {
-        id: string;
+      const data = docSnap.data() as Configuration;
+      // Ensure viewState exists for backward compatibility
+      const configWithDefaults = {
+        id: docSnap.id,
+        ...data,
+        viewState: data.viewState || {
+          currentView: "front" as const,
+          umbrellaRotation: 0,
+        },
       };
+      return configWithDefaults as Configuration & { id: string };
     } else {
       console.log("No such document!");
       return null;
@@ -47,7 +59,13 @@ export async function updateConfiguration(
   data: Partial<Configuration>
 ) {
   try {
-    await updateDoc(ref, data);
+    // If ref is a string (document ID), build the full path
+    if (typeof ref === "string") {
+      const fullPath = `${collectionPath()}/${ref}`;
+      await updateDoc(fullPath, data);
+    } else {
+      await updateDoc(ref, data);
+    }
   } catch (error) {
     console.error("Error updating document: ", error);
   }

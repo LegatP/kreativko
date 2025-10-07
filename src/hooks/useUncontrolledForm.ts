@@ -6,6 +6,7 @@ type FormValues<T> = {
   [K in keyof T]: T[K];
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useUncontrolledForm<T extends Record<string, any>>(
   onSubmit: (data: FormValues<T>, e: React.FormEvent<HTMLFormElement>) => void
 ) {

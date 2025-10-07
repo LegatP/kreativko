@@ -3,6 +3,7 @@
 import React from "react";
 import { useCheckoutContext } from "@/components/contexts/AppContext/CheckoutContext";
 import {
+  BasketIcon,
   FileIcon,
   HouseIcon,
   StarFourIcon,
@@ -23,9 +24,9 @@ const collections = [
     icon: UsersIcon,
   },
   {
-    collectionName: "assets",
-    displayName: "Datoteke",
-    icon: FileIcon,
+    collectionName: "orders",
+    displayName: "Naročila",
+    icon: BasketIcon,
   },
 ];
 

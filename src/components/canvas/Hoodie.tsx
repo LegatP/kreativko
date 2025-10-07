@@ -1,26 +1,39 @@
-import React from "react";
+import React, { useRef } from "react";
 import { Decal, useGLTF, useTexture } from "@react-three/drei";
-import { useThree } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { useAppStateContext } from "../contexts/AppContext";
-import { MeshStandardMaterial, Mesh } from "three";
+import { Group, MeshStandardMaterial, Mesh } from "three";
+import { easing } from "maath";
 
 // useGLTF.preload("/assets/hoodie.glb");
 export function Hoodie() {
+  const groupRef = useRef<Group>(null);
   const { nodes, materials } = useGLTF("assets/hoodie.glb");
   console.log(nodes);
 
   const { gl } = useThree();
+  const { state } = useAppStateContext();
 
   const {
     // @ts-expect-error frontPatternUrl not in all products
     currentProductConfig: { color, frontPatternUrl },
   } = useAppStateContext();
 
+  const currentView = state.viewState?.currentView || "front";
+
   console.log("Front pattern URL:", frontPatternUrl);
   const logoTexture = useTexture(frontPatternUrl || "assets/threejs.png");
   if (logoTexture) {
     logoTexture.anisotropy = gl.capabilities.getMaxAnisotropy();
   }
+
+  useFrame((state, delta) => {
+    // Smooth rotation animation
+    const targetRotationY = currentView === "back" ? Math.PI : 0;
+    if (groupRef.current) {
+      easing.damp(groupRef.current.rotation, "y", targetRotationY, 0.3, delta);
+    }
+  });
 
   console.log("Materials:", materials, color);
   // useFrame((state, delta) => {
@@ -46,7 +59,7 @@ export function Hoodie() {
   // });
 
   return (
-    <group dispose={null}>
+    <group ref={groupRef} dispose={null}>
       <group scale={0.0095}>
         {/* <Sphere
           args={[0.1, 32, 32]}

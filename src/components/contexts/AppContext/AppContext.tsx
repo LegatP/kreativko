@@ -41,6 +41,7 @@ interface AppContextType {
   setCurrentProductConfig: (
     configs: Partial<ProductConfigs[keyof ProductConfigs]>
   ) => void;
+  setViewState: (viewState: Partial<Configuration["viewState"]>) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -49,6 +50,10 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
   const [state, setState] = useState<Configuration>({
     designStyle: DesignStyle.Monotone,
     selectedProduct: Product.Shirt,
+    viewState: {
+      currentView: "front",
+      umbrellaRotation: 0,
+    },
     configs: {
       [Product.Shirt]: {
         color: "#EFBD48",
@@ -121,6 +126,17 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
     }));
   }
 
+  function setViewState(viewState: Partial<Configuration["viewState"]>) {
+    setStatePrivate({
+      viewState: {
+        currentView: "front",
+        umbrellaRotation: 0,
+        ...state.viewState,
+        ...viewState,
+      },
+    });
+  }
+
   const currentProductConfig = state.configs[state.selectedProduct];
 
   return (
@@ -130,6 +146,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
         setState: setStatePrivate,
         setCurrentProductConfig,
         currentProductConfig,
+        setViewState,
       }}
     >
       {children}

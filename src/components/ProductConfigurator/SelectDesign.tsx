@@ -99,7 +99,7 @@ export default function SelectDesign({
           className="hidden absolute"
           onChange={uploadFilePrivate}
         />
-        <FileArrowUpIcon size={40} weight="fill" className="absolute " />
+        <FileArrowUpIcon size={36} weight="fill" className="absolute " />
       </Card>
       {Array.from({ length: numOfAssetsUploading }).map((_, index) => (
         <Card

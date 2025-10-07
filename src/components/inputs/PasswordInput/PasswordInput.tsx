@@ -29,7 +29,6 @@ export default function PasswordInput(
 
   return (
     <Input
-      // @ts-expect-error TODO: fix
       endContent={endContent}
       minLength={6}
       description="Geslo mora vsebovati vsaj 6 znakov."
