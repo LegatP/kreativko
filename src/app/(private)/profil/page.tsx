@@ -7,7 +7,6 @@ import usePathHash from "@/hooks/usePathHash";
 export default function Page() {
   const hash = usePathHash();
 
-  console.log("hash", hash);
   const cardClasses =
     "p-6 sm:p-25 sm:pt-16 flex flex-col gap-4 items-center w-full";
 
