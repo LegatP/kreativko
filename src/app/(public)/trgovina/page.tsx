@@ -99,61 +99,62 @@ export const categories = [
 ];
 
 export default function Page() {
-  return (
-    <div className="container mx-auto flex flex-col">
-      {/* <div>
-        <h1 className="text-3xl font-bold mb-4">Trgovina</h1>
-      </div> */}
-      <div className="flex flex-row gap-4">
-        <Card className="hidden lg:block w-[300px]" shadow="md">
-          <CardHeader>
-            <h3 className="font-semibold">Kategorije</h3>
-          </CardHeader>
-          <Divider />
-          <CardBody>
-            {/* <ul className="flex flex-col gap-2">
-              {categories.map((category) =>
-                category.subcategories ? (
-                  <li key={category.slug} className="flex flex-col">
-                    <span className="font-medium">{category.title}</span>
-                    <ul className="ml-4 mt-1 flex flex-col gap-1">
-                      {category.subcategories.map((sub) =>
-                        sub.subcategories ? (
-                          <li key={sub.slug} className="flex flex-col">
-                            <span className="font-medium">{sub.title}</span>
-                            <ul className="ml-4 mt-1 flex flex-col gap-1">
-                              {sub.subcategories.map((subsub) => (
-                                <li key={subsub.slug} className="text-sm">
-                                  {subsub.title}
-                                </li>
-                              ))}
-                            </ul>
-                          </li>
-                        ) : (
-                          <li key={sub.slug} className="text-sm">
-                            {sub.title}
-                          </li>
-                        )
-                      )}
-                    </ul>
-                  </li>
-                ) : (
-                  <li key={category.slug} className="text-sm">
-                    {category.title}
-                  </li>
-                )
-              )}
-            </ul> */}
-            <Link href="/majice/za-abrahama">Majice za abrahama</Link>
-            <Link href="/majice/za-rojstni-dan">Majice za rojstni dan</Link>
-          </CardBody>
-        </Card>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {dummyProducts.map((product) => (
-            <ProductCard key={product.id} {...product} />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
+  return null;
+  // return (
+  // <div className="container mx-auto flex flex-col">
+  //   <div>
+  //     <h1 className="text-3xl font-bold mb-4">Trgovina</h1>
+  //   </div>
+  //   <div className="flex flex-row gap-4">
+  //     <Card className="hidden lg:block w-[300px]" shadow="md">
+  //       <CardHeader>
+  //         <h3 className="font-semibold">Kategorije</h3>
+  //       </CardHeader>
+  //       <Divider />
+  //       <CardBody>
+  //         <ul className="flex flex-col gap-2">
+  //           {categories.map((category) =>
+  //             category.subcategories ? (
+  //               <li key={category.slug} className="flex flex-col">
+  //                 <span className="font-medium">{category.title}</span>
+  //                 <ul className="ml-4 mt-1 flex flex-col gap-1">
+  //                   {category.subcategories.map((sub) =>
+  //                     sub.subcategories ? (
+  //                       <li key={sub.slug} className="flex flex-col">
+  //                         <span className="font-medium">{sub.title}</span>
+  //                         <ul className="ml-4 mt-1 flex flex-col gap-1">
+  //                           {sub.subcategories.map((subsub) => (
+  //                             <li key={subsub.slug} className="text-sm">
+  //                               {subsub.title}
+  //                             </li>
+  //                           ))}
+  //                         </ul>
+  //                       </li>
+  //                     ) : (
+  //                       <li key={sub.slug} className="text-sm">
+  //                         {sub.title}
+  //                       </li>
+  //                     )
+  //                   )}
+  //                 </ul>
+  //               </li>
+  //             ) : (
+  //               <li key={category.slug} className="text-sm">
+  //                 {category.title}
+  //               </li>
+  //             )
+  //           )}
+  //         </ul>
+  //         <Link href="/majice/za-abrahama">Majice za abrahama</Link>
+  //         <Link href="/majice/za-rojstni-dan">Majice za rojstni dan</Link>
+  //       </CardBody>
+  //     </Card>
+  //     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+  //       {dummyProducts.map((product) => (
+  //         <ProductCard key={product.id} {...product} />
+  //       ))}
+  //     </div>
+  //   </div>
+  // </div>
+  // );
 }

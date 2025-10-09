@@ -115,7 +115,7 @@ export default function EditorNavigation() {
           </div>
         </NavbarContent>
         <NavbarContent justify="end" className="flex gap-2">
-          <Button
+          {/* <Button
             as={Link}
             color="default"
             href={ROUTES.shop}
@@ -124,8 +124,8 @@ export default function EditorNavigation() {
             size="md"
           >
             <MagnifyingGlassIcon size={20} weight="duotone" />
-          </Button>
-          <Button
+          </Button> */}
+          {/* <Button
             as={Link}
             color="default"
             href={ROUTES.profile}
@@ -134,8 +134,8 @@ export default function EditorNavigation() {
             size="md"
           >
             <UserCircleIcon size={20} weight="duotone" />
-          </Button>
-          <Button
+          </Button> */}
+          {/* <Button
             onPress={onOpen}
             color="primary"
             variant="flat"
@@ -143,7 +143,7 @@ export default function EditorNavigation() {
             startContent={<BasketIcon size={20} weight="duotone" />}
           >
             Dodaj v košarico
-          </Button>
+          </Button> */}
         </NavbarContent>
       </Navbar>
     </>

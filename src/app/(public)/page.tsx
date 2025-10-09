@@ -1,13 +1,18 @@
 "use client";
 
-import React from "react";
+import React, { use, useEffect } from "react";
 import AnimatedHeading from "../../components/layout/AnimatedHeading/AnimatedHeading";
+import { useRouter } from "next/navigation";
 
 // UX
 // Homepahe: input with dropdown and prompt suggestions, similar to
 // /kreiraj => similar to adobe firefrefly
 
 export default function Page() {
-  return <p>Welcome to Kreativko - Your AI-Powered Design Companion!</p>;
+  const router = useRouter();
+  useEffect(() => {
+    router.replace("/kreiraj");
+  }, [router]);
+  return null;
   // return <AnimatedHeading />;
 }
