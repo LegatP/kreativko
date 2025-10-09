@@ -1,9 +1,10 @@
-import React, { useRef } from "react";
+import React, { useRef, useMemo } from "react";
 import { Decal, useGLTF, useTexture } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useAppStateContext } from "../contexts/AppContext";
 import { Group, MeshStandardMaterial, Mesh } from "three";
 import { easing } from "maath";
+import { createDashedBorderTexture } from "../../utils/dashed-border-texture";
 
 // useGLTF.preload("/assets/hoodie.glb");
 export function Hoodie() {
@@ -20,9 +21,27 @@ export function Hoodie() {
   } = useAppStateContext();
 
   const currentView = state.viewState?.currentView || "front";
+  const designRatio = "2:3"; // Default ratio
 
   console.log("Front pattern URL:", frontPatternUrl);
-  const logoTexture = useTexture(frontPatternUrl || "assets/threejs.png");
+  
+  // Create dashed border texture for placeholder
+  const dashedBorderTexture = useMemo(() => {
+    return createDashedBorderTexture(256, 256, designRatio);
+  }, [designRatio]);
+
+  // Load actual texture only if frontPatternUrl exists and is not the default
+  const logoTexture = useTexture(
+    frontPatternUrl && frontPatternUrl !== "assets/threejs.png" 
+      ? frontPatternUrl 
+      : "assets/threejs.png"
+  );
+
+  // Use actual texture if available, otherwise use dashed border
+  const displayTexture = frontPatternUrl && frontPatternUrl !== "assets/threejs.png" 
+    ? logoTexture 
+    : dashedBorderTexture;
+    
   if (logoTexture) {
     logoTexture.anisotropy = gl.capabilities.getMaxAnisotropy();
   }
@@ -71,15 +90,14 @@ export function Hoodie() {
           geometry={(nodes.Hands_down_FBX_1 as Mesh).geometry}
           material={new MeshStandardMaterial({ color })}
         >
-          {logoTexture && (
-            <Decal
-              position={[8.5, 145, 4]}
-              rotation={[0, 0, 0]}
-              scale={17}
-              map={logoTexture}
-              depthTest={false}
-            />
-          )}
+          {/* Always show either the design or the placeholder */}
+          <Decal
+            position={[8.5, 145, 4]}
+            rotation={[0, 0, 0]}
+            scale={17}
+            map={displayTexture}
+            depthTest={false}
+          />
         </mesh>
         <mesh
           geometry={(nodes.Hands_down_FBX_2 as Mesh).geometry}

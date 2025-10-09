@@ -26,12 +26,12 @@ function getDigitalPrintPromot(prompt: string): string {
 
     1. The design must be suitable for printing – avoid very thin lines or overly intricate details.  
     2. The image should not contain any text, unless the design description explicitly requires it.  
-    3. The design must clearly represent the user's description, suitable for DTF printing.
-    4. The background must be transparent if it does not contain elements that cover the entire canvas.
     
     Design description: ${prompt}
     `;
 }
+// 3. The design must clearly represent the user's description, suitable for DTF printing.
+// 4. The background must be transparent if it does not contain elements that cover the entire canvas.
 // 2. If the design description specifies multiple colors, the colors should be clearly defined and visually harmonious.
 
 // Create a screen-print-ready image based on the following design description (in Slovenian). The image must follow these rules: it should be easy to trace in Adobe Illustrator with no thin lines or overly intricate details; use only one color unless the description explicitly specifies multiple colors and their placement; do not include any text unless the description explicitly says so; the background must be transparent; and the design should be bold, simple, and clean, suitable for screen printing.

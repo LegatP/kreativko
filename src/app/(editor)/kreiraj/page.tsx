@@ -200,7 +200,11 @@ export default function Page() {
               <PaintBrushIcon size={26} />
             </Card> */}
             </div>
-            <Card className="w-[272px] h-full" isBlurred>
+            <Card
+              className="w-[272px] h-full"
+              isBlurred
+              classNames={{ body: "p-1" }}
+            >
               <CardHeader className="font-bold bg-default-100 text-xl">
                 Motiv
               </CardHeader>
@@ -255,7 +259,7 @@ export default function Page() {
                 color="primary"
                 label="Kreiraj motiv"
                 rows={20}
-                placeholder="Opiši motiv..."
+                placeholder="Opiši svoj motiv"
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 isClearable

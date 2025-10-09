@@ -51,7 +51,7 @@ export default function SelectDesign({
 
   return (
     <div className="grid grid-cols-3 gap-4">
-      <Select
+      {/* <Select
         label="Pozicija motiva"
         size="sm"
         className="col-span-3"
@@ -70,7 +70,7 @@ export default function SelectDesign({
             {position.charAt(0).toUpperCase() + position.slice(1)}
           </SelectItem>
         ))}
-      </Select>
+      </Select> */}
       {/* <div className="col-span-3">
         {["Monoton", "Večbarven"].map((style) => (
           <div key={style} className="flex items-center gap-2 mb-2">
