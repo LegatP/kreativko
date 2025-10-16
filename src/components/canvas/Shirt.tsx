@@ -23,7 +23,7 @@ const Shirt = () => {
   const { nodes, materials } = useGLTF("/assets/shirt_baked.glb");
 
   console.log("Front pattern URL:", frontPatternUrl);
-  
+
   // Create dashed border texture for placeholder
   const dashedBorderTexture = useMemo(() => {
     return createDashedBorderTexture(256, 256, designRatio);
@@ -31,16 +31,17 @@ const Shirt = () => {
 
   // Load actual texture only if frontPatternUrl exists and is not the default
   const logoTexture = useTexture(
-    frontPatternUrl && frontPatternUrl !== "/assets/threejs.png" 
-      ? frontPatternUrl 
+    frontPatternUrl && frontPatternUrl !== "/assets/threejs.png"
+      ? frontPatternUrl
       : "/assets/threejs.png"
   );
 
   // Use actual texture if available, otherwise use dashed border
-  const displayTexture = frontPatternUrl && frontPatternUrl !== "/assets/threejs.png" 
-    ? logoTexture 
-    : dashedBorderTexture;
-    
+  const displayTexture =
+    frontPatternUrl && frontPatternUrl !== "/assets/threejs.png"
+      ? logoTexture
+      : dashedBorderTexture;
+
   if (logoTexture) {
     logoTexture.anisotropy = gl.capabilities.getMaxAnisotropy();
   }

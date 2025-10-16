@@ -41,7 +41,7 @@ export default function Navigation() {
           </Link>
         </NavbarItem> */}
       </NavbarContent>
-      <NavbarContent justify="end" className="flex gap-2">
+      {/* <NavbarContent justify="end" className="flex gap-2">
         <Button
           as={Link}
           color="default"
@@ -71,7 +71,7 @@ export default function Navigation() {
         >
           <BasketIcon size={20} weight="duotone" />
         </Button>
-      </NavbarContent>
+      </NavbarContent> */}
     </Navbar>
   );
 }

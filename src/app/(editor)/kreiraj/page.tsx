@@ -5,9 +5,7 @@ import {
   Button,
   Card,
   CardBody,
-  CardFooter,
   CardHeader,
-  closeToast,
   Divider,
   Modal,
   ModalBody,
@@ -18,11 +16,9 @@ import {
 } from "@heroui/react";
 import CanvasModel from "@/components/canvas";
 import ProductConfigurator from "@/components/ProductConfigurator";
-import { createShirtPattern } from "@/actions/openai";
 import { useState } from "react";
 import { useAppStateContext } from "@/components/contexts/AppContext";
-import { uploadFile } from "@/lib/firebase/storage";
-import { createAsset } from "@/db/assets";
+import { useImageGeneration } from "@/hooks/useImageGeneration";
 
 const mockProducts = {
   "funny-cake-shirt": {
@@ -80,58 +76,25 @@ export default function Page() {
   const { state, setState, currentProductConfig, setCurrentProductConfig } =
     useAppStateContext();
   const [isProductDetailsOpen, setIsProductDetailsOpen] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false);
   const [prompt, setPrompt] = useState("");
 
-  async function onCreate() {
-    setIsGenerating(true);
-    // console.log("generating");
-    const toastId = addToast({
-      title: "Kreativko ustvarja tvoj motiv.",
-      color: "default",
-      description: "To lahko traja nekaj časa. Ne zapiraj brskalnika.",
-      isClosing: true,
-      promise: new Promise(() => {}),
-      hideCloseButton: true,
-    });
-    try {
-      const response = await createShirtPattern(prompt, state.designStyle);
-      // console.log(response);
-
-      if (!response?.b64_json) throw new Error("No image generated");
-
-      // console.log("uploading");
-      const url = await uploadFile(response?.b64_json);
-
-      const asset = await createAsset({ url, type: "image/png" });
-
-      if (asset) {
+  const { generateImage, isGenerating } = useImageGeneration({
+    onSuccess: (imageUrl, assetId) => {
+      if (assetId) {
         setState({
           ...state,
-          assets: { ...state.assets, [asset.id]: asset.url },
-        });
-        setCurrentProductConfig({
-          ...currentProductConfig,
-          frontPatternUrl: asset.url,
+          assets: { ...state.assets, [assetId]: imageUrl },
         });
       }
-      if (toastId) {
-        closeToast(toastId);
-      }
-
-      createAiReponse({
-        ...response,
-        imageUrl: url,
+      setCurrentProductConfig({
+        ...currentProductConfig,
+        frontPatternUrl: imageUrl,
       });
-    } catch (error) {
-      console.log("Error generating ai file:", error);
-      if (toastId) {
-        closeToast(toastId);
-      }
-      addToast({ title: "Napaka pri generiranju motiva.", color: "danger" });
-    } finally {
-      setIsGenerating(false);
-    }
+    },
+  });
+
+  async function onCreate() {
+    await generateImage(prompt, state.designStyle);
   }
 
   const Icon = ProductIcons[state.selectedProduct as Product];
