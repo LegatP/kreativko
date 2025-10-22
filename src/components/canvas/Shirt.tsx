@@ -8,13 +8,19 @@ import { Group, Mesh, MeshStandardMaterial } from "three";
 import { createDashedBorderTexture } from "../../utils/dashed-border-texture";
 
 // useGLTF.preload("/assets/shirt_baked.glb");
-const Shirt = () => {
+
+interface ShirtProps {
+  color: string;
+  frontPatternUrl: string;
+}
+
+const Shirt = ({ color, frontPatternUrl }: ShirtProps) => {
   const groupRef = useRef<Group>(null);
   const { state } = useAppStateContext();
-  const {
-    // @ts-expect-error frontPatternUrl not in all products
-    currentProductConfig: { color, frontPatternUrl },
-  } = useAppStateContext();
+  // const {
+  //   // @ts-expect-error frontPatternUrl not in all products
+  //   currentProductConfig: { color, frontPatternUrl },
+  // } = useAppStateContext();
 
   const { gl } = useThree();
   const currentView = state.viewState?.currentView || "front";

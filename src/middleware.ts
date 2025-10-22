@@ -11,5 +11,15 @@ export function middleware(req: NextRequest) {
     return res;
   }
 
+  // In production, only allow access to specified routes
+  if (process.env.NODE_ENV === "production") {
+    const allowedPaths = ["/", "/moja-majica"];
+    const pathname = req.nextUrl.pathname;
+
+    if (!allowedPaths.includes(pathname)) {
+      return NextResponse.redirect(new URL("/", req.url));
+    }
+  }
+
   return NextResponse.next();
 }

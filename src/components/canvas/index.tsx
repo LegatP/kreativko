@@ -8,7 +8,6 @@ import CameraRig from "./CameraRig";
 import { Umbrella } from "./Umbrella";
 import { Hoodie } from "./Hoodie";
 import { Product } from "@/types/product.types";
-import { Configuration } from "@/db/configurations";
 
 const productToModel = {
   [Product.Shirt]: Shirt,
@@ -17,13 +16,18 @@ const productToModel = {
 };
 
 interface CanvasModelProps {
-  state: Configuration;
+  // state: Configuration;
+  product: Product | null;
+  modelProps: {
+    color: string;
+    frontPatternUrl: string;
+  };
 }
 
-const CanvasModel = React.memo(({ state }: CanvasModelProps) => {
-  if (!state.selectedProduct) return null;
+const CanvasModel = React.memo(({ product, modelProps }: CanvasModelProps) => {
+  if (!product) return null;
 
-  const Model = productToModel[state.selectedProduct];
+  const Model = productToModel[product];
   return (
     <Canvas
       shadows
@@ -44,7 +48,7 @@ const CanvasModel = React.memo(({ state }: CanvasModelProps) => {
       <CameraRig>
         <Backdrop />
         <Center>
-          <Model />
+          <Model {...modelProps} />
         </Center>
       </CameraRig>
       {/* <OrbitControls /> */}
