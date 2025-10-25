@@ -23,8 +23,6 @@ export function Hoodie() {
   const currentView = state.viewState?.currentView || "front";
   const designRatio = "2:3"; // Default ratio
 
-  console.log("Front pattern URL:", frontPatternUrl);
-
   // Create dashed border texture for placeholder
   const dashedBorderTexture = useMemo(() => {
     return createDashedBorderTexture(256, 256, designRatio);

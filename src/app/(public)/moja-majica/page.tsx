@@ -1,16 +1,7 @@
 "use client";
 
-import {
-  Button,
-  Card,
-  CardBody,
-  Chip,
-  Divider,
-  Image,
-  Input,
-  Tooltip,
-} from "@heroui/react";
-import { useState } from "react";
+import { Button, Card, CardBody, Chip, Divider, Input } from "@heroui/react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useImageGeneration } from "@/hooks/useImageGeneration";
 import { DesignStyle, Product } from "@/types/product.types";
@@ -18,87 +9,41 @@ import { PaintBrushIcon, ShoppingCartIcon } from "@phosphor-icons/react";
 import SelectColor from "@/components/ProductConfigurator/SelectColor";
 import CanvasModel from "@/components/canvas";
 import SelectSizes from "@/components/ProductConfigurator/SelectSizes";
-
-const products = {
-  "sadez-zelenjava": {
-    id: "sadez-zelenjava",
-    name: "Personalizirana majica - moj hobi, moj poklic",
-    price: 29.99,
-    description:
-      "Personaliziraj svojo majico z unikatnim motivom sadja ali zelenjave",
-    // defaultFruit: "jabolko",
-    // defaultAction: "jem",
-    sizes: ["XS", "S", "M", "L", "XL", "XXL"],
-  },
-};
-
-const fruitOptions = [
-  "Avokado",
-  "Hruška",
-  "Jabolko",
-  "Banana",
-  "Pomaranča",
-  "Korenje",
-  "Brokoli",
-  "Paradižnik",
-  "Paprika",
-];
-
-const activityOptions = [
-  "Izvaja jogo",
-  "Kolesari",
-  "Bere",
-  "Zdravnik",
-  "Kuhar",
-  "Športnik",
-  "Učitelj",
-  "Slikar",
-  "Programer",
-  "Plesalec",
-];
-
-const existingDesigns = [
-  {
-    title: "Jabolko, ki izvaja jogo",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/kreativko---development.firebasestorage.app/o/miMceISWCgaJ00yyVLfeXAUaEb73%2F1760025709663_ai_generated.png?alt=media&token=5382d01a-7d47-434a-b01f-74cd7bf6ecc4",
-  },
-  {
-    title: "Korenje, ki je športnik",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/kreativko---development.firebasestorage.app/o/xOet49IcwkW2PD5hiSjfc2tRX2I2%2F1761078014913_ai_generated.png?alt=media&token=95e727e6-e9d1-472e-875f-ca021a930515",
-  },
-  {
-    title: "Ninja borovnica",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/kreativko---development.firebasestorage.app/o/IHo52hfFKeYozR6zuxnGsCtrPCt1%2F1760386169386_ai_generated.png?alt=media&token=d710df42-c56a-4949-97c5-1d6eedad26e0",
-  },
-  {
-    title: "Kuhar pomaranča",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/kreativko---development.firebasestorage.app/o/miMceISWCgaJ00yyVLfeXAUaEb73%2F1760099155030_ai_generated.png?alt=media&token=a9d41db4-53f9-41df-a9ef-cd49889cba6c",
-  },
-];
+import { useCheckoutContext } from "@/components/contexts/AppContext/CheckoutContext";
+import DesignCard from "@/components/UI/DesignCard";
+import products from "@/products";
 
 export default function Page() {
   const product = products["sadez-zelenjava"];
   const [selectedAction, setSelectedAction] = useState("Izvaja jogo");
   const [selectedFruit, setSelectedFruit] = useState("Avokado");
-  const [selectedSize, setSelectedSize] = useState("M");
-  const [selectedColor, setSelectedColor] = useState("#FFFFFF");
-  const [quantity, setQuantity] = useState(1);
-  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [selectedDesignImage, setSelectedDesignImage] = useState<string | null>(
-    null
-  );
-  const [allDesigns, setAllDesigns] = useState(existingDesigns);
 
+  const [allDesigns, setAllDesigns] = useState(product.designs);
+
+  const {
+    onOpen: openCheckout,
+    productsAmount,
+    item,
+    setItem,
+  } = useCheckoutContext();
   const { generateImage } = useImageGeneration();
-
-  // Default preset image from /prilagodi
-  const presetImageUrl =
-    "https://firebasestorage.googleapis.com/v0/b/kreativko---development.firebasestorage.app/o/miMceISWCgaJ00yyVLfeXAUaEb73%2F1760025709663_ai_generated.png?alt=media&token=5382d01a-7d47-434a-b01f-74cd7bf6ecc4";
+  const { quantities, color, designUrl } = item;
+  useEffect(() => {
+    // TODO: improve this initialization logic
+    const quantities = Object.fromEntries(
+      product.sizes.map((size) => [size, 0])
+    );
+    setItem({
+      productId: product.id,
+      name: product.name,
+      color: "#FFFFFF",
+      designUrl:
+        "https://firebasestorage.googleapis.com/v0/b/kreativko---development.firebasestorage.app/o/miMceISWCgaJ00yyVLfeXAUaEb73%2F1760025709663_ai_generated.png?alt=media&token=5382d01a-7d47-434a-b01f-74cd7bf6ecc4",
+      quantities,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleChipClick = (field: string, value: string) => {
     if (field === "fruit") {
@@ -109,8 +54,7 @@ export default function Page() {
   };
 
   const handleDesignSelect = (imageUrl: string) => {
-    setSelectedDesignImage(imageUrl);
-    setGeneratedImage(null); // Clear generated image when selecting preset
+    setItem({ ...item, designUrl: imageUrl });
   };
 
   const handleGenerateMotif = async () => {
@@ -129,8 +73,7 @@ export default function Page() {
           imageUrl: result.url,
         };
         setAllDesigns((prev) => [newDesign, ...prev]);
-        setGeneratedImage(result.url);
-        setSelectedDesignImage(result.url); // Auto-select the generated design
+        setItem({ ...item, designUrl: result.url }); // Auto-select the generated design
       }
     } catch (error) {
       console.error("Failed to generate image:", error);
@@ -141,26 +84,6 @@ export default function Page() {
 
   const isInputValid = () => {
     return Boolean(selectedFruit?.trim() && selectedAction?.trim());
-  };
-
-  const handleAddToCart = () => {
-    // This will call your existing drawer checkout modal
-    const cartItem = {
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      customization: {
-        fruit: selectedFruit,
-        action: selectedAction,
-        size: selectedSize,
-      },
-      quantity,
-    };
-
-    // Trigger your existing drawer checkout
-    // You'll need to integrate this with your existing cart system
-    console.log("Adding to cart:", cartItem);
-    // Example: openDrawerCheckout(cartItem);
   };
 
   return (
@@ -195,37 +118,13 @@ export default function Page() {
                 )}
 
                 {allDesigns.map((design, index) => (
-                  <Tooltip
+                  <DesignCard
                     key={design.imageUrl + index}
-                    content={design.title}
-                    placement="top"
-                  >
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.8 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <Card
-                        className={`aspect-square cursor-pointer shadow-md ${
-                          selectedDesignImage === design.imageUrl
-                            ? "ring-2 ring-primary ring-offset-2"
-                            : ""
-                        }`}
-                        isPressable
-                        isHoverable
-                        onPress={() => handleDesignSelect(design.imageUrl)}
-                      >
-                        <div className="aspect-square">
-                          <Image
-                            className="h-full w-full object-cover rounded-lg"
-                            src={design.imageUrl}
-                            alt={design.title}
-                          />
-                        </div>
-                      </Card>
-                    </motion.div>
-                  </Tooltip>
+                    title={design.title}
+                    isSelected={designUrl === design.imageUrl}
+                    designUrl={design.imageUrl}
+                    handleDesignSelect={handleDesignSelect}
+                  />
                 ))}
               </div>
               <Divider className="my-4" />
@@ -238,7 +137,7 @@ export default function Page() {
                   onChange={(e) => setSelectedAction(e.target.value)}
                 />
                 <div className="flex flex-row flex-wrap mt-2">
-                  {activityOptions.map((item, chipIndex) => (
+                  {product.activities.map((item, chipIndex) => (
                     <Chip
                       key={chipIndex}
                       size="sm"
@@ -262,7 +161,7 @@ export default function Page() {
                   onChange={(e) => setSelectedFruit(e.target.value)}
                 />
                 <div className="flex flex-row flex-wrap mt-2">
-                  {fruitOptions.map((item, chipIndex) => (
+                  {product.fruits.map((item, chipIndex) => (
                     <Chip
                       key={chipIndex}
                       size="sm"
@@ -284,7 +183,6 @@ export default function Page() {
                 variant="ghost"
                 color="primary"
                 fullWidth
-                // className="hover:text-white"
                 onPress={handleGenerateMotif}
                 isDisabled={!isInputValid() || isGenerating}
                 isLoading={isGenerating}
@@ -298,105 +196,84 @@ export default function Page() {
               <div>
                 <CanvasModel
                   product={Product.Shirt}
-                  modelProps={{
-                    color: selectedColor,
-                    frontPatternUrl:
-                      generatedImage || selectedDesignImage || presetImageUrl,
-                  }}
+                  // modelProps={{
+                  //   color: selectedColor,
+                  //   frontPatternUrl: selectedDesignImage || presetImageUrl,
+                  // }}
+                  color={color}
+                  frontPatternUrl={designUrl}
                 />
               </div>
             </div>
           </div>
 
           {/* Right Column - Product Details and Customization */}
-          <Card className="col-span-3">
-            <CardBody className="py-5 px-6 space-y-6">
-              <div>
-                <h1 className="text-xl font-semibold text-default-900">
-                  {product.name}
-                </h1>
-                <p className="text-medium text-default-700">
-                  {product.description}
-                </p>
-              </div>
-
-              {/* Text Customization */}
-              {/* <Card shadow="none" className="bg-transparent">
-              <CardBody className="space-y-4"> */}
-
-              {/* </CardBody>
-            </Card> */}
-
-              {/* Color Selection */}
-              <div>
-                <h3 className="text-md font-semibold mb-4 text-default-900">
-                  BARVA
-                </h3>
-                <SelectColor setColor={setSelectedColor} />
-              </div>
-
-              {/* Size Selection */}
-              <div>
-                <h3 className="text-md font-semibold mb-4 text-default-900">
-                  VELIKOST IN KOLIČINA
-                </h3>
-                {/* <div className="grid grid-cols-6 gap-2">
-                  {product.sizes.map((size) => (
-                    <button
-                      key={size}
-                      className={`py-2 px-4 border rounded-lg font-medium transition-colors ${
-                        selectedSize === size
-                          ? "bg-primary text-white border-primary"
-                          : "bg-white text-gray-700 border-gray-300 hover:border-primary"
-                      }`}
-                      onClick={() => setSelectedSize(size)}
-                    >
-                      {size}
-                    </button>
-                  ))}
-                </div> */}
-                <SelectSizes sizes={product.sizes} />
-              </div>
-
-              {/* Quantity and Add to Cart */}
-              <div className="flex items-center justify-between mb-6">
+          <div className="col-span-3 flex flex-col gap-4">
+            <Card>
+              <CardBody className="py-5 px-6 space-y-6">
                 <div>
-                  {/* <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Količina
-                  </label>
-                  <select
-                    value={quantity}
-                    onChange={(e) => setQuantity(Number(e.target.value))}
-                    className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
-                  >
-                    {[1, 2, 3, 4, 5].map((num) => (
-                      <option key={num} value={num}>
-                        {num}
-                      </option>
-                    ))}
-                  </select> */}
+                  <h1 className="text-xl font-semibold text-default-900">
+                    {product.name}
+                  </h1>
+                  <p className="text-medium text-default-700">
+                    {product.description}
+                  </p>
                 </div>
 
-                <div className="text-right">
-                  <div className="text-sm text-gray-600">Skupaj</div>
+                {/* Color Selection */}
+                <div>
+                  <h3 className="text-md font-semibold mb-4 text-default-900">
+                    BARVA
+                  </h3>
+                  <SelectColor
+                    setColor={(c) => setItem({ ...item, color: c })}
+                  />
+                </div>
+
+                {/* Size Selection */}
+                <div>
+                  <h3 className="text-md font-semibold mb-4 text-default-900">
+                    VELIKOST IN KOLIČINA
+                  </h3>
+                  <SelectSizes
+                    sizes={quantities}
+                    setSize={(size, value) =>
+                      setItem({
+                        ...item,
+                        quantities: { ...quantities, [size]: value },
+                      })
+                    }
+                  />
+                </div>
+              </CardBody>
+            </Card>
+
+            <Card>
+              <CardBody className="pt-4 pb-6">
+                {/* Quantity and Add to Cart */}
+                <div className="flex items-center justify-between mb-3">
+                  <div className="text-sm text-gray-700">Skupaj za plačilo</div>
                   <div className="text-2xl font-bold text-primary">
-                    €{(product.price * quantity).toFixed(2)}
+                    €{productsAmount.toFixed(2)}
                   </div>
                 </div>
-              </div>
 
-              <Button
-                startContent={
-                  <ShoppingCartIcon className="w-5 h-5" weight="fill" />
-                }
-                color="primary"
-                fullWidth
-                onPress={handleAddToCart}
-              >
-                Na blagajno
-              </Button>
-            </CardBody>
-          </Card>
+                <Button
+                  startContent={
+                    <ShoppingCartIcon className="w-5 h-5" weight="fill" />
+                  }
+                  color="primary"
+                  fullWidth
+                  onPress={openCheckout}
+                  variant="shadow"
+                  className="text-white"
+                  // disabled={quantity === 0}
+                >
+                  Na blagajno
+                </Button>
+              </CardBody>
+            </Card>
+          </div>
         </div>
       </div>
     </div>

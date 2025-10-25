@@ -8,10 +8,13 @@ import Link from "next/link";
 import {
   BasketIcon,
   MagnifyingGlassIcon,
+  PaintBrushHouseholdIcon,
+  PaintBrushIcon,
   UserCircleIcon,
 } from "@phosphor-icons/react";
 import { useCheckoutContext } from "@/components/contexts/AppContext/CheckoutContext";
 import ROUTES from "@/utils/routes.utils";
+import auth from "@/lib/firebase/auth";
 
 export default function Navigation() {
   const { onOpen } = useCheckoutContext();
@@ -41,8 +44,8 @@ export default function Navigation() {
           </Link>
         </NavbarItem> */}
       </NavbarContent>
-      {/* <NavbarContent justify="end" className="flex gap-2">
-        <Button
+      <NavbarContent justify="end" className="flex gap-2">
+        {/* <Button
           as={Link}
           color="default"
           href={ROUTES.shop}
@@ -51,18 +54,34 @@ export default function Navigation() {
           size="md"
         >
           <MagnifyingGlassIcon size={20} weight="duotone" />
-        </Button>
-        <Button
+        </Button> */}
+        {/* <Button
           as={Link}
-          color="default"
-          href={ROUTES.profile}
-          variant="flat"
-          isIconOnly
+          color="primary"
+          href={ROUTES.login}
+          variant="bordered"
+          className="text-primary"
+          // isIconOnly
           size="md"
         >
           <UserCircleIcon size={20} weight="duotone" />
-        </Button>
+          {auth.currentUser?.displayName || "Prijava"}
+        </Button> */}
         <Button
+          as={Link}
+          color="primary"
+          href={ROUTES.createDesign()}
+          variant="bordered"
+          className="text-primary font-bold"
+          // isIconOnly
+          size="md"
+          startContent={<PaintBrushIcon weight="bold" size={20} />}
+        >
+          {/* <UserCircleIcon size={20} weight="duotone" />
+          {auth.currentUser?.displayName || "Prijava"} */}
+          Ustvari Motiv
+        </Button>
+        {/* <Button
           onPress={onOpen}
           color="primary"
           variant="flat"
@@ -70,8 +89,8 @@ export default function Navigation() {
           isIconOnly
         >
           <BasketIcon size={20} weight="duotone" />
-        </Button>
-      </NavbarContent> */}
+        </Button> */}
+      </NavbarContent>
     </Navbar>
   );
 }

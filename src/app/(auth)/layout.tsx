@@ -25,7 +25,7 @@ export default function Layout({
     <>
       <Navigation />
       <div className="flex flex-col">{children}</div>
-      <CheckoutDrawer />
+      {/* <CheckoutDrawer /> */}
     </>
   );
 }

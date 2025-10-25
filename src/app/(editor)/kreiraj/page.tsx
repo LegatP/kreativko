@@ -211,7 +211,15 @@ export default function Page() {
             >
               <PaperPlaneTiltIcon weight="fill" size={20} />
             </Card>
-            <CanvasModel state={state} />
+            <CanvasModel
+              product={state.selectedProduct}
+              color={currentProductConfig.color}
+              frontPatternUrl={
+                ("frontPatternUrl" in currentProductConfig
+                  ? (currentProductConfig.frontPatternUrl as string)
+                  : "") || ""
+              }
+            />
             <div className="relative w-full flex flex-col">
               <PromptToolbar />
               <Textarea

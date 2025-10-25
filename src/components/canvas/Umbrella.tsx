@@ -21,7 +21,6 @@ export function Umbrella() {
 
   const targetRotation = state.viewState?.umbrellaRotation || 0;
 
-  console.log("Front pattern URL:", frontPatternUrl);
   const logoTexture = useTexture(frontPatternUrl || "assets/threejs.png");
   if (logoTexture) {
     logoTexture.anisotropy = gl.capabilities.getMaxAnisotropy();

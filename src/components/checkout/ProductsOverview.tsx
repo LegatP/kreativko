@@ -1,28 +1,33 @@
 import { Divider } from "@heroui/react";
 import SelectSizes from "../ProductConfigurator/SelectSizes";
 import Image from "next/image";
-import { calculateTotal } from "@/utils/checkout.utils";
+import {
+  BASE_PRODUCT_PRICE,
+  BASE_SHIPPING_COST,
+} from "../contexts/AppContext/CheckoutContext";
+import cx from "classnames";
+import { InfoIcon } from "@phosphor-icons/react";
 
-const products = [
+const sampleProducts = [
   {
-    id: 1,
-    name: "Majica Moška",
-    price: 9.99,
+    id: "1",
+    name: "Personalizirana majica - moj hobi, moj poklic",
+    price: BASE_PRODUCT_PRICE,
     imageUrl: "/assets/shirt-sample.webp",
     sizes: {
       S: 10,
       M: 5,
       L: 0,
-    },
-    accessories: [
-      {
-        id: 1,
-        name: "Tisk na majico spredaj",
-        imageUrl: "/assets/shirt-sample.webp",
-        price: 5,
-        priceCalculation: "perItem",
-      },
-    ],
+    } as Record<string, number>,
+    // accessories: [
+    //   {
+    //     id: 1,
+    //     name: "Tisk na majico spredaj",
+    //     imageUrl: "/assets/shirt-sample.webp",
+    //     price: 5,
+    //     priceCalculation: "perItem",
+    //   },
+    // ],
   },
   //   {
   //     id: 2,
@@ -42,13 +47,17 @@ const products = [
 ];
 
 interface ProductsOverviewProps {
-  products: typeof products;
-  onSizeChange?: (productId: number, size: string, value: number) => void;
+  products: typeof sampleProducts;
+  totalPrice: number;
+  onSizeChange?: (size: string, value: number) => void;
+  withShipping?: boolean;
 }
 
 export default function ProductsOverview({
-  products,
+  products = sampleProducts,
   onSizeChange,
+  totalPrice,
+  withShipping = true,
 }: ProductsOverviewProps) {
   return (
     <div>
@@ -65,20 +74,18 @@ export default function ProductsOverview({
               />
               <div className="flex flex-col gap-2">
                 <div className="flex flex-col min-h-[70px]">
-                  <span className="text-sm font-bold">{product.name}</span>
-                  <span className="text-sm">{product.price}€ / kos</span>
+                  <span className="font-bold">{product.name}</span>
+                  <span>{product.price}€ / kos</span>
                 </div>
                 {product.sizes && (
                   <SelectSizes
                     sizes={product.sizes}
-                    setSize={(size, value) =>
-                      onSizeChange?.(product.id, size, value)
-                    }
+                    setSize={(size, value) => onSizeChange?.(size, value)}
                   />
                 )}
               </div>
             </div>
-            {product.accessories && (
+            {/* {product.accessories && (
               <div className="flex flex-col gap-1">
                 <div className="flex flex-row gap-2">
                   {product.accessories.map((acc) => (
@@ -102,16 +109,29 @@ export default function ProductsOverview({
                   ))}
                 </div>
               </div>
-            )}
+            )} */}
             {/* <Divider className="absolute bottom-0 w-full" /> */}
           </div>
         ))}
       </div>
       <Divider className="my-4 bg-gray-400" />
-      <div className="flex justify-between font-bold">
-        <span>Za plačilo</span>
+      <div>
+        <div className="flex justify-between strike-through">
+          <div className="flex flex-col">
+            <span>Poštnina</span>
+            <span className="text-xs mt-1.5 flex items-center gap-1 text-success-600">
+              <InfoIcon className="w-4 h-4" /> Brezplačna poštnina ob naročilu
+              dveh ali več kosov
+            </span>
+          </div>
+          <span>{!withShipping ? "0" : BASE_SHIPPING_COST.toFixed(2)}€</span>
+        </div>
+      </div>
+      <Divider className="my-4 bg-gray-400" />
+      <div className="flex justify-between">
+        <span>Skupaj za plačilo</span>
 
-        {/* <span>{calculateTotal(products)}€</span> */}
+        <span>{totalPrice.toFixed(2)}€</span>
       </div>
     </div>
   );

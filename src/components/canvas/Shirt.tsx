@@ -28,8 +28,6 @@ const Shirt = ({ color, frontPatternUrl }: ShirtProps) => {
 
   const { nodes, materials } = useGLTF("/assets/shirt_baked.glb");
 
-  console.log("Front pattern URL:", frontPatternUrl);
-
   // Create dashed border texture for placeholder
   const dashedBorderTexture = useMemo(() => {
     return createDashedBorderTexture(256, 256, designRatio);

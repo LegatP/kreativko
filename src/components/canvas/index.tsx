@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Environment, Center, OrbitControls } from "@react-three/drei";
 
@@ -18,43 +18,46 @@ const productToModel = {
 interface CanvasModelProps {
   // state: Configuration;
   product: Product | null;
-  modelProps: {
-    color: string;
-    frontPatternUrl: string;
-  };
+  color: string;
+  frontPatternUrl: string;
 }
 
-const CanvasModel = React.memo(({ product, modelProps }: CanvasModelProps) => {
-  if (!product) return null;
+// TODO: imrove rendering
+const CanvasModel = React.memo(
+  ({ product, color, frontPatternUrl }: CanvasModelProps) => {
+    const canvas = useMemo(() => {
+      if (!product) return null;
+      const Model = productToModel[product];
+      return (
+        <Canvas
+          shadows
+          camera={{ position: [0, 0, 0], fov: 26 }}
+          gl={{ preserveDrawingBuffer: true }}
+          className="w-full h-full transition-all ease-in aspect-square"
+        >
+          <directionalLight
+            castShadow
+            intensity={0.5}
+            position={[5, 10, 5]}
+            shadow-mapSize-width={1024}
+            shadow-mapSize-height={1024}
+            shadow-bias={-0.0001}
+          />
+          <Environment path="/assets/" files="potsdamer_platz_1k.hdr" />
 
-  const Model = productToModel[product];
-  return (
-    <Canvas
-      shadows
-      camera={{ position: [0, 0, 0], fov: 26 }}
-      gl={{ preserveDrawingBuffer: true }}
-      className="w-full h-full transition-all ease-in aspect-square"
-    >
-      <directionalLight
-        castShadow
-        intensity={0.5}
-        position={[5, 10, 5]}
-        shadow-mapSize-width={1024}
-        shadow-mapSize-height={1024}
-        shadow-bias={-0.0001}
-      />
-      <Environment path="/assets/" files="potsdamer_platz_1k.hdr" />
-
-      <CameraRig>
-        <Backdrop />
-        <Center>
-          <Model {...modelProps} />
-        </Center>
-      </CameraRig>
-      {/* <OrbitControls /> */}
-    </Canvas>
-  );
-});
+          <CameraRig>
+            <Backdrop />
+            <Center>
+              <Model color={color} frontPatternUrl={frontPatternUrl} />
+            </Center>
+          </CameraRig>
+          {/* <OrbitControls /> */}
+        </Canvas>
+      );
+    }, [color, frontPatternUrl, product]);
+    return canvas;
+  }
+);
 
 CanvasModel.displayName = "CanvasModel";
 

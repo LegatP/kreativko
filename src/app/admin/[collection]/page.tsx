@@ -15,6 +15,7 @@ import {
   collection,
   DocumentData,
   FirestoreDataConverter,
+  limit,
   query,
   Timestamp,
 } from "firebase/firestore";
@@ -50,7 +51,7 @@ export default function Page() {
 
   const col = collection(db, collectionName as string).withConverter(coverter);
   const [data] = useCollectionDataOnce<DocumentData>(
-    collectionName ? query(col) : null
+    collectionName ? query(col, limit(20)) : null
   );
 
   function renderCell(item: DocumentData, columnKey: string | number) {

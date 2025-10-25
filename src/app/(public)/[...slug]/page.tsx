@@ -415,9 +415,11 @@ export default function Page({
 }: {
   params: Promise<{ slug: string[] }>;
 }) {
-  const { slug } = use(params); // e.g. ["funny", "birthday", "funny-cake-shirt"]
+  const { slug } = use(params);
 
   if (!slug || slug.length < 1) return notFound();
+
+  // if (slug)
 
   if (slug.length === 1) {
     // /majice/category
@@ -435,15 +437,15 @@ export default function Page({
     return <ProductDetailsPage product={product} />;
   }
 
-  if (slug.length === 3) {
-    // /majice/category/subcategory/product
-    const productId = slug[2];
-    const product = mockProducts[productId as keyof typeof mockProducts];
+  // if (slug.length === 3) {
+  //   // /majice/category/subcategory/product
+  //   const productId = slug[2];
+  //   const product = mockProducts[productId as keyof typeof mockProducts];
 
-    if (!product) return notFound();
+  //   if (!product) return notFound();
 
-    return <ProductDetailsPage product={product} />;
-  }
+  //   return <ProductDetailsPage product={product} />;
+  // }
 
   return notFound();
 }

@@ -2,10 +2,10 @@
 
 import ContactInfo from "@/components/checkout/ContactInfo";
 import Delivery from "@/components/checkout/Delivery";
-import ProductsOverview from "@/components/checkout/ProductsOverview";
-import { useAppStateContext } from "@/components/contexts/AppContext";
-import { useCheckoutContext } from "@/components/contexts/AppContext/CheckoutContext";
-import { getProductsFromConfig } from "@/utils/checkout.utils";
+import {
+  BASE_PRODUCT_PRICE,
+  useCheckoutContext,
+} from "@/components/contexts/AppContext/CheckoutContext";
 import {
   Button,
   Divider,
@@ -15,10 +15,18 @@ import {
   DrawerFooter,
   DrawerHeader,
   Spacer,
-  Textarea,
 } from "@heroui/react";
-import React from "react";
+import React, { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+import PaymentForm from "@/components/forms/PaymentForm/PaymentForm";
+import ProductsOverview from "@/components/checkout/ProductsOverview";
+
+// Initialize Stripe
+const stripePromise = loadStripe(
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
+);
 
 const motionProps = {
   initial: { opacity: 0, x: 30 },
@@ -27,26 +35,128 @@ const motionProps = {
   transition: { duration: 0.25 },
 };
 
+// Payment form component
+
 export default function CheckoutDrawer() {
-  const { isOpen, onOpenChange, onClose } = useCheckoutContext();
-  const { state, setCurrentProductConfig, currentProductConfig } =
-    useAppStateContext();
-  const [step, setStep] = React.useState(1);
+  const {
+    isOpen,
+    onOpenChange,
+    setShippingInfo,
+    shippingInfo: {
+      firstName,
+      lastName,
+      email,
+      phoneNumber,
+      postalCode,
+      city,
+      address,
+    },
+    totalAmount,
+    item,
+    setItem,
+    totalQuantity,
+    onClose,
+  } = useCheckoutContext();
+  const [step, setStep] = useState(1);
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [isCreatingPaymentIntent, setIsCreatingPaymentIntent] = useState(false);
+  const paymentFormRef = React.useRef<any>(null);
+  const [formError, setFormError] = useState<string | null>(null);
+  console.log(totalAmount);
 
   function onBack() {
-    setStep((s) => Math.max(s - 1, 1));
+    if (step === 1) {
+      onClose();
+    } else {
+      setStep((s) => Math.max(s - 1, 1));
+    }
   }
 
-  function onNext() {
+  async function onNext() {
+    if (step === 2) {
+      setFormError(null);
+      const isFormValid = [
+        firstName,
+        lastName,
+        email,
+        phoneNumber,
+        postalCode,
+        city,
+        address,
+      ].every((field) => field && field.trim() !== "");
+
+      if (!isFormValid) {
+        setFormError("Prosimo, izpolnite vsa polja.");
+        return;
+      }
+      await createPaymentIntent();
+    }
     setStep((s) => s + 1);
   }
+
+  const createPaymentIntent = async () => {
+    setIsCreatingPaymentIntent(true);
+    // TODO: have everywhere in cents??
+    try {
+      const response = await fetch("/api/create-payment-intent", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          amount: Math.round(totalAmount * 100), // amount in cents
+        }),
+      });
+
+      const { client_secret } = await response.json();
+      setClientSecret(client_secret);
+    } catch (error) {
+      console.error("Error creating payment intent:", error);
+    } finally {
+      setIsCreatingPaymentIntent(false);
+    }
+  };
 
   function onOpenChangePrivate(isOpen: boolean) {
     if (!isOpen) {
       setStep(1);
+      setClientSecret(null);
+      setIsCreatingPaymentIntent(false);
     }
     onOpenChange(isOpen);
   }
+
+  const handlePayment = async () => {
+    paymentFormRef.current?.handleSubmit();
+    // onSubmit(error);
+  };
+
+  function getStepTitle() {
+    switch (step) {
+      case 1:
+        return "Pregled naročila";
+      case 2:
+        return "Podatki za dostavo";
+      case 3:
+        return "Zaključek nakupa";
+      default:
+        return "";
+    }
+  }
+
+  const overviewItems = useMemo(() => {
+    const { quantities, name } = item;
+    return [
+      // Example items - replace with actual cart items
+      {
+        name,
+        sizes: quantities,
+        imageUrl: item.designUrl,
+        id: item.productId,
+        price: BASE_PRODUCT_PRICE,
+      },
+    ];
+  }, [item]);
 
   return (
     <Drawer
@@ -59,7 +169,7 @@ export default function CheckoutDrawer() {
         {(onClose) => (
           <>
             <DrawerHeader className="flex flex-col gap-1 bg-content2">
-              {step === 1 ? "Pregled naročila" : "Podatki za naročilo"}
+              {getStepTitle()}
             </DrawerHeader>
             <Divider />
             <DrawerBody>
@@ -70,55 +180,141 @@ export default function CheckoutDrawer() {
                 {step === 1 && (
                   <motion.div key="step1" {...motionProps}>
                     <ProductsOverview
-                      //@ts-expect-error --- IGNORE ---
-                      products={getProductsFromConfig(state)}
-                      onSizeChange={(_, size, value) =>
-                        //@ts-expect-error --- IGNORE ---
-                        setCurrentProductConfig({
-                          ...currentProductConfig,
-                          sizes: {
-                            ...currentProductConfig.sizes,
+                      totalPrice={totalAmount}
+                      products={overviewItems}
+                      // TODO: improve this logic
+                      withShipping={totalQuantity < 2}
+                      onSizeChange={(size, value) => {
+                        setItem({
+                          ...item,
+                          quantities: {
+                            ...item.quantities,
                             [size]: value,
                           },
-                        })
-                      }
+                        });
+                      }}
                     />
                     <Spacer y={4} />
-                    <Textarea
+                    {/* <Textarea
                       label="Opombe"
                       placeholder="Vnesite dodatne informacije glede naročila"
-                    />
+                    /> */}
                   </motion.div>
                 )}
                 {step === 2 && (
                   <motion.div key="step2" {...motionProps}>
                     <ContactInfo />
                     <Spacer y={4} />
-                    <Divider />
-                    <Spacer y={8} />
+                    {/* <Divider />
+                    <Spacer y={8} /> */}
                     <Delivery />
+                    {formError && (
+                      <p className="text-danger mt-2 text-sm">{formError}</p>
+                    )}
+                    {
+                      // TODO-R: remove after testing??
+                      process.env.NODE_ENV !== "production" && (
+                        <button
+                          className="mt-4 underline text-sm"
+                          onClick={async () => {
+                            // Autofill for testing
+                            const testInfo = {
+                              firstName: "Test",
+                              lastName: "Uporabnik",
+                              email: "test.uporabnik@example.com",
+                              phoneNumber: "040123456",
+                              address: "Testna Ulica 1",
+                              city: "Ljubljana",
+                              postalCode: "1000",
+                              country: "Slovenija",
+                            };
+                            setShippingInfo(testInfo);
+                          }}
+                        >
+                          Autofill Test Data
+                        </button>
+                      )
+                    }
+                  </motion.div>
+                )}
+                {step === 3 && (
+                  <motion.div key="step3" {...motionProps}>
+                    <div className="space-y-4">
+                      {clientSecret && stripePromise && (
+                        <Elements
+                          stripe={stripePromise}
+                          options={{
+                            clientSecret,
+                            locale: "sl",
+                            appearance: {
+                              theme: "stripe",
+                              variables: {
+                                // TODO: move to config
+                                colorPrimary: "#fc7b2a",
+                              },
+                            },
+                          }}
+                        >
+                          <PaymentForm
+                            ref={paymentFormRef}
+                            name={`${firstName} ${lastName}`}
+                            email={email}
+                            phone={phoneNumber}
+                            postalCode={postalCode}
+                            city={city}
+                            line1={address}
+                          />
+                        </Elements>
+                      )}
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>
-              {/* <Divider /> */}
-              {/* <Delivery /> */}
             </DrawerBody>
             <DrawerFooter className="flex flex-col gap-2">
-              <Button
-                color="primary"
-                fullWidth
-                className="text-white font-bold"
-                variant="shadow"
-                onPress={onNext}
-              >
-                {step === 1 ? "Naprej" : "Zaključi nakup"}
-              </Button>
+              {step === 1 && (
+                <Button
+                  color="primary"
+                  fullWidth
+                  className="text-white font-bold"
+                  variant="shadow"
+                  onPress={onNext}
+                >
+                  Naprej na dostavo
+                </Button>
+              )}
+              {step === 2 && (
+                <Button
+                  color="primary"
+                  fullWidth
+                  className="text-white font-bold"
+                  variant="shadow"
+                  onPress={onNext}
+                  isLoading={isCreatingPaymentIntent}
+                >
+                  {isCreatingPaymentIntent
+                    ? "Pripravljam plačilo..."
+                    : "Naprej na plačilo"}
+                </Button>
+              )}
+              {step === 3 && (
+                <Button
+                  color="primary"
+                  fullWidth
+                  className="text-white font-bold"
+                  variant="shadow"
+                  onPress={handlePayment}
+                  isLoading={isCreatingPaymentIntent}
+                >
+                  Plačaj {totalAmount.toFixed(2)} €
+                </Button>
+              )}
               <Button
                 color="primary"
                 fullWidth
                 className="font-bold"
                 variant="light"
-                onPress={step === 1 ? onClose : onBack}
+                onPress={onBack}
               >
                 Nazaj
               </Button>
