@@ -293,6 +293,15 @@ export const trackPurchaseComplete = (
   });
 };
 
+/**
+ * Track when user selects cash on delivery payment option
+ */
+export const trackCashOnDeliverySelected = () => {
+  safeLogEvent("cash_on_delivery_selected", {
+    payment_method: "cash_on_delivery",
+  });
+};
+
 // ==================== DROPOFF TRACKING ====================
 
 /**

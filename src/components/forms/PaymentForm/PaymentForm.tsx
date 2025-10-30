@@ -67,7 +67,8 @@ const PaymentForm = forwardRef<PaymentFormRef, PaymentFormProps>(
       <div className="space-y-4">
         <PaymentElement
           options={{
-            layout: "tabs",
+            layout: "accordion",
+
             fields: {
               billingDetails: {
                 name: "auto",

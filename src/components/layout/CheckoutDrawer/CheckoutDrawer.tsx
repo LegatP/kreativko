@@ -8,6 +8,8 @@ import {
 } from "@/components/contexts/AppContext/CheckoutContext";
 import {
   Button,
+  Card,
+  CardBody,
   Divider,
   Drawer,
   DrawerBody,
@@ -27,7 +29,9 @@ import {
   trackContactInfoCompleted,
   trackPaymentInitiated,
   trackCheckoutAbandoned,
+  trackCashOnDeliverySelected,
 } from "@/lib/firebase/analytics";
+import { PackageIcon } from "@phosphor-icons/react";
 
 // Initialize Stripe
 const stripePromise = loadStripe(
@@ -70,7 +74,7 @@ export default function CheckoutDrawer() {
     handleSubmit: () => Promise<void>;
   } | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
-  console.log(totalAmount);
+  const [isCashOnDelivery, setIsCashOnDelivery] = useState(false);
 
   // Track when drawer opens
   useEffect(() => {
@@ -87,6 +91,12 @@ export default function CheckoutDrawer() {
     } else {
       setStep((s) => Math.max(s - 1, 1));
     }
+  }
+
+  function onCashOnDelivery() {
+    // Handle cash on delivery option
+    trackCashOnDeliverySelected();
+    setIsCashOnDelivery(true);
   }
 
   async function onNext() {
@@ -273,33 +283,55 @@ export default function CheckoutDrawer() {
                 )}
                 {step === 3 && (
                   <motion.div key="step3" {...motionProps}>
-                    <div className="space-y-4">
+                    <div>
                       {clientSecret && stripePromise && (
-                        <Elements
-                          stripe={stripePromise}
-                          options={{
-                            clientSecret,
-                            locale: "sl",
-                            appearance: {
-                              theme: "stripe",
-                              variables: {
-                                // TODO: move to config
-                                colorPrimary: "#fc7b2a",
+                        <>
+                          <Elements
+                            stripe={stripePromise}
+                            options={{
+                              clientSecret,
+                              locale: "sl",
+                              appearance: {
+                                theme: "stripe",
+                                variables: {
+                                  // TODO: move to config
+                                  colorPrimary: "#fc7b2a",
+                                },
                               },
-                            },
-                          }}
-                        >
-                          <PaymentForm
-                            ref={paymentFormRef}
-                            name={`${firstName} ${lastName}`}
-                            email={email}
-                            phone={phoneNumber}
-                            postalCode={postalCode}
-                            city={city}
-                            line1={address}
-                            totalAmount={totalAmount}
-                          />
-                        </Elements>
+                            }}
+                          >
+                            <PaymentForm
+                              ref={paymentFormRef}
+                              name={`${firstName} ${lastName}`}
+                              email={email}
+                              phone={phoneNumber}
+                              postalCode={postalCode}
+                              city={city}
+                              line1={address}
+                              totalAmount={totalAmount}
+                            />
+                            <div className="mt-6"></div>
+                          </Elements>
+                          <Card
+                            radius="none"
+                            className="w-full rounded-[5px] bg-transparent p-0 text-[rgb(109,110,120)] hover:text-[rgb(40,40,40)] font-semibold -mt-4 cursor-pointer"
+                            shadow="sm"
+                            isPressable
+                            onPress={onCashOnDelivery}
+                          >
+                            <CardBody className="py-4 px-4 text-sm flex flex-row gap-5 items-center opacity-75">
+                              <PackageIcon className="w-6 h-6" />
+                              Plačilo po povzetju
+                            </CardBody>
+                          </Card>
+                          {isCashOnDelivery && (
+                            <p className="mt-3 text-sm text-danger">
+                              Plačilo po povzetju trenutno ni mogoče. Prosimo
+                              izberite drug način plačila. Za nevščenosti se
+                              opravičujemo.
+                            </p>
+                          )}
+                        </>
                       )}
                     </div>
                   </motion.div>
