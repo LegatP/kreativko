@@ -1,8 +1,24 @@
 "use client";
 
 import Link from "next/link";
-import { Card, CardBody, Divider, Image } from "@heroui/react";
-import { ArrowRightIcon } from "@phosphor-icons/react";
+import {
+  Card,
+  CardBody,
+  Divider,
+  Image,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button,
+  useDisclosure,
+} from "@heroui/react";
+import {
+  ArrowRightIcon,
+  CheckCircleIcon,
+  XCircleIcon,
+} from "@phosphor-icons/react";
 import DescribeDesignForm from "@/components/forms/DescribeDesignForm";
 import CanvasModel from "@/components/canvas";
 import { Product } from "@/types/product.types";
@@ -11,19 +27,112 @@ import products from "@/products";
 import {
   trackCustomizeDesignClick,
   trackPageView,
+  trackPurchaseComplete,
 } from "@/lib/firebase/analytics";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useCheckoutContext } from "@/components/contexts/AppContext/CheckoutContext";
 
 export default function Page() {
   const desings = products["sadez-zelenjava"].designs.slice(0, 3);
   const [selectedDesign] = useState<string>(desings[0].imageUrl);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [paymentStatus, setPaymentStatus] = useState<
+    "success" | "error" | null
+  >(null);
+  const { item, totalAmount, totalQuantity } = useCheckoutContext();
 
   useEffect(() => {
     // Track landing page view
     trackPageView("Landing Page", window.location.href);
-  }, []);
+
+    // Check for payment status in URL
+    const paymentIntent = searchParams.get("payment_intent");
+    const paymentIntentClientSecret = searchParams.get(
+      "payment_intent_client_secret"
+    );
+    const redirectStatus = searchParams.get("redirect_status");
+
+    // Stripe redirects with payment_intent and payment_intent_client_secret on success
+    if (paymentIntent && paymentIntentClientSecret) {
+      // Track successful purchase with Google Analytics
+      trackPurchaseComplete(
+        paymentIntent,
+        totalAmount,
+        item.productId,
+        item.name,
+        totalQuantity
+      );
+
+      setPaymentStatus("success");
+      onOpen();
+
+      // Clean up URL by removing payment parameters
+      router.replace("/", { scroll: false });
+    } else if (redirectStatus === "failed") {
+      // Stripe adds redirect_status=failed on payment failure
+      setPaymentStatus("error");
+      onOpen();
+
+      // Clean up URL by removing payment parameter
+      router.replace("/", { scroll: false });
+    }
+  }, [searchParams, onOpen, router, item, totalAmount, totalQuantity]);
+
+  const handleCloseModal = () => {
+    setPaymentStatus(null);
+    onClose();
+  };
 
   return (
     <div className="min-h-screen">
+      {/* Payment Status Modal */}
+      <Modal isOpen={isOpen} onClose={handleCloseModal} size="md">
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">
+                {paymentStatus === "success"
+                  ? "Plačilo uspešno!"
+                  : "Plačilo neuspešno"}
+              </ModalHeader>
+              <ModalBody>
+                <div className="flex flex-col items-center text-center space-y-4">
+                  <div
+                    className={
+                      paymentStatus === "success"
+                        ? "text-green-500"
+                        : "text-red-500"
+                    }
+                  >
+                    {paymentStatus === "success" ? (
+                      <CheckCircleIcon className="w-16 h-16" weight="fill" />
+                    ) : (
+                      <XCircleIcon className="w-16 h-16" weight="fill" />
+                    )}
+                  </div>
+                  <p className="text-gray-600">
+                    {paymentStatus === "success"
+                      ? "Hvala za vaše naročilo! Ko bo naročilo predano dostavni službi boste prejeli elektronsko sporočilo."
+                      : "Pri obdelavi vašega plačila je prišlo do težave. Prosimo, poskusite znova."}
+                  </p>
+                </div>
+              </ModalBody>
+              <ModalFooter>
+                <Button
+                  color="primary"
+                  className="text-white"
+                  onPress={onClose}
+                >
+                  Zapri
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+
       <section
         className="bg-primary-50 pt-8 lg:pt-20"
         style={{
