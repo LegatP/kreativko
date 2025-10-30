@@ -4,6 +4,11 @@ import { Button, Card, CardBody } from "@heroui/react";
 import { ShoppingCartIcon } from "@phosphor-icons/react";
 import SelectColor from "@/components/ProductConfigurator/SelectColor";
 import SelectSizes from "@/components/ProductConfigurator/SelectSizes";
+import {
+  trackCheckoutInitiated,
+  trackColorChange,
+  trackSizeQuantityChange,
+} from "@/lib/firebase/analytics";
 
 interface ProductCustomizationProps {
   product: {
@@ -16,6 +21,8 @@ interface ProductCustomizationProps {
   onSizeChange: (size: string, value: number) => void;
   productsAmount: number;
   onCheckout: () => void;
+  productId?: string;
+  color?: string;
 }
 
 export default function ProductCustomization({
@@ -25,7 +32,39 @@ export default function ProductCustomization({
   onSizeChange,
   productsAmount,
   onCheckout,
+  productId = "unknown",
+  color = "#FFFFFF",
 }: ProductCustomizationProps) {
+  const handleCheckout = () => {
+    // Calculate total quantity
+    const totalQuantity = Object.values(quantities).reduce(
+      (sum, qty) => sum + qty,
+      0
+    );
+
+    // Track checkout initiation
+    trackCheckoutInitiated(
+      productId,
+      product.name,
+      productsAmount,
+      totalQuantity,
+      color,
+      quantities
+    );
+
+    onCheckout();
+  };
+
+  const handleColorChange = (newColor: string) => {
+    trackColorChange(newColor, productId);
+    onColorChange(newColor);
+  };
+
+  const handleSizeChange = (size: string, value: number) => {
+    trackSizeQuantityChange(size, value, productId);
+    onSizeChange(size, value);
+  };
+
   return (
     <>
       <Card>
@@ -35,7 +74,7 @@ export default function ProductCustomization({
             <h3 className="text-md font-semibold mb-4 text-default-900">
               BARVA
             </h3>
-            <SelectColor setColor={onColorChange} />
+            <SelectColor setColor={handleColorChange} />
           </div>
 
           {/* Size Selection */}
@@ -43,7 +82,7 @@ export default function ProductCustomization({
             <h3 className="text-md font-semibold mb-4 text-default-900">
               VELIKOST IN KOLIČINA
             </h3>
-            <SelectSizes sizes={quantities} setSize={onSizeChange} />
+            <SelectSizes sizes={quantities} setSize={handleSizeChange} />
           </div>
         </CardBody>
       </Card>
@@ -64,7 +103,7 @@ export default function ProductCustomization({
             }
             color="primary"
             fullWidth
-            onPress={onCheckout}
+            onPress={handleCheckout}
             variant="shadow"
             className="text-white"
           >

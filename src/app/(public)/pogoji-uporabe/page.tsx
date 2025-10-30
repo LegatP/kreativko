@@ -73,7 +73,7 @@ export default function PogojiUporabePage() {
               </ul>
               <p className="text-gray-700 mb-4">
                 Reklamacije sprejemamo v 14 dneh od prejema. Kontaktirajte nas
-                na info@mojamajica.si.
+                na info@moj-motiv.si.
               </p>
             </section>
 
@@ -136,11 +136,8 @@ export default function PogojiUporabePage() {
               <p className="text-gray-700">
                 Za vprašanja glede teh pogojev nas kontaktirajte:
                 <br />
-                E-pošta: info@mojamajica.si
+                E-pošta: info@moj-motiv.si
                 <br />
-                Telefon: +386 1 234 5678
-                <br />
-                Naslov: Slovenska ulica 1, 1000 Ljubljana
               </p>
             </section>
           </div>

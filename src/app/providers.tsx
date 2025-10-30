@@ -13,7 +13,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <ToastProvider placement="top-right" />
       <FirebaseProvider>
         <CheckoutContextProvider>
-          <AppContextProvider>{children}</AppContextProvider>
+          {/* <AppContextProvider>{children}</AppContextProvider> */}
+          {children}
         </CheckoutContextProvider>
       </FirebaseProvider>
     </HeroUIProvider>

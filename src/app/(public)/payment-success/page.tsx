@@ -5,9 +5,12 @@ import { useSearchParams } from "next/navigation";
 import { Card, CardBody, Button } from "@heroui/react";
 import { CheckCircleIcon } from "@phosphor-icons/react";
 import Link from "next/link";
+import { trackPurchaseComplete } from "@/lib/firebase/analytics";
+import { useCheckoutContext } from "@/components/contexts/AppContext/CheckoutContext";
 
 export default function PaymentSuccessPage() {
   const searchParams = useSearchParams();
+  const { item, totalAmount, totalQuantity } = useCheckoutContext();
   const [paymentStatus, setPaymentStatus] = useState<
     "loading" | "success" | "error"
   >("loading");
@@ -16,14 +19,24 @@ export default function PaymentSuccessPage() {
     const paymentIntentClientSecret = searchParams.get(
       "payment_intent_client_secret"
     );
+    const paymentIntent = searchParams.get("payment_intent");
 
-    if (paymentIntentClientSecret) {
+    if (paymentIntentClientSecret && paymentIntent) {
+      // Track successful purchase
+      trackPurchaseComplete(
+        paymentIntent,
+        totalAmount,
+        item.productId,
+        item.name,
+        totalQuantity
+      );
+
       // You can verify the payment status with Stripe here if needed
       setPaymentStatus("success");
     } else {
       setPaymentStatus("error");
     }
-  }, [searchParams]);
+  }, [searchParams, item, totalAmount, totalQuantity]);
 
   if (paymentStatus === "loading") {
     return (

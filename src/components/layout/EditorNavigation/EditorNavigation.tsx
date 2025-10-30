@@ -80,7 +80,7 @@ export default function EditorNavigation() {
           <div>
             <NavbarBrand>
               <Link href={ROUTES.home} className="flex items-center">
-                <Image className="w-[150px]" src={logo} alt="KREATIVKO" />
+                <Image className="w-[150px]" src={logo} alt="" />
               </Link>
             </NavbarBrand>
           </div>

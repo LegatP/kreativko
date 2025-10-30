@@ -3,9 +3,9 @@ import db, { addDoc, updateDoc } from "@/lib/firebase/firestore";
 import { DesignStyle, Product, ProductConfigs } from "@/types/product.types";
 import { collection, doc, DocumentReference, getDoc } from "firebase/firestore";
 
-const collectionPath = function () {
+function collectionPath() {
   return `users/${auth.currentUser!.uid}/configurations`;
-};
+}
 
 export interface Configuration {
   id?: string;

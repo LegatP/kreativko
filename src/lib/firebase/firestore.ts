@@ -20,16 +20,16 @@ export async function addDoc<T>(
   data: WithFieldValue<DocumentData>
 ): Promise<T & { id: string }> {
   const finalData = { ...data, createdAt: Timestamp.now() };
-
+  console.log("Adding document with data:", finalData);
   let docRef;
-  if (typeof ref === "string") {
-    const colRef = collection(db, ref);
-    docRef = await firestoreAddDoc(colRef, finalData);
-  } else {
-    docRef = await firestoreAddDoc(ref, finalData);
-  }
+  // if (typeof ref === "string") {
+  //   const colRef = collection(db, ref);
+  //   docRef = await firestoreAddDoc(colRef, finalData);
+  // } else {
+  //   docRef = await firestoreAddDoc(ref, finalData);
+  // }
 
-  return { ...(data as T), id: docRef.id };
+  return { ...(data as T), id: "docRef.id" };
 }
 
 export async function setDoc<T>(params: {

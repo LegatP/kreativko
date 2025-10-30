@@ -16,14 +16,15 @@ interface ShirtProps {
 
 const Shirt = ({ color, frontPatternUrl }: ShirtProps) => {
   const groupRef = useRef<Group>(null);
-  const { state } = useAppStateContext();
+  // const { state } = useAppStateContext();
   // const {
   //   // @ts-expect-error frontPatternUrl not in all products
   //   currentProductConfig: { color, frontPatternUrl },
   // } = useAppStateContext();
 
   const { gl } = useThree();
-  const currentView = state.viewState?.currentView || "front";
+  // const currentView = state.viewState?.currentView || "front";
+  const currentView = "front";
   const designRatio = "2:3"; // Default ratio since viewState.designRatio doesn't exist yet
 
   const { nodes, materials } = useGLTF("/assets/shirt_baked.glb");
@@ -59,7 +60,8 @@ const Shirt = ({ color, frontPatternUrl }: ShirtProps) => {
     );
 
     // Smooth rotation animation
-    const targetRotationY = currentView === "back" ? Math.PI : 0;
+    // const targetRotationY = currentView === "back" ? Math.PI : 0;
+    const targetRotationY = 0;
     if (groupRef.current) {
       easing.damp(groupRef.current.rotation, "y", targetRotationY, 0.3, delta);
     }

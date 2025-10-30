@@ -5,6 +5,13 @@ import { useState } from "react";
 import { PaintBrushIcon } from "@phosphor-icons/react";
 import { useImageGeneration } from "@/hooks/useImageGeneration";
 import { DesignStyle } from "@/types/product.types";
+import {
+  trackPromptEntered,
+  trackDesignGenerationStart,
+  trackDesignGenerationSuccess,
+  trackDesignGenerationError,
+} from "@/lib/firebase/analytics";
+import auth from "@/lib/firebase/auth";
 
 interface PromptCreatorProps {
   onDesignGenerated: (imageUrl: string) => void;
@@ -20,15 +27,31 @@ export default function PromptCreator({
   const handleGenerateMotif = async () => {
     if (!prompt.trim()) return;
 
+    // Track prompt entered
+    trackPromptEntered(prompt, auth.currentUser?.uid);
+
     setIsGenerating(true);
+
+    // Track generation start
+    const startTime = Date.now();
+    trackDesignGenerationStart(prompt, DesignStyle.Colorful);
 
     try {
       const result = await generateImage(prompt, DesignStyle.Colorful);
       if (result?.url) {
+        const generationTime = Date.now() - startTime;
+        trackDesignGenerationSuccess(
+          prompt,
+          DesignStyle.Colorful,
+          generationTime
+        );
         onDesignGenerated(result.url);
       }
     } catch (error) {
       console.error("Failed to generate image:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      trackDesignGenerationError(prompt, errorMessage);
     } finally {
       setIsGenerating(false);
     }

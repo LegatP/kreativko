@@ -3,8 +3,8 @@
 import ROUTES from "@/utils/routes.utils";
 import { Button, Card, CardBody, CardHeader, Textarea } from "@heroui/react";
 import { PaintBrushIcon } from "@phosphor-icons/react";
-import Link from "next/link";
 import { useState } from "react";
+import { trackCreateDesignFromHero } from "@/lib/firebase/analytics";
 
 export default function DescribeDesignFormContainer() {
   const [description, setDescription] = useState("");
@@ -27,6 +27,9 @@ export default function DescribeDesignFormContainer() {
         <Button
           // as={Link}
           onPress={() => {
+            // Track the event
+            trackCreateDesignFromHero(description);
+
             window.location.href = ROUTES.createDesign({
               query: { opis: description },
             });

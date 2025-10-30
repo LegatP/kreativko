@@ -16,12 +16,18 @@ import {
   DrawerHeader,
   Spacer,
 } from "@heroui/react";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import PaymentForm from "@/components/forms/PaymentForm/PaymentForm";
 import ProductsOverview from "@/components/checkout/ProductsOverview";
+import {
+  trackCheckoutStep,
+  trackContactInfoCompleted,
+  trackPaymentInitiated,
+  trackCheckoutAbandoned,
+} from "@/lib/firebase/analytics";
 
 // Initialize Stripe
 const stripePromise = loadStripe(
@@ -60,9 +66,20 @@ export default function CheckoutDrawer() {
   const [step, setStep] = useState(1);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [isCreatingPaymentIntent, setIsCreatingPaymentIntent] = useState(false);
-  const paymentFormRef = React.useRef<any>(null);
+  const paymentFormRef = React.useRef<{
+    handleSubmit: () => Promise<void>;
+  } | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   console.log(totalAmount);
+
+  // Track when drawer opens
+  useEffect(() => {
+    if (isOpen) {
+      const stepTitle = getStepTitle();
+      trackCheckoutStep(step, stepTitle);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, step]);
 
   function onBack() {
     if (step === 1) {
@@ -89,13 +106,25 @@ export default function CheckoutDrawer() {
         setFormError("Prosimo, izpolnite vsa polja.");
         return;
       }
+
+      // Track contact info completion
+      trackContactInfoCompleted();
+
       await createPaymentIntent();
     }
+
     setStep((s) => s + 1);
+
+    // Track the new step
+    trackCheckoutStep(step + 1, getStepTitle());
   }
 
   const createPaymentIntent = async () => {
     setIsCreatingPaymentIntent(true);
+
+    // Track payment initiation
+    trackPaymentInitiated(totalAmount);
+
     // TODO: have everywhere in cents??
     try {
       const response = await fetch("/api/create-payment-intent", {
@@ -119,6 +148,11 @@ export default function CheckoutDrawer() {
 
   function onOpenChangePrivate(isOpen: boolean) {
     if (!isOpen) {
+      // Track checkout abandonment if user closes without completing
+      if (step < 3 || !clientSecret) {
+        trackCheckoutAbandoned(step, getStepTitle(), totalAmount);
+      }
+
       setStep(1);
       setClientSecret(null);
       setIsCreatingPaymentIntent(false);
@@ -166,7 +200,7 @@ export default function CheckoutDrawer() {
       backdrop="blur"
     >
       <DrawerContent>
-        {(onClose) => (
+        {() => (
           <>
             <DrawerHeader className="flex flex-col gap-1 bg-content2">
               {getStepTitle()}
@@ -263,6 +297,7 @@ export default function CheckoutDrawer() {
                             postalCode={postalCode}
                             city={city}
                             line1={address}
+                            totalAmount={totalAmount}
                           />
                         </Elements>
                       )}

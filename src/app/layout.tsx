@@ -15,8 +15,9 @@ import CheckoutDrawer from "@/components/layout/CheckoutDrawer";
 // });
 
 export const metadata: Metadata = {
-  title: "Kreativko",
-  // description:"Naj tvoja kreativa zasije. Ustvari nekaj neverjetnega še danes.",
+  title: "Moj Motiv - Unikatne Majice Za Vse Priložnosti",
+  description:
+    "Ustvari svoj unikatni motiv, izberi barvo in velikost ter naroči svojo unikatno majico.",
 };
 
 export default function RootLayout({

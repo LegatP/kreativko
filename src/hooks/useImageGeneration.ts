@@ -30,7 +30,7 @@ export const useImageGeneration = ({
     setIsGenerating(true);
 
     const toastId = addToast({
-      title: "Kreativko ustvarja tvoj motiv.",
+      title: "Ustvarjamo tvoj motiv.",
       color: "default",
       description: "To lahko traja nekaj časa. Ne zapiraj brskalnika.",
       isClosing: true,

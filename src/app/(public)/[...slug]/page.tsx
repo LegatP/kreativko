@@ -9,6 +9,10 @@ import DesignGallery from "@/components/ProductConfigurator/DesignGallery";
 import CanvasModel from "@/components/canvas";
 import { Product } from "@/types/product.types";
 import ProductCustomization from "@/components/ProductConfigurator/ProductCustomization";
+import {
+  trackProductView,
+  trackDesignSelected,
+} from "@/lib/firebase/analytics";
 
 export default function Page({
   params,
@@ -43,6 +47,9 @@ export default function Page({
   useEffect(() => {
     if (!product) return;
 
+    // Track product view
+    trackProductView(product.id, product.name);
+
     // Initialize quantities for all sizes
     const quantities = Object.fromEntries(
       product.sizes.map((size) => [size, 0])
@@ -64,6 +71,7 @@ export default function Page({
   const { quantities, color, designUrl } = item;
 
   const handleDesignSelect = (imageUrl: string) => {
+    trackDesignSelected(product.id, imageUrl);
     setItem({ ...item, designUrl: imageUrl });
   };
 
@@ -102,6 +110,8 @@ export default function Page({
           }
           productsAmount={productsAmount}
           onCheckout={openCheckout}
+          productId={product.id}
+          color={color}
         />
       }
     />

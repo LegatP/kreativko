@@ -70,6 +70,8 @@ export default function Page() {
           }
           productsAmount={productsAmount}
           onCheckout={openCheckout}
+          productId={product.id}
+          color={color}
         />
       }
     />

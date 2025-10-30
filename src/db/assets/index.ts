@@ -8,9 +8,9 @@ export interface Asset {
   createdAt: Timestamp;
 }
 
-const collectionPath = function () {
+function collectionPath() {
   return `users/${auth.currentUser!.uid}/assets`;
-};
+}
 
 export async function createAsset(
   data: Omit<Asset, "createdAt" | "userId">

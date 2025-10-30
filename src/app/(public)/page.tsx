@@ -6,12 +6,22 @@ import { ArrowRightIcon } from "@phosphor-icons/react";
 import DescribeDesignForm from "@/components/forms/DescribeDesignForm";
 import CanvasModel from "@/components/canvas";
 import { Product } from "@/types/product.types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import products from "@/products";
+import {
+  trackCustomizeDesignClick,
+  trackPageView,
+} from "@/lib/firebase/analytics";
 
 export default function Page() {
   const desings = products["sadez-zelenjava"].designs.slice(0, 3);
   const [selectedDesign] = useState<string>(desings[0].imageUrl);
+
+  useEffect(() => {
+    // Track landing page view
+    trackPageView("Landing Page", window.location.href);
+  }, []);
+
   return (
     <div className="min-h-screen">
       <section
@@ -107,6 +117,9 @@ export default function Page() {
                 shadow="md"
                 as={Link}
                 href={product.slug}
+                onPress={() =>
+                  trackCustomizeDesignClick(product.id, product.name)
+                }
               >
                 <Image
                   isZoomed
@@ -141,7 +154,7 @@ export default function Page() {
             <div>
               <h3 className="text-lg font-semibold mb-4">Kontakt</h3>
               <div className="text-primary-900 space-y-2">
-                <p>info@mojamajica.si</p>
+                <p>info@moj-motiv.si</p>
               </div>
             </div>
 
@@ -165,7 +178,7 @@ export default function Page() {
           </div>
 
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-default-900">
-            <p>&copy; 2024 Moja Majica. Vse pravice pridržane.</p>
+            <p>&copy; 2025 Moj Motiv. Vse pravice pridržane.</p>
           </div>
         </div>
       </footer>

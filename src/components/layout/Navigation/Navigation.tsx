@@ -5,25 +5,17 @@ import React from "react";
 import logo from "@/../public/assets/kreativko.png";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  BasketIcon,
-  MagnifyingGlassIcon,
-  PaintBrushHouseholdIcon,
-  PaintBrushIcon,
-  UserCircleIcon,
-} from "@phosphor-icons/react";
-import { useCheckoutContext } from "@/components/contexts/AppContext/CheckoutContext";
+import { PaintBrushIcon } from "@phosphor-icons/react";
 import ROUTES from "@/utils/routes.utils";
-import auth from "@/lib/firebase/auth";
+import { trackCreateDesignFromHeader } from "@/lib/firebase/analytics";
 
 export default function Navigation() {
-  const { onOpen } = useCheckoutContext();
   return (
     <Navbar isBordered maxWidth="xl" position="static">
       <NavbarBrand>
         {/* <AcmeLogo /> */}
         <Link href={ROUTES.home} className="flex items-center">
-          <Image className="w-[150px]" src={logo} alt="KREATIVKO" />
+          {/* <Image className="w-[150px]" src={logo} alt="KREATIVKO" /> */}
           {/* <p className="font-bold text-inherit">KREATIVKO</p> */}
         </Link>
       </NavbarBrand>
@@ -76,6 +68,7 @@ export default function Navigation() {
           // isIconOnly
           size="md"
           startContent={<PaintBrushIcon weight="bold" size={20} />}
+          onPress={() => trackCreateDesignFromHeader()}
         >
           {/* <UserCircleIcon size={20} weight="duotone" />
           {auth.currentUser?.displayName || "Prijava"} */}

@@ -110,11 +110,7 @@ export default function PolitikaZasebnostiPage() {
               <p className="text-gray-700 mb-4">
                 Za vprašanja glede te politike zasebnosti nas kontaktirajte na:
               </p>
-              <p className="text-gray-700">
-                E-pošta: info@mojamajica.si
-                <br />
-                Telefon: +386 1 234 5678
-              </p>
+              <p className="text-gray-700">E-pošta: info@moj-motiv.si</p>
             </section>
 
             <section>
