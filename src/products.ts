@@ -2,35 +2,47 @@ const products = {
   "sadez-zelenjava": {
     id: "sadez-zelenjava",
     slug: "sadez-zelenjava",
-    name: "Personalizirana majica - moj hobi, moj poklic",
+    name: "Moj hobi, moj poklic",
     shortName: "Moj hobi, moj poklic",
     description:
       "Izberi sadje in hobi in ustvari popolnoma unikatno majico zase ali za darilo.",
     sizes: ["XS", "S", "M", "L", "XL", "XXL"],
-    fruits: [
-      "Avokado",
-      "Hruška",
-      "Jabolko",
-      "Banana",
-      "Pomaranča",
-      "Korenje",
-      "Brokoli",
-      "Paradižnik",
-      "Paprika",
-    ],
-    activities: [
-      "Izvaja jogo",
-      "Kolesari",
-      "Bere",
-      "Zdravnik",
-      "Kuhar",
-      "Športnik",
-      "Učitelj",
-      "Slikar",
-      "Programer",
-      "Plesalec",
-    ],
+    variables: {
+      primary: {
+        title: "Sadež ali zelenjava",
+        placeholder: "Avokado",
+        suggestions: [
+          "Avokado",
+          "Hruška",
+          "Jabolko",
+          "Banana",
+          "Pomaranča",
+          "Korenje",
+          "Brokoli",
+          "Paradižnik",
+          "Paprika",
+        ],
+      },
+      secondary: {
+        title: "Kaj počne oziroma kdo je?",
+        placeholder: "Izvaja jogo",
+        suggestions: [
+          "Izvaja jogo",
+          "Kolesari",
+          "Bere",
+          "Zdravnik",
+          "Kuhar",
+          "Športnik",
+          "Učitelj",
+          "Slikar",
+          "Programer",
+          "Plesalec",
+        ],
+      },
+    },
     imageUrl: "/images/majica-sadez-zelenjava.jpg",
+    prompt:
+      "You are generating a T-Shirt design. The design consists of a character performing an action or doing activity based on the profession (should also include simple objects that represent that profession or activity). The design cosists of four non-perfect circles, each one representing ${variablePrimary} in a different position. The positions should vary but match ${variableSecondary}. The circles should be a bit deformed and not perfect circles. ${variablePrimary} should be a simplistic cartoon-like character. The character should have stick-like arms and legs.",
     designs: [
       {
         title: "Avokado jogist",
@@ -57,24 +69,32 @@ const products = {
   "silhueta-zivali": {
     id: "silhueta-zivali",
     slug: "silhueta-zivali",
-    name: "Personalizirana majica - silhueta živali",
+    name: "Silhueta živali",
     shortName: "Silhueta živali",
     description:
-      "Izberi svojo najljubšo žival in ustvari unikatno majico s silhueto živali.",
+      "Izberi svojo najljubšo žival in ustvari kul majico s silhueto živali.",
     sizes: ["XS", "S", "M", "L", "XL", "XXL"],
     imageUrl: "/images/majica-silhueta-zivali.jpg",
-    animals: [
-      "Žirafa",
-      "Lev",
-      "Slon",
-      "Panda",
-      "Tigra",
-      "Zajec",
-      "Lisica",
-      "Medved",
-      "Konj",
-      "Ris",
-    ],
+    variables: {
+      primary: {
+        title: "Žival",
+        placeholder: "Žirafa",
+        suggestions: [
+          "Žirafa",
+          "Lev",
+          "Slon",
+          "Panda",
+          "Tigra",
+          "Zajec",
+          "Lisica",
+          "Medved",
+          "Konj",
+          "Ris",
+        ],
+      },
+    },
+    prompt:
+      "Minimalist monochrome t-shirt design featuring a hand-drawn portrait of an animal (e.g., giraffe, lion, panda, fox, owl, or elephant) in vintage sketch style, the animal wearing oversized glasses or other quirky accessories, clean white line art on dark background, no shirt visible, centered composition, high-resolution wide-format vector-style illustration — suitable for screen printing. Animal: ${variablePrimary}",
     designs: [
       {
         title: "Žirafa",
@@ -86,15 +106,37 @@ const products = {
   "rojstni-dan-prometni-znak-in-ime": {
     id: "rojstni-dan-prometni-znak-in-ime",
     slug: "rojstni-dan-prometni-znak-in-ime",
-    name: "Personalizirana majica - rojstni dan prometni znak in ime",
+    name: "Personalizirana majica za rojstni dan - prometni znak in ime",
     shortName: "Rojstni dan prometni znak in ime",
     description:
-      "Izberi svoj rojstni dan znak in ustvari unikatno majico s simbolom svojega zodiaka.",
+      "Unisex majica z unikatnim dizajnom prometnega znaka s številko in imenom po želji.",
     sizes: ["XS", "S", "M", "L", "XL", "XXL"],
     colors: ["Rdeča", "Modra", "Zelena", "Rumena", "Črna", "Bela"],
     imageUrl: "/images/majica-rojstni-dan-prometni-znak-in-ime.jpg",
+    variables: {
+      primary: {
+        title: "Ime",
+        placeholder: "Primož",
+        suggestions: [
+          "Primož",
+          "Ema",
+          "Zala",
+          "Hana",
+          "Mark",
+          "Jakob",
+          "Filip",
+          "Luka",
+          "Špela",
+        ],
+      },
+      secondary: {
+        title: "Letnica",
+        placeholder: "30",
+        suggestions: ["18", "20", "30", "40", "50", "60"],
+      },
+    },
     prompt:
-      "A clean flat vector design of a circular road speed limit sign with the number 30 in bold black font inside a white circle with a red border, no shadows or outer gray borders, centered composition, and the handwritten name 'Primož' in elegant cursive text slightly tilted upward and overlapping the lower edge of the circle, print-ready vector graphic on plain white background.",
+      "A clean flat vector design of a circular road speed limit sign with the number ${variableSecondary} in bold black font inside a white circle with a red border, no shadows or outer gray borders, centered composition, and the handwritten name ${variablePrimary} in elegant cursive text slightly tilted upward and overlapping the lower edge of the circle, print-ready vector graphic on plain white background.",
     designs: [
       {
         title: "Primož 30",

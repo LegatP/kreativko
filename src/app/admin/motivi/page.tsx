@@ -2,12 +2,16 @@
 
 import db from "@/lib/firebase/firestore";
 import { addToast, Image, Tooltip } from "@heroui/react";
-import { collection, limit, query } from "firebase/firestore";
+import { collection, limit, orderBy, query } from "firebase/firestore";
 import { useCollectionDataOnce } from "react-firebase-hooks/firestore";
 
 export default function Page() {
   const [values] = useCollectionDataOnce(
-    query(collection(db, `ai_responses`), limit(30))
+    query(
+      collection(db, `ai_responses`),
+      orderBy("createdAt", "desc"),
+      limit(30)
+    )
   );
 
   console.log("VALUES", values);

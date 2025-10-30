@@ -31,7 +31,8 @@ const CanvasModel = React.memo(
       return (
         <Canvas
           shadows
-          camera={{ position: [0, 0, 0], fov: 26 }}
+          // camera={{ position: [0, 0, 0], fov: 26 }}
+          camera={{ position: [0, 0, 2], fov: 26 }}
           gl={{ preserveDrawingBuffer: true }}
           className="w-full h-full transition-all ease-in aspect-square"
         >

@@ -1,21 +1,16 @@
 "use client";
 
-import { notFound } from "next/navigation";
-import { use, useEffect } from "react";
+import { useEffect } from "react";
+import { Product } from "@/types/product.types";
+import CanvasModel from "@/components/canvas";
 import { useCheckoutContext } from "@/components/contexts/AppContext/CheckoutContext";
 import products from "@/products";
 import ProductPageLayout from "@/components/layout/ProductPageLayout";
-import DesignGallery from "@/components/ProductConfigurator/DesignGallery";
-import CanvasModel from "@/components/canvas";
-import { Product } from "@/types/product.types";
+import PromptCreator from "@/components/ProductConfigurator/PromptCreator";
 import ProductCustomization from "@/components/ProductConfigurator/ProductCustomization";
 
-export default function Page({
-  params,
-}: {
-  params: Promise<{ slug: string[] }>;
-}) {
-  const { slug } = use(params);
+export default function Page() {
+  const product = products["sadez-zelenjava"];
 
   const {
     onOpen: openCheckout,
@@ -24,26 +19,10 @@ export default function Page({
     setItem,
   } = useCheckoutContext();
 
-  // Validate slug exists
-  if (!slug || slug.length < 1) {
-    notFound();
-  }
-
-  // Get product slug from URL (first part of slug)
-  const productSlug = slug[0];
-
-  // Get product from products.ts
-  const product = Object.values(products).find((p) => p.slug === productSlug);
-
-  // Scroll to top on product change
-  // useEffect(() => {
-  //   window.scrollTo(0, 0);
-  // }, [productSlug]);
+  const { quantities, color, designUrl } = item;
 
   useEffect(() => {
-    if (!product) return;
-
-    // Initialize quantities for all sizes
+    // Initialize product configuration
     const quantities = Object.fromEntries(
       product.sizes.map((size) => [size, 0])
     );
@@ -51,33 +30,22 @@ export default function Page({
       productId: product.id,
       name: product.name,
       color: "#FFFFFF",
-      designUrl: product.designs[0]?.imageUrl || "",
+      designUrl:
+        "https://firebasestorage.googleapis.com/v0/b/kreativko---development.firebasestorage.app/o/miMceISWCgaJ00yyVLfeXAUaEb73%2F1760025709663_ai_generated.png?alt=media&token=5382d01a-7d47-434a-b01f-74cd7bf6ecc4",
       quantities,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [product?.id]);
+  }, []);
 
-  if (!product) {
-    notFound();
-  }
-
-  const { quantities, color, designUrl } = item;
-
-  const handleDesignSelect = (imageUrl: string) => {
+  const handleDesignGenerated = (imageUrl: string) => {
     setItem({ ...item, designUrl: imageUrl });
   };
 
   return (
     <ProductPageLayout
-      title={product.name}
-      description={product.description}
-      leftColumn={
-        <DesignGallery
-          product={product}
-          selectedDesignUrl={designUrl}
-          onDesignSelect={handleDesignSelect}
-        />
-      }
+      title="Ustvari svoj motiv"
+      description="Opiši motiv, izberi barvo in velikost ter naroči svojo unikatno majico."
+      leftColumn={<PromptCreator onDesignGenerated={handleDesignGenerated} />}
       centerColumn={
         <div className="w-full max-w-full overflow-hidden">
           <div className="aspect-square w-full mx-auto">

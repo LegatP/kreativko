@@ -8,65 +8,90 @@ import CanvasModel from "@/components/canvas";
 import { Product } from "@/types/product.types";
 import { useState } from "react";
 import products from "@/products";
-import DesignCard from "@/components/UI/DesignCard";
 
 export default function Page() {
   const desings = products["sadez-zelenjava"].designs.slice(0, 3);
-  const [selectedDesign, setSelectedDesign] = useState<string>(
-    desings[0].imageUrl
-  );
+  const [selectedDesign] = useState<string>(desings[0].imageUrl);
   return (
     <div className="min-h-screen">
       <section
-        className="bg-primary-50 py-20"
+        className="bg-primary-50 pt-8 lg:pt-20"
         style={{
           backgroundImage: "url('/assets/bg.png')",
           backgroundBlendMode: "overlay",
         }}
       >
-        <div className="container mx-auto px-4 text-center max-w-7xl">
-          <h1 className="text-6xl font-bold text-primary mb-6">
+        <div className="container mx-auto sm:text-center max-w-7xl">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-3 lg:mb-6 w-full px-4">
             Ustvari svojo unikatno majico
           </h1>
-          <p className="text-2xl font-bold text-primary-900 mb-8 max-w-3xl mx-auto">
+          <p className="text-xl md:text-2xl font-bold text-primary-900 w-full px-4">
             Opiši motiv. Izberi velikost in barvo. Naroči.
           </p>
-          <div className="flex flex-row mt-50 gap-20">
-            <div className="w-md">
+          <div className="flex items-center lg:items-start flex-col lg:flex-row mt-8">
+            <div className="w-full sm:max-w-md md:mt-7 lg:mt-22 px-4">
               <DescribeDesignForm />
+              {/* <div className="flex flex-row gap-4">
+                <Button
+                  className="mt-4 text-primary-900 bg-white text-sm font-semibold"
+                  size="md"
+                  variant="bordered"
+                  color="primary"
+                  isDisabled
+                  startContent={
+                    <TagIcon weight="bold" className="w-6 h-6 text-primary" />
+                  }
+                >
+                  Enotna cena 19.99€
+                </Button>
+                <Button
+                  className="mt-4 text-900 bg-white text-sm"
+                  size="md"
+                  variant="bordered"
+                  color="primary"
+                  startContent={
+                    <PackageIcon
+                      weight="fill"
+                      className="w-6 h-6  text-primary"
+                    />
+                  }
+                >
+                  Breplačna pošitnina za 2+ kosa
+                </Button>
+              </div> */}
             </div>
-            <div className="h-[700px] flex-1 relative pt-[400px]">
-              <div className="absolute h-[700px] -left-10 -top-30">
+            <div className="w-full lg:flex-1 flex justify-center items-center overflow-hidden lg:mt-0 mt-10">
+              <div className="w-full min-w-[500px] max-w-[700px] aspect-square relative">
                 <CanvasModel
                   product={Product.Shirt}
                   color="#fff"
                   frontPatternUrl={selectedDesign}
                 />
-                <div className="flex flex-row gap-4">
-                  {desings.map((design) => (
-                    <DesignCard
-                      key={design.imageUrl}
-                      title={design.title}
-                      isSelected={selectedDesign === design.imageUrl}
-                      designUrl={design.imageUrl}
-                      handleDesignSelect={setSelectedDesign}
-                    />
-                  ))}
-                </div>
               </div>
+              {/* <div className="flex flex-row gap-4 max-w-[55%]">
+                {desings.map((design) => (
+                  <DesignCard
+                    key={design.imageUrl}
+                    title={design.title}
+                    isSelected={selectedDesign === design.imageUrl}
+                    designUrl={design.imageUrl}
+                    handleDesignSelect={setSelectedDesign}
+                  />
+                ))}
+              </div> */}
             </div>
           </div>
         </div>
       </section>
 
       {/* Products Section */}
-      <section id="produkti" className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <h1 className="text-4xl font-bold text-primary mb-4 text-center">
+      <section id="produkti" className="py-8 lg:py-20 bg-white">
+        <div className="container mx-auto px-4 sm:text-center">
+          <h2 className="text-3xl font-bold text-primary mb-4">
             Personaliziraj obstoječi motiv
-          </h1>
-          <p className="text-xl font-bold text-primary-900 mb-20 text-center mx-auto">
-            Izberi motiv iz naše galerije in ga prilagodi svojim željam
+          </h2>
+          <p className="text-xl font-bold text-primary-900 mb-8 lg:mb-20 mx-auto">
+            Izberi motiv iz naše galerije in ga prilagodi svojim željam.
           </p>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10 max-w-4xl mx-auto">
@@ -90,12 +115,14 @@ export default function Page() {
                   className="object-cover"
                 />
                 <Divider />
-                <CardBody className="px-4 pt-4 pb-6">
-                  <h3 className="text-xl font-semibold mb-2 text-primary-900 group-hover:text-primary">
-                    {product.shortName}
-                  </h3>
-                  <p className="text-primary-900">{product.description}</p>
-                  <div className="flex items-center justify-end mt-4">
+                <CardBody className="px-4 pt-4 pb-6 flex flex-col justify-between">
+                  <div>
+                    <h3 className="text-xl font-semibold mb-2 text-primary-900 group-hover:text-primary">
+                      {product.shortName}
+                    </h3>
+                    <p className="text-primary-900">{product.description}</p>
+                  </div>
+                  <div className="flex items-center justify-end mt-3">
                     <span className="flex flex-row items-center gap-2 text-primary text-sm">
                       Personaliziraj
                       <ArrowRightIcon />
@@ -109,7 +136,7 @@ export default function Page() {
       </section>
 
       <footer className="bg-default-50 text-default-900 py-12">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 max-w-7xl">
           <div className="grid md:grid-cols-3 gap-8">
             <div>
               <h3 className="text-lg font-semibold mb-4">Kontakt</h3>
