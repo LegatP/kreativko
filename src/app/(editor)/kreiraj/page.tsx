@@ -66,7 +66,6 @@ import { ProductIcons } from "@/config";
 import { createAiReponse } from "@/db/ai-reponses";
 import DesignConfigurator from "@/components/ProductConfigurator/DesignConfigurator";
 import ProductCard from "@/components/ProductCard";
-import { ProductDetailsPage } from "@/app/(public)/[...slug]/page";
 
 // UX
 // Homepahe: input with dropdown and prompt suggestions, similar to

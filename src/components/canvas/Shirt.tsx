@@ -3,7 +3,6 @@ import { easing } from "maath";
 import { useFrame } from "@react-three/fiber";
 import { Decal, useGLTF, useTexture } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
-import { useAppStateContext } from "../contexts/AppContext";
 import { Group, Mesh, MeshStandardMaterial } from "three";
 import { createDashedBorderTexture } from "../../utils/dashed-border-texture";
 
@@ -81,7 +80,7 @@ const Shirt = ({ color, frontPatternUrl }: ShirtProps) => {
           position={[0.02, 0.02, 0.15]}
           rotation={[0, 0, 0]}
           scale={0.265}
-          map={displayTexture}
+          map={displayTexture!}
           depthTest={false}
         />
       </mesh>

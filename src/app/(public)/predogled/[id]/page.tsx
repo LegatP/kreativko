@@ -21,5 +21,6 @@ export default function Page() {
   }, [id]);
 
   if (!state) return null;
-  return <CanvasModel state={state} />;
+  // return <CanvasModel />;
+  return null;
 }

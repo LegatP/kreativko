@@ -14,6 +14,12 @@ import {
   trackDesignSelected,
 } from "@/lib/firebase/analytics";
 
+export async function getStaticPaths() {
+  const paths = Object.keys(products);
+
+  return { paths, fallback: false };
+}
+
 export default function Page({
   params,
 }: {

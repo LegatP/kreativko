@@ -95,7 +95,13 @@ export default function DesignGallery({
   };
 
   const isInputValid = () => {
-    return Boolean(variablePrimary?.trim() && variableSecondary?.trim());
+    const hasPrimary = Boolean(product.variables.primary);
+    const hasSecondary = Boolean(product.variables.secondary);
+
+    const primaryValid = !hasPrimary || Boolean(variablePrimary?.trim());
+    const secondaryValid = !hasSecondary || Boolean(variableSecondary?.trim());
+
+    return primaryValid && secondaryValid;
   };
 
   return (
