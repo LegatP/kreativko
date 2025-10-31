@@ -10,11 +10,22 @@ export function middleware(req: NextRequest) {
     res.headers.set("X-Robots-Tag", "noindex, nofollow");
     return res;
   }
+  const pathname = req.nextUrl.pathname;
+
+  if (
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/api") ||
+    pathname.startsWith("/static") ||
+    pathname.startsWith("/favicon") ||
+    pathname.startsWith("/images") ||
+    pathname.includes(".")
+  ) {
+    return NextResponse.next();
+  }
 
   // In production, only allow access to specified routes
   if (process.env.NODE_ENV === "production") {
     const allowedPaths = ["/", "/moja-majica"];
-    const pathname = req.nextUrl.pathname;
 
     if (!allowedPaths.includes(pathname)) {
       return NextResponse.redirect(new URL("/", req.url));
