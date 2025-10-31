@@ -17,7 +17,7 @@ interface PaymentFormProps {
 }
 
 export interface PaymentFormRef {
-  handleSubmit: () => Promise<void>;
+  handleSubmit: (orderId: string) => Promise<void>;
 }
 
 const PaymentForm = forwardRef<PaymentFormRef, PaymentFormProps>(
@@ -25,7 +25,7 @@ const PaymentForm = forwardRef<PaymentFormRef, PaymentFormProps>(
     const stripe = useStripe();
     const elements = useElements();
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (orderId: string) => {
       if (!stripe || !elements) {
         return;
       }
@@ -38,6 +38,9 @@ const PaymentForm = forwardRef<PaymentFormRef, PaymentFormProps>(
         confirmParams: {
           return_url: `${window.location.origin}`,
           payment_method_data: {
+            metadata: {
+              order_id: orderId,
+            },
             billing_details: {
               email,
               name,

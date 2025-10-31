@@ -32,6 +32,8 @@ import {
   trackCashOnDeliverySelected,
 } from "@/lib/firebase/analytics";
 import { PackageIcon } from "@phosphor-icons/react";
+import { createOrder, updateOrderPaymentIntent } from "@/db/orders";
+import type { Order } from "@/db/orders/types";
 
 // Initialize Stripe
 const stripePromise = loadStripe(
@@ -71,10 +73,11 @@ export default function CheckoutDrawer() {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [isCreatingPaymentIntent, setIsCreatingPaymentIntent] = useState(false);
   const paymentFormRef = React.useRef<{
-    handleSubmit: () => Promise<void>;
+    handleSubmit: (orderId: string) => Promise<void>;
   } | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [isCashOnDelivery, setIsCashOnDelivery] = useState(false);
+  const [orderId, setOrderId] = useState<string | null>(null);
 
   // Track when drawer opens
   useEffect(() => {
@@ -120,7 +123,8 @@ export default function CheckoutDrawer() {
       // Track contact info completion
       trackContactInfoCompleted();
 
-      await createPaymentIntent();
+      // Create order before payment
+      await createOrderAndPaymentIntent();
     }
 
     setStep((s) => s + 1);
@@ -129,14 +133,45 @@ export default function CheckoutDrawer() {
     trackCheckoutStep(step + 1, getStepTitle());
   }
 
-  const createPaymentIntent = async () => {
+  const createOrderAndPaymentIntent = async () => {
     setIsCreatingPaymentIntent(true);
 
     // Track payment initiation
     trackPaymentInitiated(totalAmount);
 
-    // TODO: have everywhere in cents??
     try {
+      // Create order first
+      const orderData: Omit<Order, "id" | "orderNumber" | "createdAt" | "updatedAt"> = {
+        items: [
+          {
+            productId: item.productId,
+            name: item.name,
+            designUrl: item.designUrl,
+            color: item.color,
+            quantities: item.quantities,
+            price: BASE_PRODUCT_PRICE,
+          },
+        ],
+        shippingInfo: {
+          firstName,
+          lastName,
+          email,
+          phoneNumber,
+          address,
+          city,
+          postalCode,
+          country: "Slovenija",
+        },
+        totalAmount,
+        shippingCost: totalQuantity < 2 ? 3.99 : 0,
+        subtotal: totalAmount - (totalQuantity < 2 ? 3.99 : 0),
+        status: "pending",
+      };
+
+      const createdOrder = await createOrder(orderData);
+      setOrderId(createdOrder.id!);
+
+      // Create payment intent with orderId
       const response = await fetch("/api/create-payment-intent", {
         method: "POST",
         headers: {
@@ -144,13 +179,20 @@ export default function CheckoutDrawer() {
         },
         body: JSON.stringify({
           amount: Math.round(totalAmount * 100), // amount in cents
+          orderId: createdOrder.id,
         }),
       });
 
-      const { client_secret } = await response.json();
+      const { client_secret, payment_intent_id } = await response.json();
       setClientSecret(client_secret);
+
+      // Update order with payment intent ID
+      if (createdOrder.id && payment_intent_id) {
+        await updateOrderPaymentIntent(createdOrder.id, payment_intent_id);
+      }
     } catch (error) {
-      console.error("Error creating payment intent:", error);
+      console.error("Error creating order and payment intent:", error);
+      setFormError("Napaka pri ustvarjanju naročila. Prosimo poskusite ponovno.");
     } finally {
       setIsCreatingPaymentIntent(false);
     }
@@ -166,13 +208,18 @@ export default function CheckoutDrawer() {
       setStep(1);
       setClientSecret(null);
       setIsCreatingPaymentIntent(false);
+      setOrderId(null);
     }
     onOpenChange(isOpen);
   }
 
   const handlePayment = async () => {
-    paymentFormRef.current?.handleSubmit();
-    // onSubmit(error);
+    if (orderId) {
+      paymentFormRef.current?.handleSubmit(orderId);
+    } else {
+      console.error("No orderId available for payment");
+      setFormError("Napaka: ID naročila ni na voljo");
+    }
   };
 
   function getStepTitle() {

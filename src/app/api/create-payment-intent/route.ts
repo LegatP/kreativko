@@ -7,15 +7,19 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 export async function POST(req: NextRequest) {
   try {
-    const { amount } = await req.json();
+    const { amount, orderId } = await req.json();
 
     const paymentIntent = await stripe.paymentIntents.create({
       amount,
       currency: "eur",
+      metadata: {
+        orderId: orderId || "",
+      },
     });
 
     return NextResponse.json({
       client_secret: paymentIntent.client_secret,
+      payment_intent_id: paymentIntent.id,
     });
   } catch (error) {
     console.error("Error creating payment intent:", error);
