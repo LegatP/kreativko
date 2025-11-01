@@ -3,9 +3,8 @@
 import { notFound } from "next/navigation";
 import { use, useEffect } from "react";
 import { useCheckoutContext } from "@/components/contexts/AppContext/CheckoutContext";
-import products from "@/products";
+import products, { productConfig } from "@/products";
 import ProductPageLayout from "@/components/layout/ProductPageLayout";
-import DesignGallery from "@/components/ProductConfigurator/DesignGallery";
 import CanvasModel from "@/components/canvas";
 import { Product } from "@/types/product.types";
 import ProductCustomization from "@/components/ProductConfigurator/ProductCustomization";
@@ -13,12 +12,7 @@ import {
   trackProductView,
   trackDesignSelected,
 } from "@/lib/firebase/analytics";
-
-export async function getStaticPaths() {
-  const paths = Object.keys(products);
-
-  return { paths, fallback: false };
-}
+import DesignConfigurator from "@/components/ProductConfigurator/DesignConfigurator";
 
 export default function Page({
   params,
@@ -26,6 +20,7 @@ export default function Page({
   params: Promise<{ slug: string[] }>;
 }) {
   const { slug } = use(params);
+  const sizes = productConfig.sizes;
 
   const {
     onOpen: openCheckout,
@@ -57,9 +52,7 @@ export default function Page({
     trackProductView(product.id, product.name);
 
     // Initialize quantities for all sizes
-    const quantities = Object.fromEntries(
-      product.sizes.map((size) => [size, 0])
-    );
+    const quantities = Object.fromEntries(sizes.map((size) => [size, 0]));
     setItem({
       productId: product.id,
       name: product.name,
@@ -86,7 +79,7 @@ export default function Page({
       title={product.name}
       description={product.description}
       leftColumn={
-        <DesignGallery
+        <DesignConfigurator
           product={product}
           selectedDesignUrl={designUrl}
           onDesignSelect={handleDesignSelect}
@@ -105,7 +98,7 @@ export default function Page({
       }
       rightColumn={
         <ProductCustomization
-          product={product}
+          name={product.name}
           quantities={quantities}
           onColorChange={(c) => setItem({ ...item, color: c })}
           onSizeChange={(size, value) =>

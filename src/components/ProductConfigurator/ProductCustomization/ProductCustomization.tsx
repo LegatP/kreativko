@@ -11,27 +11,29 @@ import {
 } from "@/lib/firebase/analytics";
 
 interface ProductCustomizationProps {
-  product: {
-    name: string;
-    description: string;
-    sizes: string[];
-  };
+  // product: {
+  //   name: string;
+  //   description: string;
+  //   sizes: string[];
+  // };
   quantities: Record<string, number>;
   onColorChange: (color: string) => void;
   onSizeChange: (size: string, value: number) => void;
   productsAmount: number;
   onCheckout: () => void;
-  productId?: string;
+  productId: string;
+  name: string;
   color?: string;
 }
 
 export default function ProductCustomization({
-  product,
+  // product,
   quantities,
   onColorChange,
   onSizeChange,
   productsAmount,
   onCheckout,
+  name,
   productId = "unknown",
   color = "#FFFFFF",
 }: ProductCustomizationProps) {
@@ -45,7 +47,7 @@ export default function ProductCustomization({
     // Track checkout initiation
     trackCheckoutInitiated(
       productId,
-      product.name,
+      name,
       productsAmount,
       totalQuantity,
       color,

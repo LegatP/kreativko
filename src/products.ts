@@ -1,3 +1,8 @@
+export const productConfig = {
+  sizes: ["XS", "S", "M", "L", "XL", "XXL"],
+  colors: ["Rdeča", "Modra", "Zelena", "Rumena", "Črna", "Bela"],
+};
+
 const products = {
   "sadez-zelenjava": {
     id: "sadez-zelenjava",

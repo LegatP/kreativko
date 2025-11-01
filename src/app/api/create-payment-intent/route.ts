@@ -15,6 +15,7 @@ export async function POST(req: NextRequest) {
       metadata: {
         orderId: orderId || "",
       },
+      payment_method_types: ["card"],
     });
 
     return NextResponse.json({

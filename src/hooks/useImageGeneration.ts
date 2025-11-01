@@ -23,7 +23,7 @@ export const useImageGeneration = ({
     prompt: string,
     designStyle: DesignStyle = DesignStyle.Colorful
   ) => {
-    if (!prompt.trim()) {
+    if (!prompt.trim() || isGenerating) {
       return;
     }
 

@@ -2,12 +2,11 @@
 
 import { Button, Card, CardBody, Chip, Divider, Input } from "@heroui/react";
 import { useState } from "react";
-import { motion } from "framer-motion";
 import { useImageGeneration } from "@/hooks/useImageGeneration";
 import { DesignStyle } from "@/types/product.types";
 import { PaintBrushIcon } from "@phosphor-icons/react";
-import DesignCard from "@/components/UI/DesignCard";
 import { insertVariablesIntoPrompt } from "@/utils/prompts.utils";
+import DesignGallery from "../DesignGallery";
 
 interface Design {
   title: string;
@@ -39,7 +38,7 @@ interface DesignGalleryProps {
   onDesignSelect: (imageUrl: string) => void;
 }
 
-export default function DesignGallery({
+export default function DesignConfigurator({
   product,
   selectedDesignUrl,
   onDesignSelect,
@@ -63,22 +62,29 @@ export default function DesignGallery({
     }
   };
 
-  const handleGenerateMotif = async () => {
-    const isValid = Boolean(
-      variablePrimary?.trim() && variableSecondary?.trim()
-    );
+  const isInputValid = () => {
+    const hasPrimary = Boolean(product.variables.primary);
+    const hasSecondary = Boolean(product.variables.secondary);
+
+    const primaryValid = !hasPrimary || Boolean(variablePrimary?.trim());
+    const secondaryValid = !hasSecondary || Boolean(variableSecondary?.trim());
+
+    return primaryValid && secondaryValid;
+  };
+
+  const handleGenerateMotif = async (prompt: string) => {
+    const isValid = isInputValid();
     if (!isValid) return;
 
     setIsGenerating(true);
 
     try {
-      //   const prompt = `You are generating a T-Shirt design. The design consists of a character performing an action or doing activity based on the profession (should also include simple objects that represent that profession or activity). The design cosists of four non-perfect circles, each one representing ${variablePrimary} in a different position. The positions should vary but match ${variableSecondary}. The circles should be a bit deformed and not perfect circles. ${variablePrimary} should be a simplistic cartoon-like character. The character should have stick-like arms and legs.`;
-      const prompt = insertVariablesIntoPrompt(product.prompt, {
+      const finalPrompt = insertVariablesIntoPrompt(prompt, {
         variablePrimary,
         variableSecondary,
       });
 
-      const result = await generateImage(prompt, DesignStyle.Colorful);
+      const result = await generateImage(finalPrompt, DesignStyle.Colorful);
       if (result?.url) {
         const newDesign = {
           title: `Personaliziran motiv.`,
@@ -94,16 +100,6 @@ export default function DesignGallery({
     }
   };
 
-  const isInputValid = () => {
-    const hasPrimary = Boolean(product.variables.primary);
-    const hasSecondary = Boolean(product.variables.secondary);
-
-    const primaryValid = !hasPrimary || Boolean(variablePrimary?.trim());
-    const secondaryValid = !hasSecondary || Boolean(variableSecondary?.trim());
-
-    return primaryValid && secondaryValid;
-  };
-
   return (
     <>
       <Card>
@@ -117,31 +113,12 @@ export default function DesignGallery({
             </p>
           </div>
 
-          <div className="grid grid-cols-3 gap-3 mb-4">
-            {isGenerating && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3 }}
-              >
-                <Card className="aspect-square animate-pulse bg-default-100 shadow-md">
-                  <CardBody className="flex items-center justify-center">
-                    <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-                  </CardBody>
-                </Card>
-              </motion.div>
-            )}
-
-            {allDesigns.map((design, index) => (
-              <DesignCard
-                key={design.imageUrl + index}
-                title={design.title}
-                isSelected={selectedDesignUrl === design.imageUrl}
-                designUrl={design.imageUrl}
-                handleDesignSelect={onDesignSelect}
-              />
-            ))}
-          </div>
+          <DesignGallery
+            designs={allDesigns}
+            selectedDesignUrl={selectedDesignUrl}
+            onDesignSelect={onDesignSelect}
+            withPlaceholder={isGenerating}
+          />
 
           <Divider className="my-4" />
 
@@ -206,7 +183,7 @@ export default function DesignGallery({
             variant="ghost"
             color="primary"
             fullWidth
-            onPress={handleGenerateMotif}
+            onPress={() => handleGenerateMotif(product.prompt)}
             isDisabled={!isInputValid() || isGenerating}
             isLoading={isGenerating}
           >

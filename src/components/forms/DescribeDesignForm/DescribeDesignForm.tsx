@@ -5,8 +5,10 @@ import { Button, Card, CardBody, CardHeader, Textarea } from "@heroui/react";
 import { PaintBrushIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 import { trackCreateDesignFromHero } from "@/lib/firebase/analytics";
+import { useRouter } from "next/navigation";
 
 export default function DescribeDesignFormContainer() {
+  const router = useRouter();
   const [description, setDescription] = useState("");
   return (
     <Card shadow="sm" className="border-1 border-primary p-2">
@@ -30,9 +32,11 @@ export default function DescribeDesignFormContainer() {
             // Track the event
             trackCreateDesignFromHero(description);
 
-            window.location.href = ROUTES.createDesign({
-              query: { opis: description },
-            });
+            router.push(
+              ROUTES.createDesign({
+                query: { opis: description },
+              })
+            );
           }}
           className="mt-4 text-white"
           size="lg"
