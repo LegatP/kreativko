@@ -171,9 +171,7 @@ export default function Page() {
                 Motiv
               </CardHeader>
               <Divider />
-              <CardBody>
-                <DesignConfigurator />
-              </CardBody>
+              <CardBody>{/* <DesignConfigurator /> */}</CardBody>
               {/* <Divider /> */}
               {/* <CardFooter>
               <Button
