@@ -24,12 +24,9 @@ export default function FirebaseProvider({
   useEffect(() => {
     const initializeAnalytics = async () => {
       try {
-        console.log("[FirebaseProvider] Initializing analytics...");
         const analytics = getAnalytics(app);
-        console.log("[FirebaseProvider] Analytics initialized:", analytics);
 
         getPerformance(app);
-        console.log("[FirebaseProvider] Performance monitoring initialized");
       } catch (error) {
         console.error(
           "[FirebaseProvider] Error initializing analytics:",
@@ -49,7 +46,6 @@ export default function FirebaseProvider({
       } else {
         await deleteCookie("__session");
       }
-      console.log("Firebase auth state changed. User:", user);
       setLoading(false);
     });
     return () => unsubscribe();

@@ -14,10 +14,6 @@ const initAnalytics = () => {
   if (typeof window !== "undefined" && !analytics) {
     try {
       analytics = getAnalytics(app);
-      console.log(
-        "[Analytics] Firebase Analytics initialized successfully",
-        analytics
-      );
     } catch (error) {
       console.error(
         "[Analytics] Failed to initialize Firebase Analytics:",
@@ -45,7 +41,6 @@ const safeLogEvent = (
   }
 
   try {
-    console.log("[Analytics] Logging event:", eventName, eventParams);
     logEvent(analyticsInstance, eventName, eventParams);
   } catch (error) {
     console.error("[Analytics] Error logging event:", eventName, error);

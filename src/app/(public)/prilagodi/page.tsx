@@ -132,12 +132,9 @@ export default function Page() {
 
     try {
       const result = await generateImage(prompt, DesignStyle.Colorful);
-      console.log("Generation result:", result);
       if (result?.url) {
-        console.log(`Setting image for ${configurable.id}:`, result.url);
         setGeneratedImages((prev) => {
           const updated = { ...prev, [configurable.id]: result.url };
-          console.log("Updated images state:", updated);
           return updated;
         });
       }
@@ -343,12 +340,6 @@ export default function Page() {
       {configurables.map((configurable) => {
         const isCurrentlyGenerating = generatingId === configurable.id;
         const generatedImageUrl = generatedImages[configurable.id];
-
-        console.log(`Rendering ${configurable.id}:`, {
-          isCurrentlyGenerating,
-          generatedImageUrl,
-          allImages: generatedImages,
-        });
 
         return (
           <div

@@ -141,7 +141,10 @@ export default function CheckoutDrawer() {
 
     try {
       // Create order first
-      const orderData: Omit<Order, "id" | "orderNumber" | "createdAt" | "updatedAt"> = {
+      const orderData: Omit<
+        Order,
+        "id" | "orderNumber" | "createdAt" | "updatedAt"
+      > = {
         items: [
           {
             productId: item.productId,
@@ -192,7 +195,9 @@ export default function CheckoutDrawer() {
       }
     } catch (error) {
       console.error("Error creating order and payment intent:", error);
-      setFormError("Napaka pri ustvarjanju naročila. Prosimo poskusite ponovno.");
+      setFormError(
+        "Napaka pri ustvarjanju naročila. Prosimo poskusite ponovno."
+      );
     } finally {
       setIsCreatingPaymentIntent(false);
     }

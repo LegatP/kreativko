@@ -10,7 +10,6 @@ import { createDashedBorderTexture } from "../../utils/dashed-border-texture";
 export function Hoodie() {
   const groupRef = useRef<Group>(null);
   const { nodes, materials } = useGLTF("assets/hoodie.glb");
-  console.log(nodes);
 
   const { gl } = useThree();
   const { state } = useAppStateContext();
@@ -53,7 +52,6 @@ export function Hoodie() {
     }
   });
 
-  console.log("Materials:", materials, color);
   // useFrame((state, delta) => {
   //   if (color) {
   // easing.dampC(

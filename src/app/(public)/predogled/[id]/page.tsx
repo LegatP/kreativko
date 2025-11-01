@@ -9,12 +9,10 @@ export default function Page() {
   const [state, setState] = useState<Configuration | null>(null);
 
   const { id } = useParams<{ id: string }>();
-  console.log("ID:", id);
 
   useEffect(() => {
     const fetchData = async () => {
       const state = await getConfigurationById(id);
-      console.log("Fetched state:", state);
       setState(state);
     };
     fetchData();

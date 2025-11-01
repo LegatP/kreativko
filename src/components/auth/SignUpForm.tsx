@@ -46,20 +46,6 @@ export default function SignUpForm() {
     }) => {
       setError("");
 
-      console.log({
-        firstName,
-        lastName,
-        email,
-        password,
-        acceptTerms,
-        newsletterSubscribed,
-        phone,
-        postCode,
-        city,
-        address,
-        country,
-      });
-
       if (!acceptTerms) {
         setError("Prosimo, sprejmite pogoje uporabe.");
         return;
@@ -71,7 +57,6 @@ export default function SignUpForm() {
         password,
         displayName
       );
-      console.log({ user, authError });
 
       if (authError) {
         setError(getErrorMessage(authError));

@@ -113,7 +113,6 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
   function setCurrentProductConfig(
     configs: Partial<ProductConfigs[keyof ProductConfigs]>
   ) {
-    console.log("Updating configs:", configs);
     setState((prev) => ({
       ...prev,
       configs: {

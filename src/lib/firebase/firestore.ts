@@ -13,14 +13,17 @@ import {
   setDoc as firestoreSetDoc,
 } from "firebase/firestore";
 
-const db = initializeFirestore(app, {}, "default");
+const db = initializeFirestore(
+  app,
+  {},
+  process.env.NEXT_PUBLIC_FIREBASE_DATABASE
+);
 
 export async function addDoc<T>(
   ref: string | CollectionReference<DocumentData>,
   data: WithFieldValue<DocumentData>
 ): Promise<T & { id: string }> {
   const finalData = { ...data, createdAt: Timestamp.now() };
-  console.log("Adding document with data:", finalData);
   let docRef;
   if (typeof ref === "string") {
     const colRef = collection(db, ref);

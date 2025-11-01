@@ -9,7 +9,6 @@ const Mug = () => {
   // const { gl } = useThree();
 
   const { scene } = useGLTF("assets/mug.glb");
-  console.log("Mug scene:", scene);
 
   // console.log("Front pattern URL:", frontPatternUrl);
   // const logoTexture = useTexture(frontPatternUrl || "assets/threejs.png");

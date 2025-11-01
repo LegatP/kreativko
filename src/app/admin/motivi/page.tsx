@@ -14,8 +14,6 @@ export default function Page() {
     )
   );
 
-  console.log("VALUES", values);
-
   return (
     <div className="flex flex-row flex-wrap gap-4 items-center justify-center m-5">
       {values?.map((item, i) => (
