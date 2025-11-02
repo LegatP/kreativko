@@ -39,7 +39,7 @@ interface CheckoutContextType {
   shippingInfo: ShippingInfo;
   setShippingInfo: (info: ShippingInfo) => void;
   item: OrderItem;
-  setItem: (item: OrderItem) => void;
+  setItem: React.Dispatch<React.SetStateAction<OrderItem>>;
   totalAmount: number;
   productsAmount: number;
   totalQuantity: number;

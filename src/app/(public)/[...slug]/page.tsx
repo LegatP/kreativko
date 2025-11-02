@@ -71,7 +71,7 @@ export default function Page({
 
   const handleDesignSelect = (imageUrl: string) => {
     trackDesignSelected(product.id, imageUrl);
-    setItem({ ...item, designUrl: imageUrl });
+    setItem((i) => ({ ...i, designUrl: imageUrl }));
   };
 
   return (

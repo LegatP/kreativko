@@ -57,7 +57,7 @@ export default function Page() {
   }, []);
 
   const onDesignSelect = (imageUrl: string) => {
-    setItem({ ...item, designUrl: imageUrl });
+    setItem((i) => ({ ...i, designUrl: imageUrl }));
   };
 
   return (

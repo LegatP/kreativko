@@ -10,6 +10,7 @@ import {
   TableBody,
   TableCell,
   TableRow,
+  Divider,
 } from "@heroui/react";
 import {
   collection,
@@ -27,6 +28,8 @@ import {
   QueryDocumentSnapshot,
   SnapshotOptions,
 } from "firebase/firestore";
+import { isObject } from "framer-motion";
+import { isArray } from "util";
 
 export const coverter: FirestoreDataConverter<DocumentData> = {
   toFirestore(data: WithFieldValue<DocumentData>): DocumentData {
@@ -62,15 +65,42 @@ export default function Page() {
           .toDate()
           .toLocaleString();
       }
+
+      if (isObject(item[key]) && !isArray(item[key])) {
+        return (
+          <div>
+            {Object.entries(item[key]).map(([k, v]) => (
+              <div key={k}>
+                <strong>{k}:</strong> {String(v)}
+              </div>
+            ))}
+          </div>
+        );
+      }
       switch (columnKey) {
-        case "createdAt":
-        case "updatedAt":
-          return new Timestamp(
-            item.createdAt.seconds,
-            item.createdAt.nanoseconds
-          )
-            .toDate()
-            .toLocaleString();
+        case "items":
+          return (
+            <div>
+              {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                item.items.map((item: any, index: number) => (
+                  <div key={index}>
+                    <span>Izdelek: {index}</span>
+                    <div>
+                      {Object.keys(item)
+                        .sort()
+                        .map((k) => (
+                          <div key={k}>
+                            <strong>{k}:</strong> {JSON.stringify(item[k])}
+                          </div>
+                        ))}
+                    </div>
+                    <Divider />
+                  </div>
+                ))
+              }
+            </div>
+          );
         case "duration":
           return `${((item.duration || 0) / 1000).toFixed(2)} s`;
         case "image":
@@ -91,11 +121,13 @@ export default function Page() {
   return (
     <Table aria-label="AI Responses" isCompact>
       <TableHeader>
-        {Object.keys((data && data[0]) || {}).map((key) => (
-          <TableColumn width={200} key={key}>
-            {key}
-          </TableColumn>
-        ))}
+        {Object.keys((data && data[0]) || {})
+          .sort()
+          .map((key) => (
+            <TableColumn width={200} key={key}>
+              {key}
+            </TableColumn>
+          ))}
       </TableHeader>
       <TableBody items={data || []}>
         {(item: DocumentData) => (
