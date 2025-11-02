@@ -1,6 +1,14 @@
-export const productConfig = {
+export const garmet = {
+  type: "shirt",
+  colors: [
+    { name: "Bela", hex: "#F0F1F6" },
+    { name: "Črna", hex: "#111017" },
+    { name: "Siva", hex: "#9EA1A6" },
+    { name: "Mango rumena", hex: "#E29D1C" },
+    { name: "Žabljevo zelena", hex: "#81ABA3" },
+    { name: "Svetlo Modra", hex: "#0162AD" },
+  ],
   sizes: ["XS", "S", "M", "L", "XL", "XXL"],
-  colors: ["Rdeča", "Modra", "Zelena", "Rumena", "Črna", "Bela"],
 };
 
 const products = {
@@ -9,9 +17,9 @@ const products = {
     slug: "sadez-zelenjava",
     name: "Moj hobi, moj poklic",
     shortName: "Moj hobi, moj poklic",
+    defaultShirtColor: "#F0F1F6",
     description:
       "Izberi sadje in hobi in ustvari popolnoma unikatno majico zase ali za darilo.",
-    sizes: ["XS", "S", "M", "L", "XL", "XXL"],
     variables: {
       primary: {
         title: "Sadež ali zelenjava",
@@ -76,9 +84,10 @@ const products = {
     slug: "silhueta-zivali",
     name: "Silhueta živali",
     shortName: "Silhueta živali",
+    // TODO: how to improve default color handling to use from garment
+    defaultShirtColor: "#111017",
     description:
       "Izberi svojo najljubšo žival in ustvari kul majico s silhueto živali.",
-    sizes: ["XS", "S", "M", "L", "XL", "XXL"],
     imageUrl: "/images/majica-silhueta-zivali.jpg",
     variables: {
       primary: {
@@ -113,10 +122,9 @@ const products = {
     slug: "rojstni-dan-prometni-znak-in-ime",
     name: "Personalizirana majica za rojstni dan - prometni znak in ime",
     shortName: "Rojstni dan prometni znak in ime",
+    defaultShirtColor: "#F0F1F6",
     description:
       "Unisex majica z unikatnim dizajnom prometnega znaka s številko in imenom po želji.",
-    sizes: ["XS", "S", "M", "L", "XL", "XXL"],
-    colors: ["Rdeča", "Modra", "Zelena", "Rumena", "Črna", "Bela"],
     imageUrl: "/images/majica-rojstni-dan-prometni-znak-in-ime.jpg",
     variables: {
       primary: {

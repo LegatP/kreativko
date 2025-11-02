@@ -25,6 +25,7 @@ const createRouteBuilder = (basePath: string) => {
   };
 };
 
+// TODO: improve by automatically wrapping in createRouteBuilder all routes??
 const ROUTES = {
   home: "/",
   login: "/racun#prijava",
@@ -40,6 +41,7 @@ const ROUTES = {
     collections: () => "/admin/[collection]",
   },
   createDesign: createRouteBuilder("/ustvari-motiv"),
+  productDetails: (slug: string) => createRouteBuilder(`/${slug}`),
 } as const;
 
 export default ROUTES;

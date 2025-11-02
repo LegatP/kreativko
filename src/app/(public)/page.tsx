@@ -31,6 +31,7 @@ import {
 } from "@/lib/firebase/analytics";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useCheckoutContext } from "@/components/contexts/AppContext/CheckoutContext";
+import ROUTES from "@/utils/routes.utils";
 
 export default function Page() {
   const desings = products["sadez-zelenjava"].designs.slice(0, 3);
@@ -224,7 +225,9 @@ export default function Page() {
                 isPressable
                 shadow="md"
                 as={Link}
-                href={product.slug}
+                href={ROUTES.productDetails(product.slug)({
+                  query: { barva: product.defaultShirtColor.replace("#", "") },
+                })}
                 onPress={() =>
                   trackCustomizeDesignClick(product.id, product.name)
                 }
@@ -232,8 +235,12 @@ export default function Page() {
                 <Image
                   isZoomed
                   src={product.designs[0].imageUrl}
+                  radius="none"
                   alt={product.name}
                   className="object-cover"
+                  style={{
+                    backgroundColor: product.defaultShirtColor,
+                  }}
                 />
                 <Divider />
                 <CardBody className="px-4 pt-4 pb-6 flex flex-col justify-between">

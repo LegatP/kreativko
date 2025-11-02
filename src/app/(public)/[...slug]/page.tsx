@@ -1,9 +1,9 @@
 "use client";
 
-import { notFound } from "next/navigation";
+import { notFound, useSearchParams } from "next/navigation";
 import { use, useEffect } from "react";
 import { useCheckoutContext } from "@/components/contexts/AppContext/CheckoutContext";
-import products, { productConfig } from "@/products";
+import products, { garmet } from "@/products";
 import ProductPageLayout from "@/components/layout/ProductPageLayout";
 import CanvasModel from "@/components/canvas";
 import { Product } from "@/types/product.types";
@@ -19,8 +19,10 @@ export default function Page({
 }: {
   params: Promise<{ slug: string[] }>;
 }) {
+  const searchParams = useSearchParams();
+  const shirtColor = `#${searchParams.get("barva") || garmet.colors[0].hex}`;
   const { slug } = use(params);
-  const sizes = productConfig.sizes;
+  const sizes = garmet.sizes;
 
   const {
     onOpen: openCheckout,
@@ -40,11 +42,6 @@ export default function Page({
   // Get product from products.ts
   const product = Object.values(products).find((p) => p.slug === productSlug);
 
-  // Scroll to top on product change
-  // useEffect(() => {
-  //   window.scrollTo(0, 0);
-  // }, [productSlug]);
-
   useEffect(() => {
     if (!product) return;
 
@@ -56,7 +53,7 @@ export default function Page({
     setItem({
       productId: product.id,
       name: product.name,
-      color: "#FFFFFF",
+      color: shirtColor,
       designUrl: product.designs[0]?.imageUrl || "",
       quantities,
     });
