@@ -136,8 +136,7 @@ export default function Page() {
       <section
         className="bg-primary-50 pt-8 lg:pt-20"
         style={{
-          backgroundImage: "url('/assets/bg.png')",
-          backgroundBlendMode: "overlay",
+          backgroundImage: "url('/assets/bg-transparent.png')",
         }}
       >
         <div className="container mx-auto sm:text-center max-w-7xl">
