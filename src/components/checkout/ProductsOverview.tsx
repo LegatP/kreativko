@@ -121,7 +121,7 @@ export default function ProductsOverview({
             <span>Poštnina</span>
             <span className="text-xs mt-1.5 flex items-center gap-1 text-success-600">
               <InfoIcon className="w-4 h-4" /> Brezplačna poštnina ob naročilu
-              dveh ali več kosov
+              nad 50€
             </span>
           </div>
           <span>{!withShipping ? "0" : BASE_SHIPPING_COST.toFixed(2)}€</span>

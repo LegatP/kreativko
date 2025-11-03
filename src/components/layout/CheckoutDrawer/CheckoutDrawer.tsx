@@ -67,6 +67,7 @@ export default function CheckoutDrawer() {
     item,
     setItem,
     totalQuantity,
+    isWithShipping,
     onClose,
   } = useCheckoutContext();
   const [step, setStep] = useState(1);
@@ -279,7 +280,7 @@ export default function CheckoutDrawer() {
                       totalPrice={totalAmount}
                       products={overviewItems}
                       // TODO: improve this logic
-                      withShipping={totalQuantity < 2}
+                      withShipping={isWithShipping}
                       onSizeChange={(size, value) => {
                         setItem({
                           ...item,
@@ -341,11 +342,6 @@ export default function CheckoutDrawer() {
                           <Elements
                             stripe={stripePromise}
                             options={{
-                              // @ts-expect-error expected error due to missing types??
-                              wallets: {
-                                link: "never",
-                              },
-                              clientSecret,
                               locale: "sl",
                               appearance: {
                                 theme: "stripe",

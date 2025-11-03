@@ -93,7 +93,9 @@ export default function ProductCustomization({
         <CardBody className="pt-4 pb-6">
           {/* Quantity and Add to Cart */}
           <div className="flex items-center justify-between mb-3">
-            <div className="text-sm text-gray-700">Skupaj za plačilo</div>
+            <div className="text-sm text-gray-700">
+              Skupaj za majice in tisk
+            </div>
             <div className="text-2xl font-bold text-primary">
               €{productsAmount.toFixed(2)}
             </div>

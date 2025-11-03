@@ -17,6 +17,9 @@ import {
 import {
   ArrowRightIcon,
   CheckCircleIcon,
+  PackageIcon,
+  PrinterIcon,
+  TagIcon,
   XCircleIcon,
 } from "@phosphor-icons/react";
 import DescribeDesignForm from "@/components/forms/DescribeDesignForm";
@@ -150,34 +153,45 @@ export default function Page() {
           <div className="flex items-center lg:items-start flex-col lg:flex-row mt-8">
             <div className="w-full sm:max-w-md md:mt-7 lg:mt-22 px-4">
               <DescribeDesignForm />
-              {/* <div className="flex flex-row gap-4">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <Button
-                  className="mt-4 text-primary-900 bg-white text-sm font-semibold"
+                  className="mt-4 text-primary-900 bg-white text-xs font-semibold hover:cursor-default"
                   size="md"
                   variant="bordered"
                   color="primary"
-                  isDisabled
+                  disableRipple
+                  disableAnimation
                   startContent={
-                    <TagIcon weight="bold" className="w-6 h-6 text-primary" />
-                  }
-                >
-                  Enotna cena 19.99€
-                </Button>
-                <Button
-                  className="mt-4 text-900 bg-white text-sm"
-                  size="md"
-                  variant="bordered"
-                  color="primary"
-                  startContent={
-                    <PackageIcon
-                      weight="fill"
-                      className="w-6 h-6  text-primary"
+                    <PrinterIcon
+                      weight="bold"
+                      className="w-5 h-5 text-primary"
                     />
                   }
                 >
-                  Breplačna pošitnina za 2+ kosa
+                  Kakovosten tisk
                 </Button>
-              </div> */}
+                <Button
+                  className="sm:mt-4 text-900 bg-white hover:cursor-default"
+                  size="md"
+                  variant="bordered"
+                  color="primary"
+                  disableRipple
+                  disableAnimation
+                  startContent={
+                    <PackageIcon
+                      weight="fill"
+                      className="w-5 h-5  text-primary"
+                    />
+                  }
+                >
+                  <span className="text-primary-900 font-semibold text-xs">
+                    {
+                      // TODO: move to config
+                    }
+                    Brezplačna poštnina nad 50€
+                  </span>
+                </Button>
+              </div>
             </div>
             <div className="w-full lg:flex-1 flex justify-center items-center overflow-hidden lg:mt-0 mt-10">
               <div className="w-full min-w-[500px] max-w-[700px] aspect-square relative">

@@ -1,7 +1,4 @@
-import { Configuration } from "@/db/configurations";
-import { Product } from "@/types/product.types";
 import { useDisclosure } from "@heroui/react";
-import { sub } from "framer-motion/client";
 import React, {
   createContext,
   useContext,
@@ -43,6 +40,7 @@ interface CheckoutContextType {
   totalAmount: number;
   productsAmount: number;
   totalQuantity: number;
+  isWithShipping: boolean;
 }
 
 const CheckoutContext = createContext<CheckoutContextType | undefined>(
@@ -83,10 +81,14 @@ export const CheckoutContextProvider = ({
     return totalQuantity * BASE_PRODUCT_PRICE;
   }, [totalQuantity]);
 
+  const isWithShipping = useMemo(() => {
+    return productsAmount <= 50.0;
+  }, [productsAmount]);
+
   const totalAmount = useMemo(() => {
-    const shippingCost = totalQuantity < 2 ? BASE_SHIPPING_COST : 0;
+    const shippingCost = isWithShipping ? BASE_SHIPPING_COST : 0;
     return productsAmount + shippingCost;
-  }, [productsAmount, totalQuantity]);
+  }, [productsAmount, isWithShipping]);
 
   return (
     <CheckoutContext.Provider
@@ -102,6 +104,7 @@ export const CheckoutContextProvider = ({
         totalAmount,
         productsAmount,
         totalQuantity,
+        isWithShipping,
       }}
     >
       {children}
