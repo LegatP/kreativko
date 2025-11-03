@@ -341,6 +341,10 @@ export default function CheckoutDrawer() {
                           <Elements
                             stripe={stripePromise}
                             options={{
+                              // @ts-expect-error expected error due to missing types??
+                              wallets: {
+                                link: "never",
+                              },
                               clientSecret,
                               locale: "sl",
                               appearance: {
