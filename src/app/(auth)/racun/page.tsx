@@ -4,11 +4,14 @@ import React from "react";
 import { Card, Tab, Tabs } from "@heroui/react";
 import SignInForm from "@/components/auth/SignInForm";
 import SignUpForm from "@/components/auth/SignUpForm";
-import ForgotPasswordForm from "@/components/auth/ForgotPasswordForm";
+// import ForgotPasswordForm from "@/components/auth/ForgotPasswordForm";
 import usePathHash from "@/hooks/usePathHash";
 
 export default function Page() {
   const hash = usePathHash();
+
+  const validHashes = ["#prijava", "#registracija"];
+  const finalHash = validHashes.includes(hash) ? hash : "#prijava";
 
   const cardClasses =
     "p-6 sm:p-25 sm:pt-16 flex flex-col gap-4 items-center w-full";
@@ -19,7 +22,7 @@ export default function Page() {
         className="sm:mb-4 hidden md:block"
         variant="light"
         color="default"
-        selectedKey={hash ?? "#prijava"}
+        selectedKey={finalHash}
         size="lg"
       >
         <Tab
@@ -48,7 +51,7 @@ export default function Page() {
             <SignUpForm />
           </Card>
         </Tab>
-        <Tab
+        {/* <Tab
           href="#pozabljeno-geslo"
           key="#pozabljeno-geslo"
           title="Pozabljeno geslo"
@@ -60,7 +63,7 @@ export default function Page() {
             </h1>
             <ForgotPasswordForm />
           </Card>
-        </Tab>
+        </Tab> */}
       </Tabs>
     </>
   );

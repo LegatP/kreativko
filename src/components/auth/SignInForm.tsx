@@ -61,9 +61,9 @@ export default function SignInForm() {
           size="sm"
           isRequired
         />
-        <Link className="text-xs self-end" href="#pozabljeno-geslo">
+        {/* <Link className="text-xs self-end" href="#pozabljeno-geslo">
           Pozabljeno geslo?
-        </Link>
+        </Link> */}
       </div>
 
       {error && (

@@ -1,6 +1,5 @@
 "use client";
 import Navigation from "@/components/layout/Navigation";
-import CheckoutDrawer from "@/components/layout/CheckoutDrawer/CheckoutDrawer";
 import ROUTES from "@/utils/routes.utils";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useRouter } from "next/navigation";
@@ -16,7 +15,7 @@ export default function Layout({
   const [user] = useAuthState(auth);
 
   useEffect(() => {
-    if (user) {
+    if (user && !user.isAnonymous) {
       replace(ROUTES.orders);
     }
   }, [user, replace]);

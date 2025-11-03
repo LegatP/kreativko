@@ -4,9 +4,10 @@ import React, { useState } from "react";
 import { useEffect } from "react";
 import auth, { onIdTokenChanged, signIn } from "@/lib/firebase/auth";
 import { deleteCookie, setCookie } from "cookies-next";
-import { getAnalytics } from "firebase/analytics";
+import { getAnalytics, setUserId } from "firebase/analytics";
 import { getPerformance } from "firebase/performance";
 import app from "@/lib/firebase/init";
+import { signInAnonymously } from "firebase/auth";
 
 export default function FirebaseProvider({
   children,
@@ -16,16 +17,9 @@ export default function FirebaseProvider({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!auth.currentUser) {
-      signIn();
-    }
-  }, []);
-
-  useEffect(() => {
     const initializeAnalytics = async () => {
       try {
-        const analytics = getAnalytics(app);
-
+        getAnalytics(app);
         getPerformance(app);
       } catch (error) {
         console.error(
@@ -44,7 +38,7 @@ export default function FirebaseProvider({
         const idToken = await user.getIdToken();
         await setCookie("__session", idToken);
       } else {
-        await deleteCookie("__session");
+        await signInAnonymously(auth);
       }
       setLoading(false);
     });
