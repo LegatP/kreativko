@@ -98,4 +98,50 @@ async function createShirtPattern(
   }
 }
 
-export { createShirtPattern };
+async function editShirtPattern({
+  prompt,
+  existingDesignUrl,
+}: {
+  prompt: string;
+  existingDesignUrl: string;
+}): Promise<CreateShirtPatternResponse | undefined> {
+  try {
+    const model = "gpt-image-1";
+    const size = "1024x1024";
+    const quality = "high";
+    const start = Date.now();
+    const fileResp = await fetch(existingDesignUrl);
+    const imageBuffer = await fileResp.arrayBuffer();
+    const imageFile = new File([imageBuffer], "image.png", {
+      type: "image/png",
+    });
+
+    const response = await client.images.edit({
+      prompt,
+      image: imageFile,
+      n: 1,
+      size: size,
+      model,
+      background: "transparent",
+      quality,
+      input_fidelity: "high",
+    });
+    console.log("Variation response:", response);
+    const duration = Date.now() - start;
+    return {
+      api: "openai",
+      b64_json: response?.data?.[0].b64_json || undefined,
+      duration,
+      prompt: "",
+      finalPrompt: "",
+      model,
+      size,
+      quality,
+    };
+  } catch (error) {
+    console.error("Error generating image variation:", error);
+    return undefined;
+  }
+}
+
+export { createShirtPattern, editShirtPattern };

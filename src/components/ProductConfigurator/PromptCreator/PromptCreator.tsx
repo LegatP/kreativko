@@ -1,8 +1,21 @@
 "use client";
 
-import { Button, Card, CardBody, Textarea } from "@heroui/react";
-import { useCallback, useEffect, useImperativeHandle, useState } from "react";
-import { PaintBrushIcon } from "@phosphor-icons/react";
+import {
+  Button,
+  ButtonGroup,
+  Card,
+  CardBody,
+  Divider,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownTrigger,
+  Tab,
+  Tabs,
+  Textarea,
+} from "@heroui/react";
+import { useCallback, useImperativeHandle, useState } from "react";
+import { CaretDownIcon, PaintBrushIcon } from "@phosphor-icons/react";
 import { useImageGeneration } from "@/hooks/useImageGeneration";
 import { DesignStyle } from "@/types/product.types";
 import {
@@ -26,12 +39,32 @@ export interface PromptCreatorRef {
   setPrompt: (prompt: string) => void;
 }
 
+const descriptionsMap = {
+  create:
+    "Opiši motiv, ki ga želiš ustvariti. Na podlagi tvojega opisa bomo ustvarili unikatno grafiko.",
+  edit: "Izberi motiv in opiši spremembe, ki jih želiš narediti na obstoječem motivu.",
+  variantion:
+    "Izberi motiv in opiši spremembe, ustvarili bomo različice izbranega motiva.",
+};
+
+const labelsMap = {
+  create: "Ustvari nov motiv",
+  edit: "Prilagodi motiv",
+  variantion: "Ustvari različice motiva",
+};
+
 const PromptCreator = forwardRef<PromptCreatorRef, PromptCreatorProps>(
   ({ onDesignSelect, selectedDesignUrl }, ref) => {
     const [prompt, setPrompt] = useState("");
     const [isGenerating, setIsGenerating] = useState(false);
     const { generateImage } = useImageGeneration();
     const [designs, setDesigns] = useState<Design[]>([]);
+    const [mode, setMode] = useState<"create" | "edit" | "variantion">(
+      "create"
+    );
+
+    // console.log(Array.from(mode));
+    // console.log("Selected mode:", selectedMode);
 
     const handleGenerateMotif = useCallback(
       async (prompt: string) => {
@@ -49,7 +82,11 @@ const PromptCreator = forwardRef<PromptCreatorRef, PromptCreatorProps>(
         trackDesignGenerationStart(prompt, DesignStyle.Colorful);
 
         try {
-          const result = await generateImage(prompt, DesignStyle.Colorful);
+          const result = await generateImage(
+            prompt,
+            DesignStyle.Colorful,
+            mode
+          );
           // TODO: revert
           // const result = {
           //   url: "https://firebasestorage.googleapis.com/v0/b/kreativko---development.firebasestorage.app/o/miMceISWCgaJ00yyVLfeXAUaEb73%2F1760025709663_ai_generated.png?alt=media&token=5382d01a-7d47-434a-b01f-74cd7bf6ecc4",
@@ -103,7 +140,7 @@ const PromptCreator = forwardRef<PromptCreatorRef, PromptCreatorProps>(
               Ustvari motiv
             </h3>
             <p className="text-medium text-default-700">
-              Opiši motiv, ki si ga želiš ustvariti.
+              Prilagodiš lahko obstoječih motiv ali ustvariš popolnoma novega.
             </p>
           </div>
 
@@ -113,8 +150,33 @@ const PromptCreator = forwardRef<PromptCreatorRef, PromptCreatorProps>(
             onDesignSelect={onDesignSelect}
             withPlaceholder={isGenerating}
           />
+          <Tabs variant="underlined" classNames={{ base: "m-0" }}>
+            <Tab value="variables" title="Ustvari nov motiv" className="pl-0">
+              {/* <Textarea
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                minRows={8}
+                maxRows={12}
+                autoFocus
+                variant="bordered"
+                color="primary"
+              /> */}
+              <span>TODO</span>
+            </Tab>
+            <Tab value="edit" title="Prilagodi obstoječi motiv">
+              <Textarea
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                minRows={8}
+                maxRows={12}
+                autoFocus
+                variant="bordered"
+                color="primary"
+              />
+            </Tab>
+          </Tabs>
 
-          <Textarea
+          {/* <Textarea
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             minRows={8}
@@ -122,19 +184,56 @@ const PromptCreator = forwardRef<PromptCreatorRef, PromptCreatorProps>(
             autoFocus
             variant="bordered"
             color="primary"
-          />
-
+          /> */}
           <Button
             startContent={<PaintBrushIcon className="w-5 h-5" weight="fill" />}
-            variant="ghost"
+            variant="solid"
             color="primary"
             fullWidth
             onPress={() => handleGenerateMotif(prompt)}
-            isDisabled={!prompt.trim() || isGenerating}
+            // isDisabled={!prompt.trim() || isGenerating}
             isLoading={isGenerating}
+            className="text-white"
           >
-            {isGenerating ? "Ustvarjam motiv..." : "Ustvari motiv"}
+            {isGenerating ? "Pripravljam motiv..." : labelsMap[mode]}
           </Button>
+          {/* <ButtonGroup variant="flat">
+            <Dropdown placement="bottom-end">
+              <DropdownTrigger>
+                <Button
+                  variant="solid"
+                  color="primary"
+                  isIconOnly
+                  className="text-white"
+                >
+                  <CaretDownIcon className="w-5 h-5" />
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu
+                disallowEmptySelection
+                selectedKeys={mode}
+                selectionMode="single"
+                onSelectionChange={(key) =>
+                  setMode(
+                    Array.from(key)[0] as "create" | "edit" | "variantion"
+                  )
+                }
+              >
+                {Object.entries(labelsMap).map(([key, label]) => (
+                  <DropdownItem
+                    color="default"
+                    variant="flat"
+                    key={key}
+                    description={
+                      descriptionsMap[key as keyof typeof descriptionsMap]
+                    }
+                  >
+                    {label}
+                  </DropdownItem>
+                ))}
+              </DropdownMenu>
+            </Dropdown>
+          </ButtonGroup> */}
         </CardBody>
       </Card>
     );

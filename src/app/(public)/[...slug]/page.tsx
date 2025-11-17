@@ -61,7 +61,7 @@ export default function Page({
   }, [product?.id]);
 
   if (!product) {
-    notFound();
+    return notFound();
   }
 
   const { quantities, color, designUrl } = item;
@@ -82,17 +82,6 @@ export default function Page({
           onDesignSelect={handleDesignSelect}
         />
       }
-      centerColumn={
-        <div className="w-full max-w-full overflow-hidden">
-          <div className="aspect-square w-full mx-auto">
-            <CanvasModel
-              product={Product.Shirt}
-              color={color}
-              frontPatternUrl={designUrl}
-            />
-          </div>
-        </div>
-      }
       rightColumn={
         <ProductCustomization
           name={product.name}
@@ -109,6 +98,17 @@ export default function Page({
           productId={product.id}
           color={color}
         />
+      }
+      centerColumn={
+        <div className="w-full max-w-full overflow-hidden">
+          <div className="aspect-square w-full mx-auto">
+            <CanvasModel
+              product={Product.Shirt}
+              color={color}
+              frontPatternUrl={designUrl}
+            />
+          </div>
+        </div>
       }
     />
   );

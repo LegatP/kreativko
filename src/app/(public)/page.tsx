@@ -37,8 +37,10 @@ import { useCheckoutContext } from "@/components/contexts/AppContext/CheckoutCon
 import ROUTES from "@/utils/routes.utils";
 
 export default function Page() {
-  const desings = products["sadez-zelenjava"].designs.slice(0, 3);
-  const [selectedDesign] = useState<string>(desings[0].imageUrl);
+  // const desings = products["sadez-zelenjava"].designs.slice(0, 3);
+  const desings = [];
+  // const [selectedDesign] = useState<string>(desings[0]?.imageUrl);
+  const [selectedDesign, setSelectedDesign] = useState<string>("");
   const searchParams = useSearchParams();
   const router = useRouter();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -195,11 +197,11 @@ export default function Page() {
             </div>
             <div className="w-full lg:flex-1 flex justify-center items-center overflow-hidden lg:mt-0 mt-10">
               <div className="w-full min-w-[500px] max-w-[700px] aspect-square relative">
-                <CanvasModel
+                {/* <CanvasModel
                   product={Product.Shirt}
                   color="#fff"
                   frontPatternUrl={selectedDesign}
-                />
+                /> */}
               </div>
               {/* <div className="flex flex-row gap-4 max-w-[55%]">
                 {desings.map((design) => (
@@ -229,9 +231,9 @@ export default function Page() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10 max-w-4xl mx-auto">
             {[
-              products["sadez-zelenjava"],
-              products["silhueta-zivali"],
-              products["rojstni-dan-prometni-znak-in-ime"],
+              // products["sadez-zelenjava"],
+              // products["silhueta-zivali"],
+              products["40-jih-mam-pa-kaj"],
             ].map((product) => (
               <Card
                 key={product.id}
