@@ -51,7 +51,7 @@ export interface CreateShirtPatternResponse {
 
 async function createShirtPattern(
   prompt: string,
-  designStyle: DesignStyle
+  designStyle: DesignStyle = DesignStyle.Colorful
 ): Promise<CreateShirtPatternResponse | undefined> {
   const { user } = await getAuthenticatedAppForUser();
 

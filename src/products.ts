@@ -33,8 +33,9 @@ const products = {
     prompt: "Change the number to ${primary}. Do not make any other changes.",
     promptType: "edit",
     designs: [
+      // main design is always first
       {
-        title: "40-jih-mam-pa-kaj",
+        title: "",
         imageUrl:
           "https://firebasestorage.googleapis.com/v0/b/kreativko---development.firebasestorage.app/o/static%2F40-jih-mam-pa-kaj-2.png?alt=media&token=fc5dce58-5618-45b2-9907-b6982d526f85",
       },
@@ -195,8 +196,9 @@ const products = {
 
 export type Product = Omit<
   (typeof products)[keyof typeof products],
-  "variables"
+  "variables" | "promptType"
 > & {
+  promptType: "edit" | "create";
   variables: {
     key: string;
     title: string;

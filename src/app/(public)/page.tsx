@@ -37,10 +37,10 @@ import { useCheckoutContext } from "@/components/contexts/AppContext/CheckoutCon
 import ROUTES from "@/utils/routes.utils";
 
 export default function Page() {
-  // const desings = products["sadez-zelenjava"].designs.slice(0, 3);
-  const desings = [];
-  // const [selectedDesign] = useState<string>(desings[0]?.imageUrl);
-  const [selectedDesign, setSelectedDesign] = useState<string>("");
+  const desings = products["40-jih-mam-pa-kaj"].designs.slice(0, 3);
+  // const desings = [];
+  const [selectedDesign] = useState<string>(desings[0]?.imageUrl);
+  // const [selectedDesign, setSelectedDesign] = useState<string>("");
   const searchParams = useSearchParams();
   const router = useRouter();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -197,11 +197,11 @@ export default function Page() {
             </div>
             <div className="w-full lg:flex-1 flex justify-center items-center overflow-hidden lg:mt-0 mt-10">
               <div className="w-full min-w-[500px] max-w-[700px] aspect-square relative">
-                {/* <CanvasModel
+                <CanvasModel
                   product={Product.Shirt}
                   color="#fff"
                   frontPatternUrl={selectedDesign}
-                /> */}
+                />
               </div>
               {/* <div className="flex flex-row gap-4 max-w-[55%]">
                 {desings.map((design) => (
@@ -220,7 +220,7 @@ export default function Page() {
       </section>
 
       {/* Products Section */}
-      <section id="produkti" className="py-8 lg:py-20 bg-white">
+      {/* <section id="produkti" className="py-8 lg:py-20 bg-white">
         <div className="container mx-auto px-4 sm:text-center">
           <h2 className="text-3xl font-bold text-primary mb-4">
             Personaliziraj obstoječi motiv
@@ -277,7 +277,7 @@ export default function Page() {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       <footer className="bg-default-50 text-default-900 py-12">
         <div className="container mx-auto px-4 max-w-7xl">

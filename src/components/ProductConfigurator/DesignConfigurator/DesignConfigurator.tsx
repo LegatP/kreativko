@@ -11,53 +11,51 @@ import {
   Tabs,
   Textarea,
 } from "@heroui/react";
-import { useState } from "react";
-import { useImageGeneration } from "@/hooks/useImageGeneration";
-import { DesignStyle } from "@/types/product.types";
+import { useMemo, useState, useCallback } from "react";
 import {
   ImagesIcon,
+  InfoIcon,
   NotePencilIcon,
   PaintBrushIcon,
   SlidersHorizontalIcon,
 } from "@phosphor-icons/react";
 import { insertVariablesIntoPrompt } from "@/utils/prompts.utils";
 import DesignGallery from "../DesignGallery";
-import { th, u } from "framer-motion/client";
 import { Product } from "@/products";
-
-interface Design {
-  title: string;
-  imageUrl: string;
-}
+import { Design } from "../DesignGallery/DesignGallery";
 
 interface DesignGalleryProps {
   product: Product;
   selectedDesignUrl: string;
   onDesignSelect: (imageUrl: string) => void;
+  onSubmit: (prompt: string, promptType: "edit" | "create") => void;
+  isLoading?: boolean;
+  featuredDesigns: Design[];
+  allDesigns: Design[];
 }
 
 export default function DesignConfigurator({
   product,
   selectedDesignUrl,
   onDesignSelect,
+  onSubmit,
+  isLoading,
+  featuredDesigns,
+  allDesigns,
 }: DesignGalleryProps) {
   const [variables, setVariables] = useState<{
     [key: string | number]: string;
   }>({});
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [allDesigns, setAllDesigns] = useState(product.designs);
   const [mode, setMode] = useState<"select" | "edit" | "variables">(
     "variables"
   );
   const [editPrompt, setEditPrompt] = useState("");
 
-  const { generateImage } = useImageGeneration();
-
   const handleChipClick = (variable: string, value: string) => {
     setVariables((prev) => ({ ...prev, [variable]: value }));
   };
 
-  const isInputValid = () => {
+  const isVariablesInputValid = useCallback(() => {
     // TODO: currently all variables are required, change later if needed by adding "required" field to variable definition
     return product.variables.every((variable) => {
       const value = variables[variable.key];
@@ -66,63 +64,32 @@ export default function DesignConfigurator({
       }
       return true;
     });
-  };
+  }, [product.variables, variables]);
 
-  const handleGenerateMotif = async () => {
-    const isValid = isInputValid();
-    if (!isValid) return;
-
-    setIsGenerating(true);
-
-    // TODO: cleanup!! edit promt, isGenerating
-    // TODO: add switch to take into account t shirt color - add to prompt to keep same colors scheme
-
-    try {
-      let result = undefined;
-      if (mode === "variables") {
-        const finalPrompt = insertVariablesIntoPrompt(
-          product.editPrompt || product.prompt,
-          {
-            variablePrimary,
-            variableSecondary,
-          }
-        );
-        // console.log(
-        //   "Final prompt for generation:",
-        //   finalPrompt,
-        //   product.editPrompt,
-        //   variablePrimary
-        // );
-        // throw new Error("Test error");
-        result = await generateImage(
-          finalPrompt,
-          DesignStyle.Colorful,
-          "edit",
-          selectedDesignUrl
-        );
-      } else if (mode === "edit") {
-        result = await generateImage(
-          editPrompt,
-          DesignStyle.Colorful,
-          "edit",
-          selectedDesignUrl
-        );
-        // const result = await
-      }
-      if (result?.url) {
-        const newDesign = {
-          title: `Personaliziran motiv.`,
-          imageUrl: result.url,
-        };
-        setAllDesigns((prev) => [newDesign, ...prev]);
-        onDesignSelect(result.url); // Auto-select the generated design
-      }
-    } catch (error) {
-      console.error("Failed to generate image:", error);
-    } finally {
-      setIsGenerating(false);
+  const onSubmitPrivate = async () => {
+    let prompt = editPrompt;
+    let promptType: typeof product.promptType = "edit";
+    if (mode === "variables") {
+      promptType = product.promptType;
+      prompt = insertVariablesIntoPrompt(product.prompt, variables);
     }
+    onSubmit(prompt, promptType);
   };
+
+  function buttonText() {
+    if (isLoading) {
+      return "Ustvarjamo motiv...";
+    }
+    const prefix = mode === "variables" ? "Prilagodi" : "Spremeni";
+    return `${prefix} motiv`;
+  }
+
+  const isButtonDisabled = useMemo(() => {
+    return (
+      (mode === "variables" ? !isVariablesInputValid() : !editPrompt.trim()) ||
+      isLoading
+    );
+  }, [isLoading, editPrompt, mode, isVariablesInputValid]);
 
   return (
     <>
@@ -137,10 +104,10 @@ export default function DesignConfigurator({
           </div>
 
           <DesignGallery
-            designs={allDesigns}
+            designs={featuredDesigns}
             selectedDesignUrl={selectedDesignUrl}
             onDesignSelect={onDesignSelect}
-            withPlaceholder={isGenerating}
+            withPlaceholder={isLoading}
           />
 
           <Divider className="my-4" />
@@ -164,61 +131,46 @@ export default function DesignConfigurator({
               }
               className="pl-0"
             >
-              {product.variables.primary && (
-                <div>
-                  <Input
-                    label={product.variables.primary.title}
-                    variant="underlined"
-                    placeholder={product.variables.primary.placeholder}
-                    value={variablePrimary}
-                    onChange={(e) => setVariablePrimary(e.target.value)}
-                  />
-                  <div className="flex flex-row flex-wrap mt-2">
-                    {product.variables.primary.suggestions.map(
-                      (item, chipIndex) => (
+              {product.variables.map((variable, index) => {
+                if (variable.type !== "number") {
+                  // TODO: extend with other types and move to function
+                  throw new Error("Only number type is supported currently.");
+                }
+                return (
+                  <div key={index} className="mb-4">
+                    <Input
+                      label={variable.title}
+                      variant="underlined"
+                      placeholder={variable.placeholder}
+                      value={variables[variable.key] || ""}
+                      onChange={(e) =>
+                        handleChipClick(variable.key, e.target.value)
+                      }
+                    />
+                    <div className="flex flex-row flex-wrap mt-2">
+                      {variable.suggestions?.map((item, chipIndex) => (
                         <Chip
                           key={chipIndex}
                           size="sm"
                           className="m-1 cursor-pointer transition-colors hover:bg-primary hover:text-white"
-                          onClick={() => handleChipClick("primary", item)}
+                          onClick={() => handleChipClick(variable.key, item)}
                           color="primary"
                           variant="flat"
                         >
                           {item}
                         </Chip>
-                      )
-                    )}
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
-
-              {product.variables.secondary && (
-                <div>
-                  <Input
-                    label={product.variables.secondary.title}
-                    variant="underlined"
-                    placeholder={product.variables.secondary.placeholder}
-                    value={variableSecondary}
-                    onChange={(e) => setVariableSecondary(e.target.value)}
-                  />
-                  <div className="flex flex-row flex-wrap mt-2">
-                    {product.variables.secondary.suggestions.map(
-                      (item, chipIndex) => (
-                        <Chip
-                          key={chipIndex}
-                          size="sm"
-                          className="m-1 cursor-pointer transition-colors hover:bg-primary hover:text-white"
-                          onClick={() => handleChipClick("secondary", item)}
-                          color="primary"
-                          variant="flat"
-                        >
-                          {item}
-                        </Chip>
-                      )
-                    )}
-                  </div>
-                </div>
-              )}
+                );
+              })}
+              <div className="flex gap-1 mt-2 text-default-600">
+                <InfoIcon />
+                {
+                  // TODO: prvotni motiv should be link which selects the original design
+                }
+                <span className="text-xs">Prilagojen bo prvotni motiv.</span>
+              </div>
             </Tab>
             <Tab
               key="edit"
@@ -238,6 +190,12 @@ export default function DesignConfigurator({
                 variant="bordered"
                 color="primary"
               />
+              <div className="flex gap-1 mt-2 text-default-600">
+                <InfoIcon />
+                <span className="text-xs">
+                  Spremembe bodo uveljavljene na trenutno izbranem motivu.
+                </span>
+              </div>
             </Tab>
             <Tab
               key="select"
@@ -248,7 +206,13 @@ export default function DesignConfigurator({
                 </div>
               }
             >
-              <span>TODO</span>
+              <DesignGallery
+                designs={allDesigns} // Just for demo purposes, show more designs
+                selectedDesignUrl={selectedDesignUrl}
+                onDesignSelect={onDesignSelect}
+                withPlaceholder={isLoading}
+                isSmallCards
+              />
             </Tab>
           </Tabs>
 
@@ -260,12 +224,12 @@ export default function DesignConfigurator({
               variant="solid"
               color="primary"
               fullWidth
-              onPress={handleGenerateMotif}
-              isDisabled={!isInputValid() || isGenerating}
-              isLoading={isGenerating}
+              onPress={onSubmitPrivate}
+              isDisabled={isButtonDisabled}
+              isLoading={isLoading}
               className="text-white"
             >
-              {isGenerating ? "Ustvarjam motiv..." : "Ustvari motiv"}
+              {buttonText()}
             </Button>
           )}
         </CardBody>

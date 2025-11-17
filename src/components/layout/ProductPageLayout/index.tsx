@@ -2,7 +2,6 @@ import { ReactNode } from "react";
 
 interface ProductPageLayoutProps {
   leftColumn: ReactNode;
-  centerColumn: ReactNode;
   rightColumn: ReactNode;
   title?: string;
   description?: string;
@@ -10,7 +9,6 @@ interface ProductPageLayoutProps {
 
 export default function ProductPageLayout({
   leftColumn,
-  centerColumn,
   rightColumn,
   title,
   description,
@@ -29,15 +27,12 @@ export default function ProductPageLayout({
           </div>
         )}
         <div className="grid grid-cols-1 lg:grid-cols-8 gap-4 md:gap-6 lg:gap-8">
-          {/* Left Side - Left and Right columns combined on mobile, separate on desktop */}
           <div className="space-y-4 md:space-y-6 lg:col-span-3 order-2 lg:order-1">
-            <div>{leftColumn}</div>
-            <div className="lg:block">{rightColumn}</div>
+            {leftColumn}
           </div>
 
-          {/* Center Column - Canvas (appears first on mobile) */}
           <div className="lg:col-span-5 order-1 lg:order-2 overflow-hidden -mx-4 flex justify-center -m-4 sm:-m-0">
-            <div className="w-full min-w-[500px] mx-auto">{centerColumn}</div>
+            <div className="w-full min-w-[500px] mx-auto">{rightColumn}</div>
           </div>
         </div>
       </div>

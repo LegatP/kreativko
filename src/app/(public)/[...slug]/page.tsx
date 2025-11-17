@@ -1,7 +1,7 @@
 "use client";
 
 import { notFound, useSearchParams } from "next/navigation";
-import { use, useEffect } from "react";
+import { use, useEffect, useMemo, useState } from "react";
 import { useCheckoutContext } from "@/components/contexts/AppContext/CheckoutContext";
 import products, { garmet } from "@/products";
 import ProductPageLayout from "@/components/layout/ProductPageLayout";
@@ -13,6 +13,8 @@ import {
   trackDesignSelected,
 } from "@/lib/firebase/analytics";
 import DesignConfigurator from "@/components/ProductConfigurator/DesignConfigurator";
+import { useImageGeneration } from "@/hooks/useImageGeneration";
+import { Design } from "@/components/ProductConfigurator/DesignGallery/DesignGallery";
 
 export default function Page({
   params,
@@ -23,6 +25,7 @@ export default function Page({
   const shirtColor = `#${searchParams.get("barva") || garmet.colors[0].hex}`;
   const { slug } = use(params);
   const sizes = garmet.sizes;
+  const { generateImage, isGenerating } = useImageGeneration();
 
   const {
     onOpen: openCheckout,
@@ -41,6 +44,7 @@ export default function Page({
 
   // Get product from products.ts
   const product = Object.values(products).find((p) => p.slug === productSlug);
+  const [generatedDesigns, setGeneratedDesigns] = useState<Design[]>([]);
 
   useEffect(() => {
     if (!product) return;
@@ -60,6 +64,12 @@ export default function Page({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product?.id]);
 
+  const featuredDesigns = useMemo(() => {
+    if (!product) return [];
+
+    return [...generatedDesigns, product.designs[0]].slice(0, 3);
+  }, [generatedDesigns, product]);
+
   if (!product) {
     return notFound();
   }
@@ -71,35 +81,66 @@ export default function Page({
     setItem((i) => ({ ...i, designUrl: imageUrl }));
   };
 
+  const handleSubmit = async (
+    prompt: string,
+    promptType: "edit" | "create"
+  ) => {
+    console.log("Submitting prompt:", prompt, "Type:", promptType);
+    // TODO: variables should consider original design while edit should take the current design
+    try {
+      let result = undefined;
+      if (promptType === "create") {
+        // TODO: gandle generating product prompts
+        throw new Error("Create is not implemented yet.");
+      } else if (promptType === "edit") {
+        result = await generateImage(prompt, "edit", designUrl);
+      }
+      if (result?.url) {
+        const newDesign = {
+          title: `Personaliziran motiv.`,
+          imageUrl: result.url,
+        };
+        setGeneratedDesigns((prev) => [newDesign, ...prev]);
+        handleDesignSelect(result.url); // Auto-select the generated design
+      }
+    } catch (error) {
+      console.error("Failed to generate image:", error);
+    }
+  };
+
   return (
     <ProductPageLayout
       title={product.name}
       description={product.description}
       leftColumn={
-        <DesignConfigurator
-          product={product}
-          selectedDesignUrl={designUrl}
-          onDesignSelect={handleDesignSelect}
-        />
+        <div className="space-y-6">
+          <DesignConfigurator
+            product={product}
+            selectedDesignUrl={designUrl}
+            onDesignSelect={handleDesignSelect}
+            onSubmit={handleSubmit}
+            isLoading={isGenerating}
+            featuredDesigns={featuredDesigns}
+            allDesigns={[...generatedDesigns, ...product.designs]}
+          />
+          <ProductCustomization
+            name={product.name}
+            quantities={quantities}
+            onColorChange={(c) => setItem({ ...item, color: c })}
+            onSizeChange={(size, value) =>
+              setItem({
+                ...item,
+                quantities: { ...quantities, [size]: value },
+              })
+            }
+            productsAmount={productsAmount}
+            onCheckout={openCheckout}
+            productId={product.id}
+            color={color}
+          />
+        </div>
       }
       rightColumn={
-        <ProductCustomization
-          name={product.name}
-          quantities={quantities}
-          onColorChange={(c) => setItem({ ...item, color: c })}
-          onSizeChange={(size, value) =>
-            setItem({
-              ...item,
-              quantities: { ...quantities, [size]: value },
-            })
-          }
-          productsAmount={productsAmount}
-          onCheckout={openCheckout}
-          productId={product.id}
-          color={color}
-        />
-      }
-      centerColumn={
         <div className="w-full max-w-full overflow-hidden">
           <div className="aspect-square w-full mx-auto">
             <CanvasModel

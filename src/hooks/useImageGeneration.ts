@@ -25,7 +25,7 @@ export const useImageGeneration = ({
 
   const generateImage = async (
     prompt: string,
-    designStyle: DesignStyle = DesignStyle.Colorful,
+    // designStyle: DesignStyle = DesignStyle.Colorful,
     model: "create" | "edit" = "create",
     selectedDesignUrl?: string
   ) => {
@@ -47,7 +47,7 @@ export const useImageGeneration = ({
     try {
       let response: CreateShirtPatternResponse | undefined;
       if (model === "create") {
-        response = await createShirtPattern(prompt, designStyle);
+        throw new Error("DesignStyle should be implemented/refined.");
       } else if (model === "edit") {
         console.log("Creating variations for prompt:", prompt);
         if (!selectedDesignUrl) {

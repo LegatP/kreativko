@@ -3,6 +3,7 @@
 import { Card, CardBody } from "@heroui/react";
 import { motion } from "framer-motion";
 import DesignCard from "@/components/UI/DesignCard";
+import cx from "classnames";
 
 export interface Design {
   title: string;
@@ -14,6 +15,7 @@ interface DesignGalleryProps {
   selectedDesignUrl?: string;
   onDesignSelect: (imageUrl: string) => void;
   withPlaceholder?: boolean;
+  isSmallCards?: boolean;
 }
 
 export default function DesignGallery({
@@ -21,12 +23,18 @@ export default function DesignGallery({
   onDesignSelect,
   designs,
   withPlaceholder = false,
+  isSmallCards = false,
 }: DesignGalleryProps) {
   if (designs.length === 0 && !withPlaceholder) {
     return null;
   }
   return (
-    <div className="grid grid-cols-3 gap-3 mb-4">
+    <div
+      className={cx("grid gap-3 mb-4", {
+        "grid-cols-4": isSmallCards,
+        "grid-cols-3": !isSmallCards,
+      })}
+    >
       {withPlaceholder && (
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
