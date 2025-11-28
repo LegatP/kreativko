@@ -38,6 +38,10 @@ function getDigitalPrintPromot(prompt: string): string {
 
 // Design description: "Slogovni orel z razprtim krili"
 
+const digitalPrintingSystemPrompt = `You are a designer creating images specifically for DTF printing (Direct-to-Film). The image must follow these rules:
+    1. The design must be suitable for printing – avoid very thin lines or overly intricate details.  
+    2. The image should not contain any text, unless the design description explicitly requires it.`;
+
 export interface CreateShirtPatternResponse {
   api: string;
   b64_json?: string;
@@ -48,6 +52,16 @@ export interface CreateShirtPatternResponse {
   size: string;
   quality: string;
 }
+
+const IMAGE_GENERATE_CONFIG = {
+  model: "gpt-image-1",
+  size: "1024x1024",
+  quality: "high",
+  background: "transparent",
+  moderation: "low",
+  n: 1,
+  inputFidelity: "high",
+} as const;
 
 async function createShirtPattern(
   prompt: string,
@@ -106,9 +120,8 @@ async function editShirtPattern({
   existingDesignUrl: string;
 }): Promise<CreateShirtPatternResponse | undefined> {
   try {
-    const model = "gpt-image-1";
-    const size = "1024x1024";
-    const quality = "high";
+    const { model, size, quality, background, inputFidelity } =
+      IMAGE_GENERATE_CONFIG;
     const start = Date.now();
     const fileResp = await fetch(existingDesignUrl);
     const imageBuffer = await fileResp.arrayBuffer();
@@ -120,13 +133,13 @@ async function editShirtPattern({
       prompt,
       image: imageFile,
       n: 1,
-      size: size,
+      size,
       model,
-      background: "transparent",
+      background,
       quality,
-      input_fidelity: "high",
+      input_fidelity: inputFidelity,
     });
-    console.log("Variation response:", response);
+
     const duration = Date.now() - start;
     return {
       api: "openai",
@@ -142,6 +155,56 @@ async function editShirtPattern({
     console.error("Error generating image variation:", error);
     return undefined;
   }
+}
+
+export async function generateResponse(
+  prompt: string,
+  imageUrls?: string[]
+): Promise<CreateShirtPatternResponse> {
+  const { model, size, quality, background, inputFidelity, moderation } =
+    IMAGE_GENERATE_CONFIG;
+  const referenceImages = (imageUrls || []).map((url) => ({
+    type: "input_image" as const,
+    detail: "auto" as const,
+    image_url: url,
+  }));
+  const start = Date.now();
+  const response = await client.responses.create({
+    model: "gpt-5.1",
+    tools: [
+      {
+        type: "image_generation",
+        input_fidelity: inputFidelity,
+        background,
+        quality,
+        size,
+        model,
+        moderation,
+      },
+    ],
+    input: [
+      {
+        role: "system",
+        content: digitalPrintingSystemPrompt,
+      },
+      {
+        role: "user",
+        content: [{ type: "input_text", text: prompt }, ...referenceImages],
+      },
+    ],
+  });
+  const duration = Date.now() - start;
+  console.log("OpenAI generateResponse response:", response);
+  return {
+    api: "openai",
+    b64_json: response?.output?.[0]?.result || undefined,
+    prompt,
+    model: "gpt-5.1",
+    size,
+    quality,
+    duration,
+    finalPrompt: `System: ${digitalPrintingSystemPrompt}, User: ${prompt}`,
+  };
 }
 
 export { createShirtPattern, editShirtPattern };

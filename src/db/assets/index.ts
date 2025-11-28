@@ -1,23 +1,19 @@
-import auth from "@/lib/firebase/auth";
-import { addDoc } from "@/lib/firebase/firestore";
-import { Timestamp } from "firebase/firestore";
+// import auth from "@/lib/firebase/auth";
+// import { addDoc, AddDocumentData } from "@/lib/firebase/firestore";
+// import { Timestamp } from "firebase/firestore";
 
-export interface Asset {
-  url: string;
-  type: string;
-  createdAt: Timestamp;
-}
+// export interface Asset {
+//   id: string;
+//   url: string;
+//   title?: string;
+//   // type: string;
+//   createdAt: Timestamp;
+// }
 
-function collectionPath() {
-  return `users/${auth.currentUser!.uid}/assets`;
-}
+// export type AssetData = AddDocumentData<Asset>;
 
-export async function createAsset(
-  data: Omit<Asset, "createdAt" | "userId">
-): Promise<(Asset & { id: string }) | undefined> {
-  try {
-    return await addDoc(collectionPath(), data);
-  } catch (error) {
-    console.error("Error adding document: ", error);
-  }
-}
+// function collectionPath() {
+//   return `users/${auth.currentUser!.uid}/assets`;
+// }
+
+// export const createAsset = addDoc<Asset>(collectionPath);

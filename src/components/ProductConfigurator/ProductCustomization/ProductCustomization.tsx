@@ -24,6 +24,7 @@ interface ProductCustomizationProps {
   productId: string;
   name: string;
   color?: string;
+  isCheckoutDisabled: boolean;
 }
 
 export default function ProductCustomization({
@@ -36,6 +37,7 @@ export default function ProductCustomization({
   name,
   productId = "unknown",
   color = "#FFFFFF",
+  isCheckoutDisabled,
 }: ProductCustomizationProps) {
   const handleCheckout = () => {
     // Calculate total quantity
@@ -110,6 +112,7 @@ export default function ProductCustomization({
             onPress={handleCheckout}
             variant="shadow"
             className="text-white"
+            isDisabled={isCheckoutDisabled}
           >
             Na blagajno
           </Button>

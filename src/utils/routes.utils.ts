@@ -40,7 +40,7 @@ const ROUTES = {
     home: "/admin",
     collections: () => "/admin/[collection]",
   },
-  createDesign: createRouteBuilder("/ustvari-motiv"),
+  createDesign: createRouteBuilder(`/motiv/[designSessionId]`),
   productDetails: (slug: string) => createRouteBuilder(`/${slug}`),
 } as const;
 

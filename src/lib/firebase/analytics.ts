@@ -156,9 +156,8 @@ export const trackDesignGenerationSuccess = (
 /**
  * Track when AI design generation fails
  */
-export const trackDesignGenerationError = (prompt: string, error: string) => {
+export const trackDesignGenerationError = (error: string) => {
   safeLogEvent("design_generation_error", {
-    prompt_length: prompt.length,
     error_message: error,
   });
 };

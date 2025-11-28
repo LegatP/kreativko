@@ -1,8 +1,4 @@
-import {
-  Configuration,
-  createConfiguration,
-  updateConfiguration,
-} from "@/db/configurations";
+import { Configuration, updateConfiguration } from "@/db/configurations";
 import {
   DesignStyle,
   HoodieSizes,
@@ -16,7 +12,6 @@ import React, {
   useContext,
   useState,
   ReactNode,
-  useEffect,
   useRef,
 } from "react";
 
@@ -91,16 +86,16 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 
   const configDoc = useRef<{ id: string } | undefined>(undefined);
 
-  useEffect(() => {
-    if (configDoc.current) return;
-    async function create() {
-      const config = await createConfiguration(state);
-      configDoc.current = config;
-      setState((prev) => ({ ...prev, id: config?.id } as Configuration));
-    }
+  // useEffect(() => {
+  //   if (configDoc.current) return;
+  //   async function create() {
+  //     const config = await createConfiguration(state);
+  //     configDoc.current = config;
+  //     setState((prev) => ({ ...prev, id: config?.id } as Configuration));
+  //   }
 
-    create();
-  });
+  //   create();
+  // });
 
   async function setStatePrivate(state: Partial<Configuration>) {
     setState((prev) => ({ ...prev, ...state }));

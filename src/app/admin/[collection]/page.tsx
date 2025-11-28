@@ -1,8 +1,6 @@
 "use client";
 
 import React from "react";
-import { AiReponse, getAiReponses } from "@/db/ai-reponses";
-import { useEffect, useState } from "react";
 import {
   Table,
   TableHeader,
@@ -17,6 +15,7 @@ import {
   DocumentData,
   FirestoreDataConverter,
   limit,
+  orderBy,
   query,
   Timestamp,
 } from "firebase/firestore";
@@ -54,7 +53,7 @@ export default function Page() {
 
   const col = collection(db, collectionName as string).withConverter(coverter);
   const [data] = useCollectionDataOnce<DocumentData>(
-    collectionName ? query(col, limit(20)) : null
+    collectionName ? query(col, limit(20), orderBy("createdAt", "desc")) : null
   );
 
   function renderCell(item: DocumentData, columnKey: string | number) {
@@ -69,11 +68,13 @@ export default function Page() {
       if (isObject(item[key]) && !isArray(item[key])) {
         return (
           <div>
-            {Object.entries(item[key]).map(([k, v]) => (
-              <div key={k}>
-                <strong>{k}:</strong> {String(v)}
-              </div>
-            ))}
+            {Object.entries(item[key])
+              .sort(([a], [b]) => a.localeCompare(b))
+              .map(([k, v]) => (
+                <div key={k}>
+                  <strong>{k}:</strong> {String(v)}
+                </div>
+              ))}
           </div>
         );
       }

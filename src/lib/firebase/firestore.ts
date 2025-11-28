@@ -19,49 +19,53 @@ const db = initializeFirestore(
   process.env.NEXT_PUBLIC_FIREBASE_DATABASE
 );
 
-export async function addDoc<T>(
-  ref: string | CollectionReference<DocumentData>,
-  data: WithFieldValue<DocumentData>
-): Promise<T & { id: string }> {
-  const finalData = { ...data, createdAt: Timestamp.now() };
-  let docRef;
-  if (typeof ref === "string") {
-    const colRef = collection(db, ref);
-    docRef = await firestoreAddDoc(colRef, finalData);
-  } else {
-    docRef = await firestoreAddDoc(ref, finalData);
-  }
+export type AddDocumentData<T> = Omit<T, "id" | "createdAt">;
 
-  return { ...(data as T), id: docRef.id };
+function getDocReference(
+  ref: string | DocumentReference<DocumentData>
+): DocumentReference<DocumentData> {
+  return typeof ref === "string" ? doc(db, ref) : ref;
 }
 
-export async function setDoc<T>(params: {
-  ref: string | DocumentReference<DocumentData>;
-  data: WithFieldValue<DocumentData>;
-}): Promise<T & { id: string }> {
-  const { ref, data } = params;
-
-  let docRef;
+function getCollectionReference(
+  ref: string | CollectionReference<DocumentData> | (() => string)
+): CollectionReference<DocumentData> {
   if (typeof ref === "string") {
-    docRef = doc(db, ref);
+    return collection(db, ref);
+  } else if (typeof ref === "function") {
+    return collection(db, ref());
   } else {
-    docRef = ref;
+    return ref;
   }
-
-  await firestoreSetDoc(docRef, data);
-  return { ...(data as T), id: docRef.id };
 }
 
-export function updateDoc(
-  ref: string | DocumentReference<DocumentData, WithFieldValue<DocumentData>>,
-  data: Partial<WithFieldValue<DocumentData>>
+export function addDoc<T>(
+  ref: string | CollectionReference<DocumentData> | (() => string)
 ) {
-  if (typeof ref === "string") {
-    const docRef = doc(db, ref);
-    return firestoreUpdateDoc(docRef, data);
-  }
+  return async (data: AddDocumentData<T>) => {
+    const finalData = { ...data, createdAt: Timestamp.now() };
+    const colRef = getCollectionReference(ref);
+    const docRef = await firestoreAddDoc(colRef, finalData);
+    return { ...finalData, id: docRef.id } as T;
+  };
+}
 
-  return firestoreUpdateDoc(ref, data);
+export function setDoc<T>(ref: string | DocumentReference<DocumentData>) {
+  return async (
+    data: WithFieldValue<DocumentData>
+  ): Promise<T & { id: string }> => {
+    const docRef = getDocReference(ref);
+    await firestoreSetDoc(docRef, data);
+    return { ...(data as T), id: docRef.id };
+  };
+}
+
+export function updateDoc<T>(ref: string) {
+  return async (id: string, data: Partial<WithFieldValue<T>>) => {
+    const docRef = getDocReference(`${ref}/${id}`);
+    await firestoreUpdateDoc(docRef, data);
+    return { ...(data as T), id: docRef.id };
+  };
 }
 
 export default db;

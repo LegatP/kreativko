@@ -6,17 +6,24 @@ import {
   BasketIcon,
   FileIcon,
   HouseIcon,
+  ShirtFoldedIcon,
   StarFourIcon,
   UsersIcon,
 } from "@phosphor-icons/react";
 import { Tooltip } from "@heroui/react";
 import Link from "next/link";
+import { DESIGN_SESSION_COLLECTION } from "@/db/design-sessions";
 
 const collections = [
   {
     collectionName: "ai_responses",
     displayName: "Motivi",
     icon: StarFourIcon,
+  },
+  {
+    collectionName: DESIGN_SESSION_COLLECTION,
+    displayName: "Ustvarjeni dizajni",
+    icon: ShirtFoldedIcon,
   },
   {
     collectionName: "users",

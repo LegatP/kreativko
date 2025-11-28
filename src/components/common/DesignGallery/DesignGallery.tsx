@@ -4,30 +4,37 @@ import { Card, CardBody } from "@heroui/react";
 import { motion } from "framer-motion";
 import DesignCard from "@/components/UI/DesignCard";
 import cx from "classnames";
+import FileUpload from "../FileUpload/FileUpload";
 
 export interface Design {
-  title: string;
-  imageUrl: string;
+  title?: string;
+  url: string;
 }
 
 interface DesignGalleryProps {
   designs: Design[];
-  selectedDesignUrl?: string;
+  selectedDesignUrls?: string[] | string;
   onDesignSelect: (imageUrl: string) => void;
   withPlaceholder?: boolean;
   isSmallCards?: boolean;
+  onUpload?: (url: string) => void;
 }
 
 export default function DesignGallery({
-  selectedDesignUrl,
+  selectedDesignUrls,
   onDesignSelect,
   designs,
   withPlaceholder = false,
+  onUpload,
   isSmallCards = false,
 }: DesignGalleryProps) {
-  if (designs.length === 0 && !withPlaceholder) {
+  if (designs.length === 0 && !withPlaceholder && !onUpload) {
     return null;
   }
+  const selectedDesignUrlsArray = Array.isArray(selectedDesignUrls)
+    ? selectedDesignUrls
+    : [selectedDesignUrls];
+
   return (
     <div
       className={cx("grid gap-3 mb-4", {
@@ -49,12 +56,14 @@ export default function DesignGallery({
         </motion.div>
       )}
 
+      {onUpload && <FileUpload onAssetUpload={onUpload} />}
+
       {designs.map((design, index) => (
         <DesignCard
-          key={design.imageUrl + index}
-          title={design.title}
-          isSelected={selectedDesignUrl === design.imageUrl}
-          designUrl={design.imageUrl}
+          key={design.url + index}
+          title={design.title || ""}
+          isSelected={selectedDesignUrlsArray?.includes(design.url)}
+          designUrl={design.url}
           handleDesignSelect={onDesignSelect}
         />
       ))}

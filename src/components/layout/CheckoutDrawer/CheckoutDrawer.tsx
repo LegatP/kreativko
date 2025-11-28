@@ -342,6 +342,7 @@ export default function CheckoutDrawer() {
                           <Elements
                             stripe={stripePromise}
                             options={{
+                              clientSecret,
                               locale: "sl",
                               appearance: {
                                 theme: "stripe",

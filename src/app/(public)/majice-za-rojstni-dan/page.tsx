@@ -39,7 +39,7 @@ export default function Page() {
                 width={250}
                 height={250}
                 isZoomed
-                src={item.designs[0].imageUrl}
+                src={item.designs[0].url}
                 alt={`Majica ${item.name}`}
                 className="w-full object-contain aspect-square p-4"
               />
@@ -63,7 +63,7 @@ export default function Page() {
                 </Button>
                 <Button
                   size="sm"
-                  variant="faded"
+                  variant="bordered"
                   color="primary"
                   className="w-full"
                 >

@@ -8,8 +8,21 @@ import Link from "next/link";
 import { PaintBrushIcon } from "@phosphor-icons/react";
 import ROUTES from "@/utils/routes.utils";
 import { trackCreateDesignFromHeader } from "@/lib/firebase/analytics";
+import { createDesignSession } from "@/db/design-sessions";
+import auth from "@/lib/firebase/auth";
+import { useRouter } from "next/navigation";
 
 export default function Navigation() {
+  const router = useRouter();
+  async function createNewDesign() {
+    const designSession = await createDesignSession({
+      uploadedAssets: [],
+      createdDesigns: [],
+      userId: auth.currentUser ? auth.currentUser.uid : "guest",
+    });
+    router.push(`/motiv/${designSession.id}`);
+  }
+
   return (
     <Navbar isBordered maxWidth="xl" position="static">
       <NavbarBrand>
@@ -60,18 +73,16 @@ export default function Navigation() {
           {auth.currentUser?.displayName || "Prijava"}
         </Button> */}
         <Button
-          as={Link}
           color="primary"
-          href={ROUTES.createDesign()}
           variant="bordered"
           className="text-primary font-bold"
-          // isIconOnly
           size="md"
           startContent={<PaintBrushIcon weight="bold" size={20} />}
-          onPress={() => trackCreateDesignFromHeader()}
+          onPress={() => {
+            trackCreateDesignFromHeader();
+            createNewDesign();
+          }}
         >
-          {/* <UserCircleIcon size={20} weight="duotone" />
-          {auth.currentUser?.displayName || "Prijava"} */}
           Ustvari Motiv
         </Button>
         {/* <Button

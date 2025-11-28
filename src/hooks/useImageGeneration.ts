@@ -2,36 +2,39 @@
 
 import { useState } from "react";
 import { addToast, closeToast } from "@heroui/react";
-import {
-  createShirtPattern,
-  CreateShirtPatternResponse,
-  editShirtPattern,
-} from "@/actions/openai";
+import { CreateShirtPatternResponse, generateResponse } from "@/actions/openai";
 import { uploadFile } from "@/lib/firebase/storage";
-import { createAsset } from "@/db/assets";
 import { createAiReponse } from "@/db/ai-reponses";
-import { DesignStyle } from "@/types/product.types";
+import { trackDesignGenerationError } from "@/lib/firebase/analytics";
+import auth from "@/lib/firebase/auth";
 
-interface UseImageGenerationProps {
-  onSuccess?: (imageUrl: string, assetId?: string) => void;
-  onError?: (error: Error) => void;
-}
-
-export const useImageGeneration = ({
-  onSuccess,
-  onError,
-}: UseImageGenerationProps = {}) => {
+export const useImageGeneration = () => {
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const generateImage = async (
-    prompt: string,
-    // designStyle: DesignStyle = DesignStyle.Colorful,
-    model: "create" | "edit" = "create",
-    selectedDesignUrl?: string
-  ) => {
-    if (!prompt.trim() || isGenerating) {
-      return;
+  const createImage = async (prompt: string, referenceImageUrls?: string[]) => {
+    if (!referenceImageUrls || referenceImageUrls.length === 0) {
+      // return await createShirtPattern(prompt, DesignStyle.Colorful);
     }
+    return generateImage(async () =>
+      generateResponse(prompt, referenceImageUrls)
+    );
+  };
+
+  // const editImage = async (prompt: string, existingDesignUrl: string) => {
+  // TODO: implement
+  // };
+
+  // const createImageWithResponses = async (prompt: string) => {
+  //   // TODO: implement
+
+  //   const responsesApi = async () => generateResponse(prompt);
+  //   await generateImage(responsesApi);
+  // };
+
+  const generateImage = async (
+    serverAction: () => Promise<CreateShirtPatternResponse>
+  ) => {
+    if (isGenerating) return;
 
     setIsGenerating(true);
 
@@ -45,36 +48,26 @@ export const useImageGeneration = ({
     });
 
     try {
-      let response: CreateShirtPatternResponse | undefined;
-      if (model === "create") {
-        throw new Error("DesignStyle should be implemented/refined.");
-      } else if (model === "edit") {
-        console.log("Creating variations for prompt:", prompt);
-        if (!selectedDesignUrl) {
-          throw new Error("No existing design URL provided for editing.");
-        }
-        response = await editShirtPattern({
-          prompt,
-          existingDesignUrl: selectedDesignUrl,
-        });
-      } else {
-        throw new Error("Invalid model type specified.");
-        // const response = await createShirtPattern(prompt, designStyle);
-      }
+      const response: CreateShirtPatternResponse | undefined =
+        await serverAction();
 
       if (!response?.b64_json) {
         throw new Error("No image generated");
       }
 
       const url = await uploadFile(response.b64_json);
-      const asset = await createAsset({ url, type: "image/png" });
+      // TODO: do i need to create asset here?
+      // const asset = await createAsset({ url, type: "image/png" });
 
       if (toastId) {
         closeToast(toastId);
       }
 
-      // Save AI response for analytics/history
-      await createAiReponse({
+      // Save AI response for analytics/history. No need to await.
+      // TODO: a better way to handle b64_json?
+      delete response.b64_json;
+      createAiReponse({
+        userId: auth.currentUser?.uid || "anonymous",
         ...response,
         imageUrl: url,
       });
@@ -85,9 +78,7 @@ export const useImageGeneration = ({
         description: "Tvoj personaliziran motiv je pripravljen.",
       });
 
-      onSuccess?.(url, asset?.id);
-
-      return { url, assetId: asset?.id };
+      return { url, prompt: response.prompt };
     } catch (error) {
       console.error("Error generating image:", error);
 
@@ -102,7 +93,7 @@ export const useImageGeneration = ({
 
       const errorInstance =
         error instanceof Error ? error : new Error("Unknown error");
-      onError?.(errorInstance);
+      trackDesignGenerationError(errorInstance.message);
 
       throw errorInstance;
     } finally {
@@ -111,7 +102,9 @@ export const useImageGeneration = ({
   };
 
   return {
-    generateImage,
+    createImage,
+    // editImage,
+    // generateImageWithResponses,
     isGenerating,
   };
 };

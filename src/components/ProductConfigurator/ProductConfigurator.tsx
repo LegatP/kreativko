@@ -3,24 +3,22 @@ import { useAppStateContext } from "../contexts/AppContext";
 import SelectColor from "./SelectColor";
 import SelectSizes from "./SelectSizes";
 import { Accordion, AccordionItem } from "@heroui/react";
-import SelectGender from "./SelectModel";
-import SelectDesign from "./SelectDesign";
 
 export default function ProductConfigurator() {
-  const { currentProductConfig, setCurrentProductConfig, state, setState } =
+  const { currentProductConfig, setCurrentProductConfig } =
     useAppStateContext();
 
-  const { color, model, frontPatternUrl, sizes } = currentProductConfig as {
+  const { color, sizes } = currentProductConfig as {
     color: string;
     model: string;
     frontPatternUrl: string;
     sizes: Record<string, number>;
   };
 
-  const assets = Object.entries(state.assets).map(([id, url]) => ({
-    id,
-    url,
-  }));
+  // const assets = Object.entries(state.assets).map(([id, url]) => ({
+  //   id,
+  //   url,
+  // }));
 
   return (
     <Accordion

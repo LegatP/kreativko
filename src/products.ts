@@ -36,8 +36,7 @@ const products = {
       // main design is always first
       {
         title: "",
-        imageUrl:
-          "https://firebasestorage.googleapis.com/v0/b/kreativko---development.firebasestorage.app/o/static%2F40-jih-mam-pa-kaj-2.png?alt=media&token=fc5dce58-5618-45b2-9907-b6982d526f85",
+        url: "https://firebasestorage.googleapis.com/v0/b/kreativko---development.firebasestorage.app/o/static%2F40-jih-mam-pa-kaj-2.png?alt=media&token=fc5dce58-5618-45b2-9907-b6982d526f85",
       },
     ],
   },

@@ -23,7 +23,7 @@ const Shirt = ({ color, frontPatternUrl }: ShirtProps) => {
 
   const { gl } = useThree();
   // const currentView = state.viewState?.currentView || "front";
-  const currentView = "front";
+  // const currentView = "front";
   const designRatio = "2:3"; // Default ratio since viewState.designRatio doesn't exist yet
 
   const { nodes, materials } = useGLTF("/assets/shirt_baked.glb");
@@ -76,13 +76,15 @@ const Shirt = ({ color, frontPatternUrl }: ShirtProps) => {
         dispose={null}
       >
         {/* Always show either the design or the placeholder */}
-        <Decal
-          position={[0.02, 0.02, 0.15]}
-          rotation={[0, 0, 0]}
-          scale={0.265}
-          map={displayTexture!}
-          depthTest={false}
-        />
+        {!!frontPatternUrl && (
+          <Decal
+            position={[0.02, 0.02, 0.15]}
+            rotation={[0, 0, 0]}
+            scale={0.265}
+            map={displayTexture!}
+            depthTest={false}
+          />
+        )}
       </mesh>
     </group>
   );

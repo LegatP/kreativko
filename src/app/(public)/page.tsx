@@ -3,9 +3,6 @@
 import Link from "next/link";
 import {
   Card,
-  CardBody,
-  Divider,
-  Image,
   Modal,
   ModalContent,
   ModalHeader,
@@ -13,16 +10,14 @@ import {
   ModalFooter,
   Button,
   useDisclosure,
+  CardHeader,
 } from "@heroui/react";
 import {
-  ArrowRightIcon,
   CheckCircleIcon,
   PackageIcon,
   PrinterIcon,
-  TagIcon,
   XCircleIcon,
 } from "@phosphor-icons/react";
-import DescribeDesignForm from "@/components/forms/DescribeDesignForm";
 import CanvasModel from "@/components/canvas";
 import { Product } from "@/types/product.types";
 import { useEffect, useState } from "react";
@@ -34,13 +29,15 @@ import {
 } from "@/lib/firebase/analytics";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useCheckoutContext } from "@/components/contexts/AppContext/CheckoutContext";
+import PromptForm from "@/components/common/PromptForm";
+import { Asset } from "@/db/assets";
+import { createDesignSession } from "@/db/design-sessions";
+import auth from "@/lib/firebase/auth";
 import ROUTES from "@/utils/routes.utils";
 
 export default function Page() {
   const desings = products["40-jih-mam-pa-kaj"].designs.slice(0, 3);
-  // const desings = [];
   const [selectedDesign] = useState<string>(desings[0]?.imageUrl);
-  // const [selectedDesign, setSelectedDesign] = useState<string>("");
   const searchParams = useSearchParams();
   const router = useRouter();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -48,6 +45,7 @@ export default function Page() {
     "success" | "error" | null
   >(null);
   const { item, totalAmount, totalQuantity } = useCheckoutContext();
+  const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
     // Track landing page view
@@ -89,6 +87,23 @@ export default function Page() {
   const handleCloseModal = () => {
     setPaymentStatus(null);
     onClose();
+  };
+
+  const onPromptSubmit = async (prompt: string, selectedDesigns?: Asset[]) => {
+    setIsGenerating(true);
+
+    const session = await createDesignSession({
+      userId: auth.currentUser!.uid,
+      uploadedAssets: selectedDesigns || [],
+      createdDesigns: [],
+    });
+
+    router.push(
+      ROUTES.createDesign({
+        path: { designSessionId: session.id },
+        query: { opis: prompt },
+      })
+    );
   };
 
   return (
@@ -154,8 +169,19 @@ export default function Page() {
           </p>
           <div className="flex items-center lg:items-start flex-col lg:flex-row mt-8">
             <div className="w-full sm:max-w-md md:mt-7 lg:mt-22 px-4">
-              <DescribeDesignForm />
-              <div className="flex flex-col sm:flex-row gap-2">
+              <Card
+                shadow="sm"
+                className="border-1 border-primary p-2 py-5 px-6 "
+              >
+                <CardHeader className="text-primary font-bold text-xl pl-0 pt-0">
+                  Opiši Svoj Motiv
+                </CardHeader>
+                <PromptForm
+                  onSubmit={onPromptSubmit}
+                  isLoading={isGenerating}
+                />
+              </Card>
+              <div className="flex flex-col sm:flex-row gap-2 justify-center">
                 <Button
                   className="mt-4 text-primary-900 bg-white text-xs font-semibold hover:cursor-default"
                   size="md"
@@ -279,7 +305,7 @@ export default function Page() {
         </div>
       </section> */}
 
-      <footer className="bg-default-50 text-default-900 py-12">
+      {/* <footer className="text-default-900 py-12">
         <div className="container mx-auto px-4 max-w-7xl">
           <div className="grid md:grid-cols-3 gap-8">
             <div>
@@ -312,7 +338,7 @@ export default function Page() {
             <p>&copy; 2025 Moj Motiv. Vse pravice pridržane.</p>
           </div>
         </div>
-      </footer>
+      </footer> */}
     </div>
   );
 }

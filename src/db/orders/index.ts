@@ -35,15 +35,15 @@ export async function createOrder(
 ): Promise<Order> {
   const orderNumber = generateOrderNumber();
 
-  const order: Omit<Order, "id"> = {
+  const order: Omit<Order, "id" | "createdAt"> = {
     ...orderData,
     orderNumber,
     status: orderData.status || "pending",
-    createdAt: Timestamp.now(),
     updatedAt: Timestamp.now(),
   };
 
-  const createdOrder = await addDoc<Order>(ORDERS_COLLECTION, order);
+  const addOrderDoc = addDoc<Order>(ORDERS_COLLECTION);
+  const createdOrder = await addOrderDoc(order);
   return createdOrder;
 }
 
@@ -108,7 +108,8 @@ export async function updateOrderStatus(
     updateData.deliveredAt = Timestamp.now();
   }
 
-  await updateDoc(`${ORDERS_COLLECTION}/${orderId}`, updateData);
+  const updateOrderDoc = updateDoc(ORDERS_COLLECTION);
+  await updateOrderDoc(orderId, updateData);
 }
 
 /**
@@ -118,7 +119,8 @@ export async function updateOrderPaymentIntent(
   orderId: string,
   paymentIntentId: string
 ): Promise<void> {
-  await updateDoc(`${ORDERS_COLLECTION}/${orderId}`, {
+  const updateOrderDoc = updateDoc(ORDERS_COLLECTION);
+  await updateOrderDoc(orderId, {
     paymentIntentId,
     updatedAt: Timestamp.now(),
   });

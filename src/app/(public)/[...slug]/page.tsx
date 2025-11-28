@@ -14,7 +14,7 @@ import {
 } from "@/lib/firebase/analytics";
 import DesignConfigurator from "@/components/ProductConfigurator/DesignConfigurator";
 import { useImageGeneration } from "@/hooks/useImageGeneration";
-import { Design } from "@/components/ProductConfigurator/DesignGallery/DesignGallery";
+import { Design } from "@/components/common/DesignGallery/DesignGallery";
 
 export default function Page({
   params,
@@ -22,10 +22,12 @@ export default function Page({
   params: Promise<{ slug: string[] }>;
 }) {
   const searchParams = useSearchParams();
-  const shirtColor = `#${searchParams.get("barva") || garmet.colors[0].hex}`;
+  const shirtColor = searchParams.get("barva")
+    ? `#${searchParams.get("barva")}`
+    : garmet.colors[0].hex;
   const { slug } = use(params);
   const sizes = garmet.sizes;
-  const { generateImage, isGenerating } = useImageGeneration();
+  const { createImage, isGenerating } = useImageGeneration();
 
   const {
     onOpen: openCheckout,
@@ -58,7 +60,7 @@ export default function Page({
       productId: product.id,
       name: product.name,
       color: shirtColor,
-      designUrl: product.designs[0]?.imageUrl || "",
+      designUrl: product.designs[0]?.url || "",
       quantities,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -93,12 +95,12 @@ export default function Page({
         // TODO: gandle generating product prompts
         throw new Error("Create is not implemented yet.");
       } else if (promptType === "edit") {
-        result = await generateImage(prompt, "edit", designUrl);
+        result = await createImage(prompt, [designUrl]);
       }
       if (result?.url) {
         const newDesign = {
           title: `Personaliziran motiv.`,
-          imageUrl: result.url,
+          url: result.url,
         };
         setGeneratedDesigns((prev) => [newDesign, ...prev]);
         handleDesignSelect(result.url); // Auto-select the generated design
@@ -137,6 +139,7 @@ export default function Page({
             onCheckout={openCheckout}
             productId={product.id}
             color={color}
+            isCheckoutDisabled={!designUrl || productsAmount === 0}
           />
         </div>
       }

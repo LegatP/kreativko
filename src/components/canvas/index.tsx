@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { Canvas } from "@react-three/fiber";
-import { Environment, Center, OrbitControls } from "@react-three/drei";
+import { Environment, Center } from "@react-three/drei";
 
 import Shirt from "./Shirt";
 import Backdrop from "./Backdrop";

@@ -1,7 +1,6 @@
 "use client";
 
 import { HeroUIProvider, ToastProvider } from "@heroui/react";
-import { AppContextProvider } from "../components/contexts/AppContext";
 import FirebaseProvider from "@/components/firebase/FirebaseProvider";
 import { CheckoutContextProvider } from "@/components/contexts/AppContext/CheckoutContext";
 
