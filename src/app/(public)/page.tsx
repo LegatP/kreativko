@@ -22,22 +22,17 @@ import CanvasModel from "@/components/canvas";
 import { Product } from "@/types/product.types";
 import { useEffect, useState } from "react";
 import products from "@/products";
-import {
-  trackCustomizeDesignClick,
-  trackPageView,
-  trackPurchaseComplete,
-} from "@/lib/firebase/analytics";
+import { trackPageView, trackPurchaseComplete } from "@/lib/firebase/analytics";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useCheckoutContext } from "@/components/contexts/AppContext/CheckoutContext";
 import PromptForm from "@/components/common/PromptForm";
-import { Asset } from "@/db/assets";
 import { createDesignSession } from "@/db/design-sessions";
 import auth from "@/lib/firebase/auth";
 import ROUTES from "@/utils/routes.utils";
 
 export default function Page() {
   const desings = products["40-jih-mam-pa-kaj"].designs.slice(0, 3);
-  const [selectedDesign] = useState<string>(desings[0]?.imageUrl);
+  const [selectedDesign] = useState<string>("");
   const searchParams = useSearchParams();
   const router = useRouter();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -89,7 +84,10 @@ export default function Page() {
     onClose();
   };
 
-  const onPromptSubmit = async (prompt: string, selectedDesigns?: Asset[]) => {
+  const onPromptSubmit = async (
+    prompt: string,
+    selectedDesigns?: { url: string }[]
+  ) => {
     setIsGenerating(true);
 
     const session = await createDesignSession({

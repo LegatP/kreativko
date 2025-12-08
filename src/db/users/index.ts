@@ -18,8 +18,5 @@ export async function setUserProfile(
   userId: string,
   profile: Partial<UserProfile>
 ) {
-  return setDoc({
-    ref: `users/${userId}`,
-    data: profile,
-  });
+  return setDoc(`users/${userId}`)(profile);
 }

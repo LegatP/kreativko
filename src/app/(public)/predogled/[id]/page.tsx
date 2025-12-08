@@ -10,13 +10,13 @@ export default function Page() {
 
   const { id } = useParams<{ id: string }>();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const state = await getConfigurationById(id);
-      setState(state);
-    };
-    fetchData();
-  }, [id]);
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     const state = await getConfigurationById(id);
+  //     setState(state);
+  //   };
+  //   fetchData();
+  // }, [id]);
 
   if (!state) return null;
   // return <CanvasModel />;

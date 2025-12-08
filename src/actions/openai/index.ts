@@ -197,6 +197,7 @@ export async function generateResponse(
   console.log("OpenAI generateResponse response:", response);
   return {
     api: "openai",
+    // @ts-expect-error – b64_json is missing in types
     b64_json: response?.output?.[0]?.result || undefined,
     prompt,
     model: "gpt-5.1",

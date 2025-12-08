@@ -68,7 +68,7 @@ export default function Page() {
   // Track which configurable is currently generating
   const [generatingId, setGeneratingId] = useState<string | null>(null);
 
-  const { generateImage, isGenerating } = useImageGeneration();
+  const { createImage, isGenerating } = useImageGeneration();
 
   const handleInputChange = (
     configurableId: string,
@@ -131,7 +131,7 @@ export default function Page() {
     setGeneratingId(configurable.id);
 
     try {
-      const result = await generateImage(prompt, DesignStyle.Colorful);
+      const result = await createImage(prompt);
       if (result?.url) {
         setGeneratedImages((prev) => {
           const updated = { ...prev, [configurable.id]: result.url };

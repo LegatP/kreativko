@@ -1,6 +1,6 @@
 import { Asset, createAsset } from "@/db/assets";
 import { uploadFile } from "@/lib/firebase/storage";
-import { addToast, Card, Select, SelectItem, Spinner } from "@heroui/react";
+import { addToast, Card, Spinner } from "@heroui/react";
 import Image from "next/image";
 import React, { useState } from "react";
 import cx from "classnames";
@@ -36,7 +36,7 @@ export default function SelectDesign({
     try {
       const url = await uploadFile(file);
 
-      const asset = await createAsset({ url, type: file.type });
+      const asset = await createAsset({ url });
 
       if (asset) {
         onAssetUpload(asset);
