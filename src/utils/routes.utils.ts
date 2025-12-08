@@ -40,8 +40,13 @@ const ROUTES = {
     home: "/admin",
     collections: () => "/admin/[collection]",
   },
-  createDesign: createRouteBuilder(`/motiv/[designSessionId]`),
-  productDetails: (slug: string) => createRouteBuilder(`/${slug}`),
+  createDesign: (designSessionId: string, query?: QueryParams) =>
+    createRouteBuilder(`/ustvari/[designSessionId]`)({
+      path: { designSessionId },
+      query,
+    }),
+  productDetails: (slug: string) =>
+    createRouteBuilder(`/motiv/[slug]`)({ path: { slug } }),
 } as const;
 
 export default ROUTES;

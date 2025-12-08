@@ -98,12 +98,7 @@ export default function Page() {
       createdDesigns: [],
     });
 
-    router.push(
-      ROUTES.createDesign({
-        path: { designSessionId: session.id },
-        query: { opis: prompt },
-      })
-    );
+    router.push(ROUTES.createDesign(session.id, { opis: prompt }));
   };
 
   return (

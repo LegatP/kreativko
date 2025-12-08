@@ -20,7 +20,7 @@ export default function Navigation() {
       createdDesigns: [],
       userId: auth.currentUser ? auth.currentUser.uid : "guest",
     });
-    router.push(`/motiv/${designSession.id}`);
+    router.push(ROUTES.createDesign(designSession.id));
   }
 
   return (

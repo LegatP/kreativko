@@ -5,8 +5,8 @@ export const garmet = {
     { name: "Črna", hex: "#111017" },
     { name: "Siva", hex: "#9EA1A6" },
     { name: "Mango rumena", hex: "#E29D1C" },
-    { name: "Žabljevo zelena", hex: "#81ABA3" },
-    { name: "Svetlo Modra", hex: "#0162AD" },
+    { name: "Žajbljevo zelena", hex: "#81ABA3" },
+    { name: "Svetlo modra", hex: "#0162AD" },
   ],
   sizes: ["XS", "S", "M", "L", "XL", "XXL"],
 };
@@ -18,7 +18,7 @@ const products = {
     name: "Štirideset jih imam, pa kaj!",
     shortName: "Štirideset jih imam, pa kaj!",
     defaultShirtColor: "#F0F1F6",
-    description: "Popolna majica kot darilo za 40. rojstni dan.",
+    // description: "Popolna majica kot darilo za 40. rojstni dan.",
     variables: [
       {
         key: "primary",
@@ -37,6 +37,117 @@ const products = {
       {
         title: "",
         url: "https://firebasestorage.googleapis.com/v0/b/kreativko---development.firebasestorage.app/o/static%2F40-jih-mam-pa-kaj-2.png?alt=media&token=fc5dce58-5618-45b2-9907-b6982d526f85",
+      },
+    ],
+  },
+  "samorog-in-stevilka": {
+    id: "samorog-in-stevilka",
+    slug: "samorog-in-stevilka",
+    name: "Samorog in številka",
+    shortName: "Samorog in številka",
+    defaultShirtColor: "#F0F1F6",
+    // description: "Popolna majica kot darilo za 40. rojstni dan.",
+    variables: [
+      {
+        key: "primary",
+        title: "Številka",
+        type: "number",
+        placeholder: "40",
+        suggestions: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "18"],
+      },
+    ],
+    // prompt:
+    //   "A clean flat vector design of a circular road speed limit sign with the number ${variablePrimary} in bold black font inside a white circle with a red border, no shadows or outer gray borders, centered composition, print-ready vector graphic on plain white background.",
+    // prompt: "The image represents teh number 5 with Change the number to ${primary}. Do not make any other changes.",
+    prompt:
+      "Use the provided image as the base. Keep the exact same art style, colors, textures, outlines, and whimsical unicorn theme. Replace the current number with the number ${primary}, recreating it in the same rounded shape, pastel palette, and seamless integration with the unicorn's body. Preserve all decorative elements such as stars, sparkles, hearts, and the unicorn's pose, adjusting only as needed to fit the new number. Do not change the character design, color scheme, or illustration style—only remake the number as ${primary} while matching the original look perfectly.",
+    promptType: "edit",
+    designs: [
+      // main design is always first
+      {
+        title: "",
+        url: "https://firebasestorage.googleapis.com/v0/b/kreativko---development.firebasestorage.app/o/9ZqfbbgQm7XcXsv6OGJ7W5VqmMz1%2F1764860785665_ai_generated.png?alt=media&token=86e2bc32-385e-4aa9-8b7a-0e7a948d202e",
+      },
+    ],
+  },
+  "prevec-sexy-za-18": {
+    id: "prevec-sexy-za-18",
+    slug: "prevec-sexy-za-18",
+    name: "Preveč seksi za 18",
+    shortName: "Preveč seksi za 18",
+    defaultShirtColor: "#F0F1F6",
+    // description: "",
+    variables: [
+      {
+        key: "primary",
+        title: "Številka",
+        type: "number",
+        placeholder: "40",
+        suggestions: ["18", "20", "30", "40", "50", "60"],
+      },
+    ],
+    prompt:
+      "Use the provided image as the base. Keep the exact same art style, colors, textures, outlines. Replace the current number with the number ${primary}.",
+    promptType: "edit",
+    designs: [
+      // main design is always first
+      {
+        title: "",
+        url: "https://firebasestorage.googleapis.com/v0/b/kreativko---development.firebasestorage.app/o/9ZqfbbgQm7XcXsv6OGJ7W5VqmMz1%2F1765138042860_ai_generated.png?alt=media&token=adcec623-64a5-4901-b56d-aa8fc3f9e091",
+      },
+    ],
+  },
+  "hello-20": {
+    id: "hello-20",
+    slug: "hello-20",
+    name: "Hello 20",
+    shortName: "Hello 20",
+    defaultShirtColor: "#F0F1F6",
+    // description: "",
+    variables: [
+      {
+        key: "primary",
+        title: "Številka",
+        type: "number",
+        placeholder: "40",
+        suggestions: ["18", "20", "30", "40", "50", "60"],
+      },
+    ],
+    prompt:
+      "Use the provided image as the base. Keep the exact same art style, colors, textures. Replace the current number with the number ${primary}.",
+    promptType: "edit",
+    designs: [
+      // main design is always first
+      {
+        title: "",
+        url: "https://firebasestorage.googleapis.com/v0/b/kreativko---development.firebasestorage.app/o/9ZqfbbgQm7XcXsv6OGJ7W5VqmMz1%2F1765187157317_ai_generated.png?alt=media&token=102a3cf6-48a7-4ebc-9479-1e87e270063d",
+      },
+    ],
+  },
+  "krona-18": {
+    id: "krona-18",
+    slug: "krona-18",
+    name: "Krona 18",
+    shortName: "Krona 18",
+    defaultShirtColor: "#F0F1F6",
+    // description: "",
+    variables: [
+      {
+        key: "primary",
+        title: "Številka",
+        type: "number",
+        placeholder: "40",
+        suggestions: ["18", "20", "30", "40", "50", "60"],
+      },
+    ],
+    prompt:
+      "Use the provided image as the base. Keep the exact same art style, colors, textures, outlines. Replace the current number with the number ${primary}.",
+    promptType: "edit",
+    designs: [
+      // main design is always first
+      {
+        title: "",
+        url: "https://firebasestorage.googleapis.com/v0/b/kreativko---development.firebasestorage.app/o/9ZqfbbgQm7XcXsv6OGJ7W5VqmMz1%2F1765191923935_ai_generated.png?alt=media&token=316381e1-7b0e-452e-a1a4-0a7b9f89465e",
       },
     ],
   },
