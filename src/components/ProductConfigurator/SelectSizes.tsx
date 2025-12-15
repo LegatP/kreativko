@@ -1,5 +1,4 @@
-import { Avatar, Divider, NumberInput } from "@heroui/react";
-import React from "react";
+import { Chip, NumberInput } from "@heroui/react";
 
 interface SelectSizesProps {
   sizes: Record<string, number>;
@@ -14,18 +13,17 @@ export default function SelectSizes({ sizes, setSize }: SelectSizesProps) {
           className="flex flex-row gap-2 items-center justify-between"
           key={s}
         >
-          <Avatar
+          <Chip
             color="primary"
-            size="sm"
+            size="md"
             radius="sm"
-            name={s}
-            className="bg-primary-100 text-primary-600 font-medium"
-          />
+            className="bg-primary-100 text-primary-600"
+          >
+            <div className="min-w-[26px] text-center">{s}</div>
+          </Chip>
           <NumberInput
-            // className="w-16"
             size="sm"
             width="40px"
-            // label="Število kosov"
             labelPlacement="outside"
             minValue={0}
             maxValue={100}
@@ -36,7 +34,6 @@ export default function SelectSizes({ sizes, setSize }: SelectSizesProps) {
           />
         </div>
       ))}
-      {/* <p>Največje število kosov je 100. Za večje</p> */}
     </div>
   );
 }
