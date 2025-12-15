@@ -1,4 +1,9 @@
-import { addDoc, updateDoc, getDoc } from "@/lib/firebase/firestore";
+import {
+  addDoc,
+  updateDoc,
+  getDoc,
+  getAllFromCollection,
+} from "@/lib/firebase/firestore";
 import {
   Timestamp,
   FirestoreDataConverter,
@@ -39,3 +44,10 @@ export const productCategoryConverter: FirestoreDataConverter<ProductCategory> =
       } as ProductCategory;
     },
   };
+
+/**
+ * Get all product categories from the database
+ */
+export async function getAllProductCategories(): Promise<ProductCategory[]> {
+  return getAllFromCollection(collectionName, productCategoryConverter);
+}

@@ -12,6 +12,10 @@ import {
   DocumentReference,
   Timestamp,
   setDoc as firestoreSetDoc,
+  query,
+  getDocs,
+  orderBy,
+  FirestoreDataConverter,
 } from "firebase/firestore";
 
 const db = initializeFirestore(
@@ -78,6 +82,27 @@ export function getDoc<T>(ref: string) {
     }
     return null;
   };
+}
+
+/**
+ * Generic function to get all documents from a collection using the same pattern as react-firebase-hooks
+ */
+export async function getAllFromCollection<T>(
+  collectionName: string,
+  converter: FirestoreDataConverter<T>
+): Promise<T[]> {
+  try {
+    const collectionQuery = query(
+      collection(db, collectionName),
+      orderBy("createdAt", "desc")
+    ).withConverter(converter);
+
+    const querySnapshot = await getDocs(collectionQuery);
+    return querySnapshot.docs.map((doc) => doc.data());
+  } catch (error) {
+    console.error(`Error getting all ${collectionName}:`, error);
+    return [];
+  }
 }
 
 export default db;
