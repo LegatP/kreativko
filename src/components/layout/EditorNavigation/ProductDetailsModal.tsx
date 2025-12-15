@@ -346,12 +346,6 @@ export default function ProductDetailsModal({
 
                 {/* <Divider /> */}
 
-                <div>
-                  <p className="text-default-700 leading-relaxed">
-                    {currentProduct.description}
-                  </p>
-                </div>
-
                 <Divider />
 
                 {/* Size Selection */}

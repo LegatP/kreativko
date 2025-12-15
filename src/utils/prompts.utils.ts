@@ -4,7 +4,7 @@ function insertVariablesIntoPrompt(
 ): string {
   let result = prompt;
   for (const [key, value] of Object.entries(variables)) {
-    const placeholder = `\${${key}}`;
+    const placeholder = `{{${key}}}`;
     result = result.replaceAll(placeholder, value);
   }
   return result;

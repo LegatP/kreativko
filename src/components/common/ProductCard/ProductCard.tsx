@@ -18,21 +18,23 @@ interface ProductCardProps {
 
 const ProductCard = ({ title, price, imageUrl, slug }: ProductCardProps) => {
   return (
-    <Link className="w-[250px]" href={ROUTES.productDetails(slug)}>
-      <Card className="hover:ring-1 hover:ring-primary p-4">
-        <Image
-          // isBlurred
-          as={NextImage}
-          width={250}
-          height={250}
-          isZoomed
-          src={imageUrl}
-          alt={title}
-          className="w-full object-contain aspect-square bg-default-50"
-        />
-        <div className="pt-2 flex flex-col gap-2">
+    <Link href={ROUTES.productDetails(slug)}>
+      <Card className="hover:ring-1 hover:ring-primary p-2 sm:p-4 h-full">
+        <div className="relative w-full aspect-square">
+          <Image
+            as={NextImage}
+            fill
+            src={imageUrl}
+            alt={title}
+            classNames={{
+              wrapper:
+                "w-full h-full object-contain aspect-square bg-default-50",
+            }}
+          />
+        </div>
+        <div className="pt-2 flex flex-1 flex-col gap-2 justify-between">
           <div className="flex flex-col justify-between items-start">
-            <h2 className="text">{title}</h2>
+            <h2 className="text-sm md:text-medium">{title}</h2>
             <div className="text text-primary">{price}€</div>
           </div>
           <div className="flex flex-row gap-2">

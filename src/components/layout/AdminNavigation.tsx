@@ -1,20 +1,30 @@
 "use client";
 
 import React from "react";
-import { useCheckoutContext } from "@/components/contexts/AppContext/CheckoutContext";
 import {
   BasketIcon,
-  FileIcon,
   HouseIcon,
   ShirtFoldedIcon,
   StarFourIcon,
   UsersIcon,
+  TagIcon,
+  PackageIcon,
 } from "@phosphor-icons/react";
 import { Tooltip } from "@heroui/react";
 import Link from "next/link";
 import { DESIGN_SESSION_COLLECTION } from "@/db/design-sessions";
 
 const collections = [
+  {
+    collectionName: "product_categories",
+    displayName: "Kategorije izdelkov",
+    icon: TagIcon,
+  },
+  {
+    collectionName: "products",
+    displayName: "Izdelki",
+    icon: PackageIcon,
+  },
   {
     collectionName: "ai_responses",
     displayName: "Motivi",
@@ -38,7 +48,6 @@ const collections = [
 ];
 
 export default function AdminNavigation() {
-  const { onOpen } = useCheckoutContext();
   return (
     <div className="fixed left-0 top-0 h-screen border-r-1 border-default-200 py-4 px-2 flex flex-col gap-4">
       <Tooltip content="Domov" placement="right">

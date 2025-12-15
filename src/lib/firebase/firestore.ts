@@ -2,6 +2,7 @@ import app from "./init";
 import {
   addDoc as firestoreAddDoc,
   updateDoc as firestoreUpdateDoc,
+  getDoc as firestoreGetDoc,
   collection,
   doc,
   DocumentData,
@@ -65,6 +66,17 @@ export function updateDoc<T>(ref: string) {
     const docRef = getDocReference(`${ref}/${id}`);
     await firestoreUpdateDoc(docRef, data);
     return { ...(data as T), id: docRef.id };
+  };
+}
+
+export function getDoc<T>(ref: string) {
+  return async (id: string): Promise<T | null> => {
+    const docRef = getDocReference(`${ref}/${id}`);
+    const docSnap = await firestoreGetDoc(docRef);
+    if (docSnap.exists()) {
+      return { ...docSnap.data(), id: docSnap.id } as T;
+    }
+    return null;
   };
 }
 

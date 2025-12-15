@@ -21,7 +21,6 @@ import {
 import CanvasModel from "@/components/canvas";
 import { Product } from "@/types/product.types";
 import { useEffect, useState } from "react";
-import products from "@/products";
 import { trackPageView, trackPurchaseComplete } from "@/lib/firebase/analytics";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useCheckoutContext } from "@/components/contexts/AppContext/CheckoutContext";
@@ -31,7 +30,6 @@ import auth from "@/lib/firebase/auth";
 import ROUTES from "@/utils/routes.utils";
 
 export default function Page() {
-  const desings = products["40-jih-mam-pa-kaj"].designs.slice(0, 3);
   const [selectedDesign] = useState<string>("");
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -283,7 +281,6 @@ export default function Page() {
                     <h3 className="text-xl font-semibold mb-2 text-primary-900 group-hover:text-primary">
                       {product.shortName}
                     </h3>
-                    <p className="text-primary-900">{product.description}</p>
                   </div>
                   <div className="flex items-center justify-end mt-3">
                     <span className="flex flex-row items-center gap-2 text-primary text-sm">

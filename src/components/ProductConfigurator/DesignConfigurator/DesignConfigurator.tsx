@@ -5,6 +5,7 @@ import {
   Chip,
   Divider,
   Input,
+  NumberInput,
   Tab,
   Tabs,
   Textarea,
@@ -19,9 +20,9 @@ import {
 } from "@phosphor-icons/react";
 import { insertVariablesIntoPrompt } from "@/utils/prompts.utils";
 import DesignGallery from "../../common/DesignGallery";
-import { Product } from "@/products";
 import { Design } from "../../common/DesignGallery/DesignGallery";
 import ProductSelectionCard from "@/components/features/product/ProductSelection/ProductSelectionCard";
+import { Product } from "@/db/products";
 
 interface DesignGalleryProps {
   product: Product;
@@ -123,20 +124,20 @@ export default function DesignConfigurator({
           }
           className="pl-0"
         >
-          {product.variables.map((variable, index) => {
+          {product.variables?.map((variable, index) => {
             if (variable.type !== "number") {
               // TODO: extend with other types and move to function
               throw new Error("Only number type is supported currently.");
             }
             return (
               <div key={index} className="mb-4">
-                <Input
+                <NumberInput
                   label={variable.title}
                   variant="underlined"
                   placeholder={variable.placeholder}
-                  value={variables[variable.key] || ""}
-                  onChange={(e) =>
-                    handleChipClick(variable.key, e.target.value)
+                  value={Number(variables[variable.key])}
+                  onValueChange={(value) =>
+                    handleChipClick(variable.key, String(value))
                   }
                 />
                 <div className="flex flex-row flex-wrap mt-2">

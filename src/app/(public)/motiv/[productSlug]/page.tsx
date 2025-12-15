@@ -3,10 +3,11 @@
 import { notFound, useSearchParams } from "next/navigation";
 import { use, useEffect, useMemo, useState } from "react";
 import { useCheckoutContext } from "@/components/contexts/AppContext/CheckoutContext";
-import products, { garmet } from "@/products";
+import { garmet } from "@/products";
+import { Product, productConverter } from "@/db/products";
 import ProductPageLayout from "@/components/layout/ProductPageLayout";
 import CanvasModel from "@/components/canvas";
-import { Product } from "@/types/product.types";
+import { Product as ProductType } from "@/types/product.types";
 import ProductCustomization from "@/components/ProductConfigurator/ProductCustomization";
 import {
   trackProductView,
@@ -15,17 +16,20 @@ import {
 import DesignConfigurator from "@/components/ProductConfigurator/DesignConfigurator";
 import { useImageGeneration } from "@/hooks/useImageGeneration";
 import { Design } from "@/components/common/DesignGallery/DesignGallery";
+import { collection, query, where } from "firebase/firestore";
+import { useCollectionDataOnce } from "react-firebase-hooks/firestore";
+import db from "@/lib/firebase/firestore";
 
 export default function Page({
   params,
 }: {
-  params: Promise<{ slug: string[] }>;
+  params: Promise<{ productSlug: string }>;
 }) {
   const searchParams = useSearchParams();
   const shirtColor = searchParams.get("barva")
     ? `#${searchParams.get("barva")}`
     : garmet.colors[0].hex;
-  const { slug } = use(params);
+  const { productSlug } = use(params);
   const sizes = garmet.sizes;
   const { createImage, isGenerating } = useImageGeneration();
 
@@ -36,16 +40,19 @@ export default function Page({
     setItem,
   } = useCheckoutContext();
 
-  // Validate slug exists
-  if (!slug || slug.length < 1) {
-    notFound();
-  }
+  // Fetch product from Firebase using react-firebase-hooks
+  const productsRef = collection(db, "products").withConverter(
+    productConverter
+  );
+  const productQuery = productSlug
+    ? query(productsRef, where("slug", "==", productSlug))
+    : null;
+  const [products, loading, error] =
+    useCollectionDataOnce<Product>(productQuery);
 
-  // Get product slug from URL (first part of slug)
-  const productSlug = slug[0];
+  // Get the first product from the results (should only be one with matching slug)
+  const product = products?.[0] || null;
 
-  // Get product from products.ts
-  const product = Object.values(products).find((p) => p.slug === productSlug);
   const [generatedDesigns, setGeneratedDesigns] = useState<Design[]>([]);
 
   useEffect(() => {
@@ -67,11 +74,23 @@ export default function Page({
   }, [product?.id]);
 
   const featuredDesigns = useMemo(() => {
-    if (!product) return [];
+    if (!product || !product.designs || product.designs.length === 0) return [];
 
     return [...generatedDesigns, product.designs[0]].slice(0, 3);
   }, [generatedDesigns, product]);
 
+  // Show error state if there's an error
+  if (error) {
+    console.error("Error fetching product:", error);
+    return notFound();
+  }
+
+  // Show loading state while fetching
+  if (loading) {
+    return null;
+  }
+
+  // Show not found if product doesn't exist
   if (!product) {
     return notFound();
   }
@@ -87,7 +106,6 @@ export default function Page({
     prompt: string,
     promptType: "edit" | "create"
   ) => {
-    console.log("Submitting prompt:", prompt, "Type:", promptType);
     // TODO: variables should consider original design while edit should take the current design
     try {
       let result = undefined;
@@ -113,11 +131,9 @@ export default function Page({
   return (
     <ProductPageLayout
       title={product.name}
-      // description={product.description}
       leftColumn={
         <div className="space-y-6">
           <DesignConfigurator
-            // @ts-expect-error - product type mismatch
             product={product}
             selectedDesignUrl={designUrl}
             onDesignSelect={handleDesignSelect}
@@ -148,7 +164,7 @@ export default function Page({
         <div className="w-full max-w-full overflow-hidden">
           <div className="aspect-square w-full mx-auto">
             <CanvasModel
-              product={Product.Shirt}
+              product={ProductType.Shirt}
               color={color}
               frontPatternUrl={designUrl}
             />

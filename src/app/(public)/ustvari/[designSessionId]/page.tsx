@@ -77,8 +77,6 @@ export default function Page() {
     setItem((i) => ({ ...i, designUrl: imageUrl }));
   };
 
-  console.log("amount", productsAmount);
-
   return (
     <ProductPageLayout
       title="Ustvari svoj motiv"
