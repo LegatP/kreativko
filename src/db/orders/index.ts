@@ -11,6 +11,7 @@ import {
 import db from "@/lib/firebase/firestore";
 import { addDoc, updateDoc } from "@/lib/firebase/firestore";
 import { Order, OrderStatus } from "./types";
+import { sendMailNotification } from "@/actions/notifications";
 
 const ORDERS_COLLECTION = "orders";
 
@@ -44,72 +45,13 @@ export async function createOrder(
 
   const addOrderDoc = addDoc<Order>(ORDERS_COLLECTION);
   const createdOrder = await addOrderDoc(order);
+  await sendMailNotification(
+    `${
+      process.env.NODE_ENV === "development" ? "[DEV] " : ""
+    }Moj-Motiv: novo naročilo: ${createdOrder.orderNumber}`,
+    `Novo naročilo je bilo oddano na strani.`
+  );
   return createdOrder;
-}
-
-/**
- * Get order by ID
- */
-export async function getOrderById(orderId: string): Promise<Order | null> {
-  try {
-    const orderRef = doc(db, ORDERS_COLLECTION, orderId);
-    const orderSnap = await getDoc(orderRef);
-
-    if (orderSnap.exists()) {
-      return { id: orderSnap.id, ...orderSnap.data() } as Order;
-    }
-    return null;
-  } catch (error) {
-    console.error("Error getting order:", error);
-    return null;
-  }
-}
-
-/**
- * Get order by payment intent ID
- */
-export async function getOrderByPaymentIntentId(
-  paymentIntentId: string
-): Promise<Order | null> {
-  try {
-    const ordersRef = collection(db, ORDERS_COLLECTION);
-    const q = query(ordersRef, where("paymentIntentId", "==", paymentIntentId));
-    const querySnapshot = await getDocs(q);
-
-    if (!querySnapshot.empty) {
-      const doc = querySnapshot.docs[0];
-      return { id: doc.id, ...doc.data() } as Order;
-    }
-    return null;
-  } catch (error) {
-    console.error("Error getting order by payment intent:", error);
-    return null;
-  }
-}
-
-/**
- * Update order status
- */
-export async function updateOrderStatus(
-  orderId: string,
-  status: OrderStatus
-): Promise<void> {
-  const updateData: Partial<Order> = {
-    status,
-    updatedAt: Timestamp.now(),
-  };
-
-  // Add timestamp for specific status changes
-  if (status === "paid") {
-    updateData.paidAt = Timestamp.now();
-  } else if (status === "shipped") {
-    updateData.shippedAt = Timestamp.now();
-  } else if (status === "delivered") {
-    updateData.deliveredAt = Timestamp.now();
-  }
-
-  const updateOrderDoc = updateDoc(ORDERS_COLLECTION);
-  await updateOrderDoc(orderId, updateData);
 }
 
 /**
@@ -124,68 +66,4 @@ export async function updateOrderPaymentIntent(
     paymentIntentId,
     updatedAt: Timestamp.now(),
   });
-}
-
-/**
- * Get all orders (for admin)
- */
-export async function getAllOrders(limit?: number): Promise<Order[]> {
-  try {
-    const ordersRef = collection(db, ORDERS_COLLECTION);
-    const q = limit
-      ? query(ordersRef, orderBy("createdAt", "desc"))
-      : query(ordersRef, orderBy("createdAt", "desc"));
-
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(
-      (doc) => ({ id: doc.id, ...doc.data() } as Order)
-    );
-  } catch (error) {
-    console.error("Error getting all orders:", error);
-    return [];
-  }
-}
-
-/**
- * Get orders by user ID
- */
-export async function getOrdersByUserId(userId: string): Promise<Order[]> {
-  try {
-    const ordersRef = collection(db, ORDERS_COLLECTION);
-    const q = query(
-      ordersRef,
-      where("userId", "==", userId),
-      orderBy("createdAt", "desc")
-    );
-
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(
-      (doc) => ({ id: doc.id, ...doc.data() } as Order)
-    );
-  } catch (error) {
-    console.error("Error getting user orders:", error);
-    return [];
-  }
-}
-
-/**
- * Get orders by email (for guest checkouts)
- */
-export async function getOrdersByEmail(email: string): Promise<Order[]> {
-  try {
-    const ordersRef = collection(db, ORDERS_COLLECTION);
-    const q = query(
-      ordersRef,
-      where("shippingInfo.email", "==", email),
-      orderBy("createdAt", "desc")
-    );
-
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(
-      (doc) => ({ id: doc.id, ...doc.data() } as Order)
-    );
-  } catch (error) {
-    console.error("Error getting orders by email:", error);
-    return [];
-  }
 }
