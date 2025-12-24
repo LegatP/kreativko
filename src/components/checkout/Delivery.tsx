@@ -1,5 +1,5 @@
 import { Input, InputOtp } from "@heroui/react";
-import { useCheckoutContext } from "../contexts/AppContext/CheckoutContext";
+import { useCheckoutContext } from "../contexts/CheckoutContext";
 
 interface DeliveryProps {
   isRequired?: boolean;

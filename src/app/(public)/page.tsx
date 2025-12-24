@@ -23,7 +23,7 @@ import { Product } from "@/types/product.types";
 import { useEffect, useState } from "react";
 import { trackPageView, trackPurchaseComplete } from "@/lib/firebase/analytics";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useCheckoutContext } from "@/components/contexts/AppContext/CheckoutContext";
+import { useCheckoutContext } from "@/components/contexts/CheckoutContext";
 import PromptForm from "@/components/common/PromptForm";
 import { createDesignSession } from "@/db/design-sessions";
 import auth from "@/lib/firebase/auth";

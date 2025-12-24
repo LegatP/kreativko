@@ -1,12 +1,17 @@
 import { Timestamp } from "firebase/firestore";
 
+export interface DesignUrls {
+  front?: string;
+  back?: string;
+}
+
 export interface OrderItem {
   productId: string;
   name: string;
-  designUrl: string;
+  designUrls: DesignUrls;
   color: string;
   quantities: Record<string, number>; // { S: 1, M: 2, L: 1 }
-  price: number;
+  price?: number; // Price per design (optional, set at checkout)
 }
 
 export interface ShippingInfo {

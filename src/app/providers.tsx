@@ -2,7 +2,7 @@
 
 import { HeroUIProvider, ToastProvider } from "@heroui/react";
 import FirebaseProvider from "@/components/firebase/FirebaseProvider";
-import { CheckoutContextProvider } from "@/components/contexts/AppContext/CheckoutContext";
+import { CheckoutContextProvider } from "@/components/contexts/CheckoutContext";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (

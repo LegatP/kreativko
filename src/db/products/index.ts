@@ -1,71 +1,73 @@
+import { orderBy, where } from "firebase/firestore";
+import { createCollection } from "../createCollection";
 import {
-  addDoc,
-  updateDoc,
-  getDoc,
-  getAllFromCollection,
-} from "@/lib/firebase/firestore";
-import {
-  Timestamp,
-  FirestoreDataConverter,
-  SnapshotOptions,
-  QueryDocumentSnapshot,
-} from "firebase/firestore";
+  Product,
+  ProductDesign,
+  ProductVariable,
+  PromptSuggestion,
+  PromptSuggestionVariable,
+} from "./types";
 
-export interface ProductVariable {
-  key: string;
-  title: string;
-  type?: "string" | "number";
-  placeholder: string;
-  suggestions?: string[];
-}
-
-export interface ProductDesign {
-  title: string;
-  url: string;
-}
-
-export interface Product {
-  id: string;
-  slug: string;
-  name: string;
-  shortName?: string;
-  defaultShirtColor: string;
-  variables: ProductVariable[];
-  prompt: string;
-  promptType: "edit" | "create";
-  designs: ProductDesign[];
-  categoryIds?: string[]; // Array of category IDs this product belongs to
-  createdAt: Timestamp;
-  updatedAt?: Timestamp;
-}
-
-const collectionName = "products";
-
-export const createProduct = addDoc<Product>(collectionName);
-
-export const updateProduct = updateDoc<Product>(collectionName);
-
-export const getProduct = getDoc<Product>(collectionName);
-
-export const productConverter: FirestoreDataConverter<Product> = {
-  toFirestore(product: Product) {
-    return product;
-  },
-  fromFirestore(
-    snapshot: QueryDocumentSnapshot,
-    options?: SnapshotOptions
-  ): Product {
-    const data = snapshot.data(options);
-    return {
-      ...data,
-      id: snapshot.id,
-    } as Product;
-  },
+// Re-export types
+export type {
+  Product,
+  ProductDesign,
+  ProductVariable,
+  PromptSuggestion,
+  PromptSuggestionVariable,
 };
+
+const PRODUCTS_COLLECTION = "products";
+
+// Create the collection with full CRUD + hooks support
+const productsCollection = createCollection<Product>(PRODUCTS_COLLECTION);
+
+// Export collection metadata
+export { PRODUCTS_COLLECTION };
+export const productConverter = productsCollection.converter;
+
+// Export CRUD operations
+export const createProduct = productsCollection.create;
+export const updateProduct = productsCollection.update;
+export const getProduct = productsCollection.get;
 
 /**
  * Get all products from the database
  */
 export async function getAllProducts(): Promise<Product[]> {
-  return getAllFromCollection(collectionName, productConverter);
+  return productsCollection.getAll();
 }
+
+/**
+ * Get products by category ID
+ * If categoryId is undefined, returns all products
+ */
+export async function getProductsByCategory(
+  categoryId?: string
+): Promise<Product[]> {
+  const allProducts = await getAllProducts();
+
+  if (!categoryId) {
+    return allProducts;
+  }
+
+  return allProducts.filter((product) =>
+    product.categoryIds?.includes(categoryId)
+  );
+}
+
+// React Firebase Hooks
+export const useProduct = productsCollection.useDoc;
+export const useProductOnce = productsCollection.useDocOnce;
+export const useProducts = () =>
+  productsCollection.useCollection([orderBy("createdAt", "desc")]);
+export const useProductsByCategory = (categoryId: string) =>
+  productsCollection.useCollection([
+    where("categoryIds", "array-contains", categoryId),
+  ]);
+export const useProductsByCategoryOnce = (categoryId: string | undefined) =>
+  productsCollection.useCollectionOnce(
+    categoryId ? [where("categoryIds", "array-contains", categoryId)] : undefined
+  );
+export const useProductBySlug = (slug: string) =>
+  productsCollection.useCollectionOnce([where("slug", "==", slug)]);

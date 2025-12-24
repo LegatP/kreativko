@@ -1,63 +1,32 @@
 "use client";
 
 import ProductCard from "@/components/common/ProductCard";
-import { BASE_PRODUCT_PRICE } from "@/components/contexts/AppContext/CheckoutContext";
+import { BASE_PRICE_PER_DESIGN } from "@/components/contexts/CheckoutContext";
 import { useParams } from "next/navigation";
-import { collection, query, where } from "firebase/firestore";
-import db from "@/lib/firebase/firestore";
-import { Product, productConverter } from "@/db/products";
-import {
-  ProductCategory,
-  productCategoryConverter,
-} from "@/db/product-categories";
-import { useCollectionDataOnce } from "react-firebase-hooks/firestore";
-import { useMemo } from "react";
+import { useProductsByCategoryOnce } from "@/db/products";
+import { useCategoryBySlug } from "@/db/product-categories";
 
 export default function Page() {
   const params = useParams();
   const categorySlug = params.categorySlug as string;
 
-  // Query for category by slug
-  const categoryQuery = useMemo(
-    () =>
-      categorySlug
-        ? query(
-            collection(db, "product_categories"),
-            where("slug", "==", categorySlug)
-          ).withConverter(productCategoryConverter)
-        : null,
-    [categorySlug]
-  );
-
-  const [categoryData, categoryLoading, categoryError] =
-    useCollectionDataOnce(categoryQuery);
-
-  const category = categoryData?.[0] as ProductCategory | undefined;
-
-  // Query for products by category ID
-  const productsQuery = useMemo(
-    () =>
-      category?.id
-        ? query(
-            collection(db, "products"),
-            where("categoryIds", "array-contains", category.id)
-          ).withConverter(productConverter)
-        : null,
-    [category?.id]
-  );
+  const [categories, categoryLoading, categoryError] =
+    useCategoryBySlug(categorySlug);
+  const category = categories?.[0];
 
   const [products, productsLoading, productsError] =
-    useCollectionDataOnce(productsQuery);
+    useProductsByCategoryOnce(category?.id);
 
   const loading = categoryLoading || productsLoading;
   const error =
     categoryError ||
     productsError ||
-    (categoryData && categoryData.length === 0 ? "Category not found" : null);
+    (categories && categories.length === 0 ? "Category not found" : null);
 
   if (loading || error) {
     return null;
   }
+
   return (
     <div className="min-h-screen">
       <section
@@ -82,7 +51,7 @@ export default function Page() {
             <ProductCard
               key={item.id || index}
               title={item.name}
-              price={BASE_PRODUCT_PRICE}
+              price={BASE_PRICE_PER_DESIGN}
               imageUrl={item.designs[0]?.url || ""}
               slug={item.slug}
             />

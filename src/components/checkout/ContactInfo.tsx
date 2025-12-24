@@ -1,7 +1,7 @@
 import { Checkbox, Input } from "@heroui/react";
 import Link from "next/link";
 import { useState } from "react";
-import { useCheckoutContext } from "../contexts/AppContext/CheckoutContext";
+import { useCheckoutContext } from "../contexts/CheckoutContext";
 
 export default function ContactInfo() {
   const [checked, setChecked] = useState(false);

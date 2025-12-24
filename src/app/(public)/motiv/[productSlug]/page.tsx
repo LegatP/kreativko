@@ -2,9 +2,9 @@
 
 import { notFound, useSearchParams } from "next/navigation";
 import { use, useEffect, useMemo, useState } from "react";
-import { useCheckoutContext } from "@/components/contexts/AppContext/CheckoutContext";
+import { useCheckoutContext } from "@/components/contexts/CheckoutContext";
 import { garmet } from "@/products";
-import { Product, productConverter } from "@/db/products";
+import { useProductBySlug } from "@/db/products";
 import ProductPageLayout from "@/components/layout/ProductPageLayout";
 import CanvasModel from "@/components/canvas";
 import { Product as ProductType } from "@/types/product.types";
@@ -16,9 +16,6 @@ import {
 import DesignConfigurator from "@/components/ProductConfigurator/DesignConfigurator";
 import { useImageGeneration } from "@/hooks/useImageGeneration";
 import { Design } from "@/components/common/DesignGallery/DesignGallery";
-import { collection, query, where } from "firebase/firestore";
-import { useCollectionDataOnce } from "react-firebase-hooks/firestore";
-import db from "@/lib/firebase/firestore";
 
 export default function Page({
   params,
@@ -40,15 +37,7 @@ export default function Page({
     setItem,
   } = useCheckoutContext();
 
-  // Fetch product from Firebase using react-firebase-hooks
-  const productsRef = collection(db, "products").withConverter(
-    productConverter
-  );
-  const productQuery = productSlug
-    ? query(productsRef, where("slug", "==", productSlug))
-    : null;
-  const [products, loading, error] =
-    useCollectionDataOnce<Product>(productQuery);
+  const [products, loading, error] = useProductBySlug(productSlug);
 
   // Get the first product from the results (should only be one with matching slug)
   const product = products?.[0] || null;
@@ -67,7 +56,7 @@ export default function Page({
       productId: product.id,
       name: product.name,
       color: shirtColor,
-      designUrl: product.designs[0]?.url || "",
+      designUrls: { front: product.designs[0]?.url || "" },
       quantities,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -95,11 +84,15 @@ export default function Page({
     return notFound();
   }
 
-  const { quantities, color, designUrl } = item;
+  const { quantities, color, designUrls } = item;
+  const designUrl = designUrls.front || "";
 
   const handleDesignSelect = (imageUrl: string) => {
     trackDesignSelected(product.id, imageUrl);
-    setItem((i) => ({ ...i, designUrl: imageUrl }));
+    setItem((i) => ({
+      ...i,
+      designUrls: { ...i.designUrls, front: imageUrl },
+    }));
   };
 
   const handleSubmit = async (
@@ -110,7 +103,7 @@ export default function Page({
     try {
       let result = undefined;
       if (promptType === "create") {
-        // TODO: gandle generating product prompts
+        // TODO: handle generating product prompts
         throw new Error("Create is not implemented yet.");
       } else if (promptType === "edit") {
         result = await createImage(prompt, [designUrl]);

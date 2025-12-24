@@ -2,9 +2,9 @@ import { Divider } from "@heroui/react";
 import SelectSizes from "../ProductConfigurator/SelectSizes";
 import Image from "next/image";
 import {
-  BASE_PRODUCT_PRICE,
+  BASE_PRICE_PER_DESIGN,
   BASE_SHIPPING_COST,
-} from "../contexts/AppContext/CheckoutContext";
+} from "../contexts/CheckoutContext";
 import cx from "classnames";
 import { InfoIcon } from "@phosphor-icons/react";
 
@@ -12,7 +12,7 @@ const sampleProducts = [
   {
     id: "1",
     name: "Personalizirana majica - moj hobi, moj poklic",
-    price: BASE_PRODUCT_PRICE,
+    price: BASE_PRICE_PER_DESIGN,
     imageUrl: "/assets/shirt-sample.webp",
     sizes: {
       S: 10,

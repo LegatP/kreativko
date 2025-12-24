@@ -1,3 +1,5 @@
+export type PrintPosition = "front" | "back";
+
 export const garmet = {
   type: "shirt",
   colors: [
@@ -9,4 +11,5 @@ export const garmet = {
     { name: "Svetlo modra", hex: "#0162AD" },
   ],
   sizes: ["XS", "S", "M", "L", "XL", "XXL"],
+  printPositions: ["front", "back"] as PrintPosition[],
 };

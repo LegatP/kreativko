@@ -1,53 +1,37 @@
-import {
-  addDoc,
-  updateDoc,
-  getDoc,
-  getAllFromCollection,
-} from "@/lib/firebase/firestore";
-import {
-  Timestamp,
-  FirestoreDataConverter,
-  QueryDocumentSnapshot,
-  SnapshotOptions,
-} from "firebase/firestore";
+import { orderBy, where } from "firebase/firestore";
+import { createCollection } from "../createCollection";
+import { ProductCategory } from "./types";
 
-export interface ProductCategory {
-  id: string;
-  name: string;
-  slug: string;
-  productIds?: string[]; // Array of product IDs in this category
-  createdAt: Timestamp;
-  updatedAt?: Timestamp;
-}
+// Re-export types
+export type { ProductCategory };
 
-const collectionName = "product_categories";
+const PRODUCT_CATEGORIES_COLLECTION = "product_categories";
 
-export const createProductCategory = addDoc<ProductCategory>(collectionName);
+// Create the collection with full CRUD + hooks support
+const categoriesCollection = createCollection<ProductCategory>(
+  PRODUCT_CATEGORIES_COLLECTION
+);
 
-export const updateProductCategory = updateDoc<ProductCategory>(collectionName);
+// Export collection metadata
+export { PRODUCT_CATEGORIES_COLLECTION };
+export const productCategoryConverter = categoriesCollection.converter;
 
-export const getProductCategory = getDoc<ProductCategory>(collectionName);
-
-export const productCategoryConverter: FirestoreDataConverter<ProductCategory> =
-  {
-    toFirestore(category: ProductCategory) {
-      return category;
-    },
-    fromFirestore(
-      snapshot: QueryDocumentSnapshot,
-      options?: SnapshotOptions
-    ): ProductCategory {
-      const data = snapshot.data(options);
-      return {
-        ...data,
-        id: snapshot.id,
-      } as ProductCategory;
-    },
-  };
+// Export CRUD operations
+export const createProductCategory = categoriesCollection.create;
+export const updateProductCategory = categoriesCollection.update;
+export const getProductCategory = categoriesCollection.get;
 
 /**
  * Get all product categories from the database
  */
 export async function getAllProductCategories(): Promise<ProductCategory[]> {
-  return getAllFromCollection(collectionName, productCategoryConverter);
+  return categoriesCollection.getAll();
 }
+
+// React Firebase Hooks
+export const useCategory = categoriesCollection.useDoc;
+export const useCategoryOnce = categoriesCollection.useDocOnce;
+export const useCategories = () =>
+  categoriesCollection.useCollection([orderBy("createdAt", "desc")]);
+export const useCategoryBySlug = (slug: string) =>
+  categoriesCollection.useCollectionOnce([where("slug", "==", slug)]);

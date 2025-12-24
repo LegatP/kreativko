@@ -15,7 +15,6 @@ import {
 import {
   collection,
   DocumentData,
-  FirestoreDataConverter,
   limit,
   orderBy,
   query,
@@ -24,36 +23,16 @@ import {
 import { useParams } from "next/navigation";
 import { useCollectionDataOnce } from "react-firebase-hooks/firestore";
 import db from "@/lib/firebase/firestore";
-import {
-  WithFieldValue,
-  QueryDocumentSnapshot,
-  SnapshotOptions,
-} from "firebase/firestore";
 import { isObject } from "framer-motion";
 import { isArray } from "util";
-import Image from "next/image";
 import { PlusIcon, PencilIcon } from "@phosphor-icons/react";
 import CreateProductCategoryForm from "@/components/forms/CreateProductCategoryForm";
 import CreateProductForm from "@/components/forms/CreateProductForm";
 import EditProductCategoryForm from "@/components/forms/EditProductCategoryForm";
 import EditProductForm from "@/components/forms/EditProductForm";
+import { createConverter } from "@/db/createCollection";
 
-export const coverter: FirestoreDataConverter<DocumentData> = {
-  toFirestore(data: WithFieldValue<DocumentData>): DocumentData {
-    return data;
-  },
-  fromFirestore(
-    snapshot: QueryDocumentSnapshot,
-    options: SnapshotOptions
-  ): DocumentData {
-    const data = snapshot.data(options);
-    return {
-      id: snapshot.id,
-      // ref: snapshot.ref,
-      ...data,
-    };
-  },
-};
+const converter = createConverter<DocumentData & { id: string }>();
 
 // TODO: admin only access
 export default function Page() {
@@ -85,7 +64,7 @@ export default function Page() {
 
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
 
-  const col = collection(db, collectionName as string).withConverter(coverter);
+  const col = collection(db, collectionName as string).withConverter(converter);
   const [data] = useCollectionDataOnce<DocumentData>(
     collectionName ? query(col, limit(20), orderBy("createdAt", "desc")) : null
   );
