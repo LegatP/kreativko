@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
-import { useEffect } from "react";
-import auth, { onIdTokenChanged, signIn } from "@/lib/firebase/auth";
-import { deleteCookie, setCookie } from "cookies-next";
-import { getAnalytics, setUserId } from "firebase/analytics";
+import React, { useState, useEffect } from "react";
+import auth, { onIdTokenChanged } from "@/lib/firebase/auth";
+import { setCookie } from "cookies-next";
+import { getAnalytics } from "firebase/analytics";
 import { getPerformance } from "firebase/performance";
 import app from "@/lib/firebase/init";
 import { signInAnonymously } from "firebase/auth";

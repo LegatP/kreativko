@@ -1,10 +1,9 @@
-import { Checkbox, Input } from "@heroui/react";
-import Link from "next/link";
+import { Input } from "@heroui/react";
 import { useState } from "react";
 import { useCheckoutContext } from "../contexts/CheckoutContext";
 
 export default function ContactInfo() {
-  const [checked, setChecked] = useState(false);
+  const [checked] = useState(false);
   const { setShippingInfo, shippingInfo } = useCheckoutContext();
 
   return (

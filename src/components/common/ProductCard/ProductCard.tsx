@@ -1,10 +1,6 @@
 import ROUTES from "@/utils/routes.utils";
 import { Button, Card, Image } from "@heroui/react";
-import {
-  FadersHorizontalIcon,
-  HeartIcon,
-  ShoppingCartIcon,
-} from "@phosphor-icons/react";
+import { FadersHorizontalIcon, HeartIcon } from "@phosphor-icons/react";
 import NextImage from "next/image";
 import Link from "next/link";
 

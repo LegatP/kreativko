@@ -15,8 +15,20 @@ import { UserProfile } from "@/db/users/types";
 import { useRouter } from "next/navigation";
 import ROUTES from "@/utils/routes.utils";
 
+const getErrorMessage = (error: string) => {
+  if (error.includes("email-already-in-use")) {
+    return "Ta e-poštni naslov je že v uporabi.";
+  } else if (error.includes("invalid-email")) {
+    return "Neveljaven e-poštni naslov.";
+  } else if (error.includes("weak-password")) {
+    return "Geslo je prešibko.";
+  }
+  return "Prišlo je do napake. Poskusite znova.";
+};
+
 export default function SignUpForm() {
   const [isInitalView, setIsInitalView] = useState(true);
+  const [error, setError] = useState("");
   const { pending } = useFormStatus();
   const router = useRouter();
   const { handleSubmit } = useUncontrolledForm<{
@@ -77,19 +89,6 @@ export default function SignUpForm() {
       }
     }
   );
-
-  const [error, setError] = useState("");
-
-  const getErrorMessage = (error: string) => {
-    if (error.includes("email-already-in-use")) {
-      return "Ta e-poštni naslov je že v uporabi.";
-    } else if (error.includes("invalid-email")) {
-      return "Neveljaven e-poštni naslov.";
-    } else if (error.includes("weak-password")) {
-      return "Geslo je prešibko.";
-    }
-    return "Prišlo je do napake. Poskusite znova.";
-  };
 
   return (
     <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4">

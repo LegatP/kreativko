@@ -55,13 +55,16 @@ const Shirt = ({ color, frontPatternUrl, backPatternUrl, view = "front" }: Shirt
       ? backLogoTexture
       : dashedBorderTexture;
 
-  if (frontLogoTexture) {
-    frontLogoTexture.anisotropy = gl.capabilities.getMaxAnisotropy();
-  }
-
-  if (backLogoTexture) {
-    backLogoTexture.anisotropy = gl.capabilities.getMaxAnisotropy();
-  }
+  // Set anisotropy for better texture quality
+  useMemo(() => {
+    const maxAnisotropy = gl.capabilities.getMaxAnisotropy();
+    if (frontLogoTexture) {
+      frontLogoTexture.anisotropy = maxAnisotropy;
+    }
+    if (backLogoTexture) {
+      backLogoTexture.anisotropy = maxAnisotropy;
+    }
+  }, [frontLogoTexture, backLogoTexture, gl.capabilities]);
 
   useFrame((state, delta) => {
     easing.dampC(

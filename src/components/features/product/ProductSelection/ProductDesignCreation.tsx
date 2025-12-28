@@ -410,33 +410,6 @@ const ProductDesignCreation = forwardRef<
       }
     };
 
-    const handleUploadFile = async (file: File) => {
-      try {
-        // Upload to Firebase Storage to get permanent URL
-        const url = await uploadFile(file);
-
-        const hasFront = isPositionTaken("front");
-        const newDesign: DesignItem = {
-          id: crypto.randomUUID(),
-          url,
-          position: hasFront ? undefined : "front",
-        };
-        setLocalDesigns((prev) => [...prev, newDesign]);
-
-        // Save to session's uploadedAssets
-        await updateDesignSession(designSession.id, {
-          uploadedAssets: [...designSession.uploadedAssets, { url }],
-        });
-
-        // Sync with parent if position assigned
-        if (newDesign.position) {
-          onDesignSelect(newDesign.position, url);
-        }
-      } catch (error) {
-        console.error("Failed to upload file:", error);
-      }
-    };
-
     const handleOpenEditModal = (design: DesignItem) => {
       setEditingDesign(design);
       setIsEditModalOpen(true);

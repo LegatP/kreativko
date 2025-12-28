@@ -1,10 +1,3 @@
-import React, { useRef, useMemo } from "react";
-import { Decal, useGLTF, useTexture } from "@react-three/drei";
-import { useFrame, useThree } from "@react-three/fiber";
-import { Group, MeshStandardMaterial, Mesh } from "three";
-import { easing } from "maath";
-import { createDashedBorderTexture } from "../../utils/dashed-border-texture";
-
 // useGLTF.preload("/assets/hoodie.glb");
 export function Hoodie() {
   return null;

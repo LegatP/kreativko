@@ -1,10 +1,3 @@
-import React, { useRef } from "react";
-import { Decal, useGLTF, useTexture } from "@react-three/drei";
-import { useAppStateContext } from "../contexts/AppContext";
-import { useFrame, useThree } from "@react-three/fiber";
-import { easing } from "maath";
-import { Group, Mesh, MeshStandardMaterial } from "three";
-
 // useGLTF.preload("/assets/umbrella.glb");
 
 export function Umbrella() {

@@ -26,7 +26,7 @@ import {
   PromptSuggestion,
   PromptSuggestionVariable,
 } from "@/db/products";
-import { ProductCategory, useCategoriesOnce } from "@/db/product-categories";
+import { useCategoriesOnce } from "@/db/product-categories";
 import { PlusIcon, TrashIcon } from "@phosphor-icons/react";
 import { generateSlug } from "@/utils/slug.utils";
 import { useArrayField } from "@/hooks/useArrayField";

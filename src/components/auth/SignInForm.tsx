@@ -1,13 +1,28 @@
 "use client";
 
-import React, { useState } from "react";
-import { Input, Button, Link, Chip } from "@heroui/react";
+import { useState } from "react";
+import { Input, Button, Chip } from "@heroui/react";
 import { signInWithEmail } from "@/lib/firebase/auth";
 import { useRouter } from "next/navigation";
 import PasswordInput from "../inputs/PasswordInput/PasswordInput";
 import { useUncontrolledForm } from "@/hooks/useUncontrolledForm";
 import { useFormStatus } from "react-dom";
 import { WarningCircleIcon } from "@phosphor-icons/react";
+
+const getErrorMessage = (error: string) => {
+  if (error.includes("user-not-found")) {
+    return "Uporabnik s tem e-poštnim naslovom ne obstaja.";
+  } else if (error.includes("wrong-password")) {
+    return "Napačno geslo.";
+  } else if (error.includes("invalid-email")) {
+    return "Neveljaven e-poštni naslov.";
+  } else if (error.includes("auth/invalid-credential")) {
+    return "Napačno uporabniško ime ali geslo.";
+  } else if (error.includes("too-many-requests")) {
+    return "Preveč poskusov. Poskusite znova pozneje.";
+  }
+  return "Prišlo je do napake. Poskusite znova.";
+};
 
 export default function SignInForm() {
   const [error, setError] = useState("");
@@ -27,21 +42,6 @@ export default function SignInForm() {
       router.push("/");
     }
   });
-
-  const getErrorMessage = (error: string) => {
-    if (error.includes("user-not-found")) {
-      return "Uporabnik s tem e-poštnim naslovom ne obstaja.";
-    } else if (error.includes("wrong-password")) {
-      return "Napačno geslo.";
-    } else if (error.includes("invalid-email")) {
-      return "Neveljaven e-poštni naslov.";
-    } else if (error.includes("auth/invalid-credential")) {
-      return "Napačno uporabniško ime ali geslo.";
-    } else if (error.includes("too-many-requests")) {
-      return "Preveč poskusov. Poskusite znova pozneje.";
-    }
-    return "Prišlo je do napake. Poskusite znova.";
-  };
 
   return (
     <form className="w-full flex flex-col gap-4" onSubmit={handleSubmit}>

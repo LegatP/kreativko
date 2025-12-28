@@ -5,7 +5,6 @@ import {
   BASE_PRICE_PER_DESIGN,
   BASE_SHIPPING_COST,
 } from "../contexts/CheckoutContext";
-import cx from "classnames";
 import { InfoIcon } from "@phosphor-icons/react";
 
 const sampleProducts = [
