@@ -19,6 +19,8 @@ interface ProductCategoryFormModalProps {
   title: string;
   name: string;
   onNameChange: (value: string) => void;
+  description: string;
+  onDescriptionChange: (value: string) => void;
   slug: string;
   loading: boolean;
   loadingData?: boolean;
@@ -33,6 +35,8 @@ export default function ProductCategoryFormModal({
   title,
   name,
   onNameChange,
+  description,
+  onDescriptionChange,
   slug,
   loading,
   loadingData = false,
@@ -93,6 +97,12 @@ export default function ProductCategoryFormModal({
               value={name}
               onValueChange={onNameChange}
               required
+            />
+            <Input
+              label="Opis"
+              placeholder="Kratek opis kategorije"
+              value={description}
+              onValueChange={onDescriptionChange}
             />
             <Input
               label="Slug"

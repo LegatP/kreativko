@@ -30,10 +30,12 @@ import CreateProductCategoryForm from "@/components/forms/CreateProductCategoryF
 import CreateProductForm from "@/components/forms/CreateProductForm";
 import EditProductCategoryForm from "@/components/forms/EditProductCategoryForm";
 import EditProductForm from "@/components/forms/EditProductForm";
+import EditConfigForm from "@/components/forms/EditConfigForm";
 import ConfirmDeleteModal from "@/components/common/ConfirmDeleteModal";
 import { createConverter } from "@/db/createCollection";
 import { deleteProduct } from "@/db/products";
 import { deleteProductCategory } from "@/db/product-categories";
+import { CONFIG_COLLECTION } from "@/db/config";
 
 const converter = createConverter<DocumentData & { id: string }>();
 
@@ -63,6 +65,12 @@ export default function Page() {
     isOpen: isEditProductFormOpen,
     onOpen: onEditProductFormOpen,
     onClose: onEditProductFormClose,
+  } = useDisclosure();
+
+  const {
+    isOpen: isConfigFormOpen,
+    onOpen: onConfigFormOpen,
+    onClose: onConfigFormClose,
   } = useDisclosure();
 
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
@@ -142,6 +150,18 @@ export default function Page() {
           onPress={onProductFormOpen}
         >
           Ustvari izdelek
+        </Button>
+      );
+    }
+
+    if (collectionName === CONFIG_COLLECTION) {
+      return (
+        <Button
+          color="primary"
+          startContent={<PencilIcon size={16} />}
+          onPress={onConfigFormOpen}
+        >
+          Uredi nastavitve
         </Button>
       );
     }
@@ -334,6 +354,12 @@ export default function Page() {
         onConfirm={handleDeleteConfirm}
         itemName={deletingItem?.name}
         isLoading={isDeleting}
+      />
+
+      <EditConfigForm
+        isOpen={isConfigFormOpen}
+        onClose={onConfigFormClose}
+        onSuccess={handleFormSuccess}
       />
     </div>
   );

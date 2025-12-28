@@ -22,11 +22,16 @@ export default function EditProductCategoryForm({
   categoryId,
 }: EditProductCategoryFormProps) {
   const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
 
   const handleNameChange = (value: string) => {
     setName(value);
+  };
+
+  const handleDescriptionChange = (value: string) => {
+    setDescription(value);
   };
 
   const slug = generateSlug(name);
@@ -41,6 +46,7 @@ export default function EditProductCategoryForm({
         const category = await getProductCategory(categoryId);
         if (category) {
           setName(category.name);
+          setDescription(category.description || "");
         }
       } catch (error) {
         console.error("Error loading category:", error);
@@ -61,10 +67,12 @@ export default function EditProductCategoryForm({
       await updateProductCategory(categoryId, {
         name: name.trim(),
         slug: slug,
+        description: description.trim() || undefined,
       });
 
       // Reset form
       setName("");
+      setDescription("");
       onSuccess?.();
       onClose();
     } catch (error) {
@@ -76,6 +84,7 @@ export default function EditProductCategoryForm({
 
   const handleClose = () => {
     setName("");
+    setDescription("");
     onClose();
   };
 
@@ -87,6 +96,8 @@ export default function EditProductCategoryForm({
       title="Uredi kategorijo izdelkov"
       name={name}
       onNameChange={handleNameChange}
+      description={description}
+      onDescriptionChange={handleDescriptionChange}
       slug={slug}
       loading={loading}
       loadingData={loadingData}

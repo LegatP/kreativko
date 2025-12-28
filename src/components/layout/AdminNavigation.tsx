@@ -1,6 +1,4 @@
 "use client";
-
-import React from "react";
 import {
   BasketIcon,
   HouseIcon,
@@ -9,6 +7,7 @@ import {
   UsersIcon,
   TagIcon,
   PackageIcon,
+  GearIcon,
 } from "@phosphor-icons/react";
 import { Tooltip } from "@heroui/react";
 import Link from "next/link";
@@ -18,6 +17,7 @@ import { PRODUCTS_COLLECTION } from "@/db/products";
 import { AI_RESPONSES_COLLECTION } from "@/db/ai-reponses";
 import { ORDERS_COLLECTION } from "@/db/orders";
 import { USERS_COLLECTION } from "@/db/users";
+import { CONFIG_COLLECTION } from "@/db/config";
 
 const collections = [
   {
@@ -49,6 +49,11 @@ const collections = [
     collectionName: ORDERS_COLLECTION,
     displayName: "Naročila",
     icon: BasketIcon,
+  },
+  {
+    collectionName: CONFIG_COLLECTION,
+    displayName: "Nastavitve",
+    icon: GearIcon,
   },
 ];
 

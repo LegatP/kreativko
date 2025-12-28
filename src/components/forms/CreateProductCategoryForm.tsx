@@ -17,10 +17,15 @@ export default function CreateProductCategoryForm({
   onSuccess,
 }: CreateProductCategoryFormProps) {
   const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleNameChange = (value: string) => {
     setName(value);
+  };
+
+  const handleDescriptionChange = (value: string) => {
+    setDescription(value);
   };
 
   const slug = generateSlug(name);
@@ -34,10 +39,12 @@ export default function CreateProductCategoryForm({
       await createProductCategory({
         name: name.trim(),
         slug: slug,
+        description: description.trim() || undefined,
       });
 
       // Reset form
       setName("");
+      setDescription("");
       onSuccess?.();
       onClose();
     } catch (error) {
@@ -49,6 +56,7 @@ export default function CreateProductCategoryForm({
 
   const handleClose = () => {
     setName("");
+    setDescription("");
     onClose();
   };
 
@@ -60,6 +68,8 @@ export default function CreateProductCategoryForm({
       title="Ustvari novo kategorijo izdelkov"
       name={name}
       onNameChange={handleNameChange}
+      description={description}
+      onDescriptionChange={handleDescriptionChange}
       slug={slug}
       loading={loading}
       submitButtonText="Ustvari"

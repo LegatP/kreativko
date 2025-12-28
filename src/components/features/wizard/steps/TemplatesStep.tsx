@@ -3,67 +3,12 @@
 import { useMemo } from "react";
 import { Button, Card, CardBody } from "@heroui/react";
 import { motion } from "framer-motion";
-import {
-  BalloonIcon,
-  TextAaIcon,
-  HeartIcon,
-  ConfettiIcon,
-  SunIcon,
-  UsersThreeIcon,
-  ArrowRightIcon,
-} from "@phosphor-icons/react";
+import { ArrowRightIcon } from "@phosphor-icons/react";
 import Image from "next/image";
 import { useProductsByCategoryOnce } from "@/db/products";
-import { useCategoriesOnce } from "@/db/product-categories";
+import { useConfigContext } from "@/components/contexts/ConfigContext";
+import { getCategoryIcon } from "@/utils/category-icons";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
-
-// Stagger animation helper for grid items
-const getStaggerProps = (index: number) => ({
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-  transition: { delay: index * 0.05 },
-});
-
-// Hardcoded categories for Slovenian t-shirt market
-// These use slugs for display, but we fetch the actual Firestore IDs for filtering
-const CATEGORIES = [
-  {
-    slug: "majice-za-rojstni-dan",
-    name: "Rojstni dan",
-    description: "Motivi za obletnice in praznovanja",
-    icon: BalloonIcon,
-  },
-  {
-    slug: "motivi-z-napisi",
-    name: "Napisi",
-    description: "Motivi z napisom po želji",
-    icon: TextAaIcon,
-  },
-  {
-    slug: "za-pare",
-    name: "Za pare",
-    description: "Motivi za pare in zaljubljene",
-    icon: HeartIcon,
-  },
-  {
-    slug: "smešni-motivi",
-    name: "Smešni motivi",
-    description: "Za vse ljubitelje smeha in zabave",
-    icon: ConfettiIcon,
-  },
-  {
-    slug: "za-vsak-dan",
-    name: "Za vsak dan",
-    description: "Motivi za vsakdanjo uporabo",
-    icon: SunIcon,
-  },
-  {
-    slug: "družinski",
-    name: "Družinski",
-    description: "Motivi za družinske člane",
-    icon: UsersThreeIcon,
-  },
-];
 
 interface TemplatesStepProps {
   selectedCategory?: string; // Category ID or undefined for all products
@@ -76,29 +21,24 @@ export default function TemplatesStep({
   onCategorySelect,
   onProductSelect,
 }: TemplatesStepProps) {
-  // Fetch categories to map slug -> Firestore ID
-  const [categories] = useCategoriesOnce();
-
-  // Build slug to ID mapping from fetched categories
-  const slugToIdMap = useMemo(() => {
-    if (!categories) return {};
-    const mapping: Record<string, string> = {};
-    categories.forEach((cat) => {
-      mapping[cat.slug] = cat.id;
-    });
-    return mapping;
-  }, [categories]);
+  // Get categories from config context (configured in admin dashboard)
+  const { wizardCategories, wizardCategoriesLoading } = useConfigContext();
 
   // Use existing hook for fetching products
   const categoryToFetch = useMemo(
     () => (selectedCategory === "all" ? undefined : selectedCategory),
     [selectedCategory]
   );
-  const [products, loading] = useProductsByCategoryOnce(categoryToFetch);
+  const [products, productsLoading] = useProductsByCategoryOnce(categoryToFetch);
+
+  // Loading state for categories (when no category is selected yet)
+  if (!selectedCategory && wizardCategoriesLoading) {
+    return <LoadingSpinner />;
+  }
 
   // Show products if category is selected
   if (selectedCategory) {
-    if (loading || !products) {
+    if (productsLoading || !products) {
       return <LoadingSpinner />;
     }
 
@@ -151,38 +91,38 @@ export default function TemplatesStep({
     );
   }
 
-  // Helper to get Firestore ID from slug, fallback to slug if not found
-  const getCategoryId = (slug: string) => slugToIdMap[slug] || slug;
-
-  // Show hardcoded categories
+  // Show categories from config (configured in admin dashboard)
   return (
     <div className="flex flex-col gap-4">
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        {CATEGORIES.map((category, index) => {
-          const Icon = category.icon;
+        {wizardCategories.map((category, index) => {
+          const Icon = getCategoryIcon(category.slug);
           return (
             <motion.div
-              key={category.slug}
+              key={category.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
+              className="h-full w-full"
             >
               <Card
                 isPressable
-                onPress={() => onCategorySelect(getCategoryId(category.slug))}
-                className="border-2 border-transparent hover:border-primary transition-colors"
+                onPress={() => onCategorySelect(category.id)}
+                className="border-2 border-transparent hover:border-primary transition-colors h-full w-full"
               >
-                <CardBody className="flex flex-col items-center text-center gap-2 p-4">
+                <CardBody className="flex flex-col items-center text-center gap-2 p-4 h-full">
                   <div className="w-12 h-12 rounded-full flex items-center justify-center bg-primary/10 text-primary flex-shrink-0">
                     <Icon size={24} weight="duotone" />
                   </div>
-                  <div className="w-full">
+                  <div className="w-full flex-1 flex flex-col">
                     <h4 className="font-semibold text-foreground text-sm">
                       {category.name}
                     </h4>
-                    <p className="text-xs text-default-500 mt-0.5 h-8 line-clamp-2">
-                      {category.description}
-                    </p>
+                    {category.description && (
+                      <p className="text-xs text-default-500 mt-0.5 line-clamp-2">
+                        {category.description}
+                      </p>
+                    )}
                   </div>
                 </CardBody>
               </Card>
