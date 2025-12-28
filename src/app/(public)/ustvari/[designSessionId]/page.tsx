@@ -22,9 +22,8 @@ import {
   updateDesignSession,
 } from "@/db/design-sessions";
 import CreateDesignModal from "@/components/features/wizard/CreateDesignModal";
-import { Card, CardBody, Tooltip } from "@heroui/react";
-import { ArrowsClockwiseIcon } from "@phosphor-icons/react";
-import { ShirtView } from "@/components/canvas/Shirt";
+import PreviewToolbar from "@/components/canvas/PreviewToolbar";
+import { useCanvasControls } from "@/components/canvas/useCanvasControls";
 
 export default function Page() {
   const searchParams = useSearchParams();
@@ -35,7 +34,7 @@ export default function Page() {
   const createPromptRef = useRef<ProductDesignCreationRef>(null);
 
   const [isWizardOpen, setIsWizardOpen] = useState(showWizard);
-  const [shirtView, setShirtView] = useState<ShirtView>("front");
+  const { view: shirtView, toggleView: toggleShirtView } = useCanvasControls();
 
   const {
     onOpen: openCheckout,
@@ -168,10 +167,6 @@ export default function Page() {
 
   const hasAnyDesign = designUrls.front || designUrls.back;
 
-  const toggleShirtView = () => {
-    setShirtView((v) => (v === "front" ? "back" : "front"));
-  };
-
   const handleWizardClose = () => {
     setIsWizardOpen(false);
     if (showWizard) {
@@ -235,8 +230,8 @@ export default function Page() {
           </>
         }
         rightColumn={
-          <div className="w-full max-w-full flex flex-col gap-4 md:gap-6 lg:relative">
-            <div className="aspect-square w-full">
+          <div className="w-full max-w-full flex flex-col gap-2 sm:gap-4 md:gap-6 lg:relative pb-2 sm:pb-0">
+            <div className="aspect-square w-full -mb-12 sm:mb-0">
               <CanvasModel
                 product={Product.Shirt}
                 color={color}
@@ -245,22 +240,7 @@ export default function Page() {
                 view={shirtView}
               />
             </div>
-            {/* Rotation button - below canvas on mobile, left of canvas on desktop */}
-            <Tooltip content="Zavrti model">
-              <Card
-                isPressable
-                onPress={toggleShirtView}
-                className="w-fit ml-4 sm:ml-0 lg:absolute lg:top-0 lg:-ml-2.5"
-              >
-                <CardBody className="p-2.5">
-                  <ArrowsClockwiseIcon
-                    size={20}
-                    weight="bold"
-                    className="text-foreground"
-                  />
-                </CardBody>
-              </Card>
-            </Tooltip>
+            <PreviewToolbar onRotate={toggleShirtView} />
           </div>
         }
       />

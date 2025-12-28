@@ -7,6 +7,8 @@ import { garmet } from "@/products";
 import { useProductBySlug } from "@/db/products";
 import ProductPageLayout from "@/components/layout/ProductPageLayout";
 import CanvasModel from "@/components/canvas";
+import PreviewToolbar from "@/components/canvas/PreviewToolbar";
+import { useCanvasControls } from "@/components/canvas/useCanvasControls";
 import { Product as ProductType } from "@/types/product.types";
 import ProductCustomization from "@/components/ProductConfigurator/ProductCustomization";
 import {
@@ -48,6 +50,7 @@ export default function Page({
 
   const [generatedDesigns, setGeneratedDesigns] = useState<Design[]>([]);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const { view: shirtView, toggleView: toggleShirtView } = useCanvasControls();
 
   useEffect(() => {
     if (!product) return;
@@ -210,14 +213,16 @@ export default function Page({
         </div>
       }
       rightColumn={
-        <div className="w-full max-w-full overflow-hidden">
-          <div className="aspect-square w-full mx-auto">
+        <div className="w-full max-w-full flex flex-col gap-2 sm:gap-4 md:gap-6 lg:relative pb-2 sm:pb-0">
+          <div className="aspect-square w-full -mb-12 sm:mb-0">
             <CanvasModel
               product={ProductType.Shirt}
               color={color}
               frontPatternUrl={designUrl}
+              view={shirtView}
             />
           </div>
+          <PreviewToolbar onRotate={toggleShirtView} />
         </div>
       }
     />

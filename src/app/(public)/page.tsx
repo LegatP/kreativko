@@ -149,7 +149,8 @@ export default function Page() {
               >
                 <CardBody className="flex flex-col items-center gap-4 p-4">
                   <p className="text-primary-900 text-center">
-                    Ustvari unikaten motiv v nekaj korakih. Izberi iz galerije, opiši svojo idejo ali naloži sliko.
+                    Ustvari unikaten motiv v nekaj korakih. Izberi iz galerije,
+                    opiši svojo idejo ali naloži sliko.
                   </p>
                   <Button
                     color="primary"

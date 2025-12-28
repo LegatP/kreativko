@@ -31,8 +31,8 @@ export default function ProductPageLayout({
             {leftColumn}
           </div>
 
-          <div className="lg:col-span-5 order-1 lg:order-2 -mx-4 sm:mx-0 flex justify-center">
-            <div className="w-full min-w-[500px] mx-auto">{rightColumn}</div>
+          <div className="lg:col-span-5 order-1 lg:order-2 -mx-4 sm:mx-0 flex justify-center overflow-x-hidden lg:overflow-visible">
+            <div className="w-full sm:min-w-[500px] mx-auto">{rightColumn}</div>
           </div>
         </div>
       </div>
