@@ -10,7 +10,8 @@ import { CaretRightIcon } from "@phosphor-icons/react";
 import { useFormStatus } from "react-dom";
 import { useUncontrolledForm } from "@/hooks/useUncontrolledForm";
 import { setUserProfile } from "@/db/users";
-import { UserProfile } from "firebase/auth";
+import { AddDocumentData } from "@/lib/firebase/firestore";
+import { UserProfile } from "@/db/users/types";
 import { useRouter } from "next/navigation";
 import ROUTES from "@/utils/routes.utils";
 
@@ -61,19 +62,15 @@ export default function SignUpForm() {
       if (authError) {
         setError(getErrorMessage(authError));
       } else if (user) {
-        let userData: Partial<UserProfile> = {
+        const userData: AddDocumentData<UserProfile> = {
           firstName,
           lastName,
           termsAcceptedAt: new Date(),
           newsletterSubscribed,
+          ...(phone && address && city && postCode && country
+            ? { phone, deliveryAddress: { address, city, postCode, country } }
+            : {}),
         };
-        if (phone && address && city && postCode && country) {
-          userData = {
-            ...userData,
-            phone,
-            deliveryAddress: { address, city, postCode, country },
-          };
-        }
         await setUserProfile(user.uid, userData);
 
         router.push(ROUTES.home);

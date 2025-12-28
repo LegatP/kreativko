@@ -6,28 +6,14 @@ import React, {
   useState,
   useMemo,
 } from "react";
+import { PrintPosition } from "@/products";
+import { OrderItem, ShippingInfo } from "@/db/orders/types";
 
-export const BASE_PRODUCT_PRICE = 19.99; // Example base price per item
-export const BASE_SHIPPING_COST = 4.9; // Example base shipping cost
-// TODO: move to types file
-interface ShippingInfo {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phoneNumber: string;
-  address: string;
-  city: string;
-  postalCode: string;
-  country: string;
-}
+export const BASE_PRICE_PER_DESIGN = 19.99;
+export const BASE_SHIPPING_COST = 4.9;
 
-interface OrderItem {
-  productId: string;
-  name: string;
-  designUrl: string;
-  color: string;
-  quantities: Record<string, number>;
-}
+export type DesignUrls = Partial<Record<PrintPosition, string>>;
+
 interface CheckoutContextType {
   isOpen: boolean;
   onOpen: () => void;
@@ -55,7 +41,7 @@ export const CheckoutContextProvider = ({
   const [item, setItem] = useState<OrderItem>({
     productId: "",
     name: "",
-    designUrl: "",
+    designUrls: {},
     color: "",
     quantities: {},
   });
@@ -78,7 +64,7 @@ export const CheckoutContextProvider = ({
   }, [item]);
 
   const productsAmount = useMemo(() => {
-    return totalQuantity * BASE_PRODUCT_PRICE;
+    return totalQuantity * BASE_PRICE_PER_DESIGN;
   }, [totalQuantity]);
 
   const isWithShipping = useMemo(() => {

@@ -8,22 +8,19 @@ import { createDashedBorderTexture } from "../../utils/dashed-border-texture";
 
 // useGLTF.preload("/assets/shirt_baked.glb");
 
+export type ShirtView = "front" | "back";
+
 interface ShirtProps {
   color: string;
-  frontPatternUrl: string;
+  frontPatternUrl?: string;
+  backPatternUrl?: string;
+  view?: ShirtView;
 }
 
-const Shirt = ({ color, frontPatternUrl }: ShirtProps) => {
+const Shirt = ({ color, frontPatternUrl, backPatternUrl, view = "front" }: ShirtProps) => {
   const groupRef = useRef<Group>(null);
-  // const { state } = useAppStateContext();
-  // const {
-  //   // @ts-expect-error frontPatternUrl not in all products
-  //   currentProductConfig: { color, frontPatternUrl },
-  // } = useAppStateContext();
 
   const { gl } = useThree();
-  // const currentView = state.viewState?.currentView || "front";
-  // const currentView = "front";
   const designRatio = "2:3"; // Default ratio since viewState.designRatio doesn't exist yet
 
   const { nodes, materials } = useGLTF("/assets/shirt_baked.glb");
@@ -33,21 +30,37 @@ const Shirt = ({ color, frontPatternUrl }: ShirtProps) => {
     return createDashedBorderTexture(256, 256, designRatio);
   }, [designRatio]);
 
-  // Load actual texture only if frontPatternUrl exists and is not the default
-  const logoTexture = useTexture(
+  // Load front texture
+  const frontLogoTexture = useTexture(
     frontPatternUrl && frontPatternUrl !== "/assets/threejs.png"
       ? frontPatternUrl
       : "/assets/threejs.png"
   );
 
+  // Load back texture
+  const backLogoTexture = useTexture(
+    backPatternUrl && backPatternUrl !== "/assets/threejs.png"
+      ? backPatternUrl
+      : "/assets/threejs.png"
+  );
+
   // Use actual texture if available, otherwise use dashed border
-  const displayTexture =
+  const frontDisplayTexture =
     frontPatternUrl && frontPatternUrl !== "/assets/threejs.png"
-      ? logoTexture
+      ? frontLogoTexture
       : dashedBorderTexture;
 
-  if (logoTexture) {
-    logoTexture.anisotropy = gl.capabilities.getMaxAnisotropy();
+  const backDisplayTexture =
+    backPatternUrl && backPatternUrl !== "/assets/threejs.png"
+      ? backLogoTexture
+      : dashedBorderTexture;
+
+  if (frontLogoTexture) {
+    frontLogoTexture.anisotropy = gl.capabilities.getMaxAnisotropy();
+  }
+
+  if (backLogoTexture) {
+    backLogoTexture.anisotropy = gl.capabilities.getMaxAnisotropy();
   }
 
   useFrame((state, delta) => {
@@ -58,9 +71,8 @@ const Shirt = ({ color, frontPatternUrl }: ShirtProps) => {
       delta
     );
 
-    // Smooth rotation animation
-    // const targetRotationY = currentView === "back" ? Math.PI : 0;
-    const targetRotationY = 0;
+    // Smooth rotation animation based on view
+    const targetRotationY = view === "back" ? Math.PI : 0;
     if (groupRef.current) {
       easing.damp(groupRef.current.rotation, "y", targetRotationY, 0.3, delta);
     }
@@ -75,13 +87,23 @@ const Shirt = ({ color, frontPatternUrl }: ShirtProps) => {
         material-roughness={1}
         dispose={null}
       >
-        {/* Always show either the design or the placeholder */}
+        {/* Front design */}
         {!!frontPatternUrl && (
           <Decal
             position={[0.02, 0.02, 0.15]}
             rotation={[0, 0, 0]}
             scale={0.265}
-            map={displayTexture!}
+            map={frontDisplayTexture!}
+            depthTest={false}
+          />
+        )}
+        {/* Back design */}
+        {!!backPatternUrl && (
+          <Decal
+            position={[0.02, 0.02, -0.15]}
+            rotation={[0, Math.PI, 0]}
+            scale={0.265}
+            map={backDisplayTexture!}
             depthTest={false}
           />
         )}

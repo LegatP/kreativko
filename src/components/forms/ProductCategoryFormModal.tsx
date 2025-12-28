@@ -9,8 +9,8 @@ import {
   ModalFooter,
   Button,
   Input,
-  Spinner,
 } from "@heroui/react";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 interface ProductCategoryFormModalProps {
   isOpen: boolean;
@@ -58,8 +58,8 @@ export default function ProductCategoryFormModal({
       >
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1">{title}</ModalHeader>
-          <ModalBody className="flex items-center justify-center py-12">
-            <Spinner size="lg" />
+          <ModalBody>
+            <LoadingSpinner />
           </ModalBody>
         </ModalContent>
       </Modal>

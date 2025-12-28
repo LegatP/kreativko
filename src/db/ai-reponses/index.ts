@@ -1,16 +1,19 @@
-import { CreateShirtPatternResponse } from "@/actions/openai";
-import { addDoc, updateDoc } from "@/lib/firebase/firestore";
-import { Timestamp } from "firebase/firestore";
-export interface AiReponse
-  extends Omit<CreateShirtPatternResponse, "b64_json"> {
-  id: string;
-  imageUrl: string;
-  userId: string;
-  createdAt: Timestamp;
-}
+import { createCollection } from "../createCollection";
+import { AiReponse } from "./types";
 
-const collectionName = "ai_responses";
+// Re-export types
+export type { AiReponse };
 
-export const createAiReponse = addDoc<AiReponse>(collectionName);
+const AI_RESPONSES_COLLECTION = "ai_responses";
 
-export const updateAiReponse = updateDoc<AiReponse>(collectionName);
+// Create the collection with full CRUD + hooks support
+const aiResponsesCollection = createCollection<AiReponse>(AI_RESPONSES_COLLECTION);
+
+// Export collection metadata
+export { AI_RESPONSES_COLLECTION };
+export const aiResponseConverter = aiResponsesCollection.converter;
+
+// Export CRUD operations
+export const createAiReponse = aiResponsesCollection.create;
+export const updateAiReponse = aiResponsesCollection.update;
+export const getAiReponse = aiResponsesCollection.get;

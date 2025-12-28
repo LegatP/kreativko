@@ -6,5 +6,5 @@ export interface ProductCategory {
   slug: string;
   productIds?: string[]; // Array of product IDs in this category
   createdAt: Timestamp;
-  updatedAt?: Timestamp;
+  updatedAt: Timestamp;
 }

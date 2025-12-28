@@ -12,36 +12,41 @@ import {
 } from "@phosphor-icons/react";
 import { Tooltip } from "@heroui/react";
 import Link from "next/link";
-import { DESIGN_SESSION_COLLECTION } from "@/db/design-sessions";
+import { DESIGN_SESSIONS_COLLECTION } from "@/db/design-sessions";
+import { PRODUCT_CATEGORIES_COLLECTION } from "@/db/product-categories";
+import { PRODUCTS_COLLECTION } from "@/db/products";
+import { AI_RESPONSES_COLLECTION } from "@/db/ai-reponses";
+import { ORDERS_COLLECTION } from "@/db/orders";
+import { USERS_COLLECTION } from "@/db/users";
 
 const collections = [
   {
-    collectionName: "product_categories",
+    collectionName: PRODUCT_CATEGORIES_COLLECTION,
     displayName: "Kategorije izdelkov",
     icon: TagIcon,
   },
   {
-    collectionName: "products",
+    collectionName: PRODUCTS_COLLECTION,
     displayName: "Izdelki",
     icon: PackageIcon,
   },
   {
-    collectionName: "ai_responses",
+    collectionName: AI_RESPONSES_COLLECTION,
     displayName: "Motivi",
     icon: StarFourIcon,
   },
   {
-    collectionName: DESIGN_SESSION_COLLECTION,
+    collectionName: DESIGN_SESSIONS_COLLECTION,
     displayName: "Ustvarjeni dizajni",
     icon: ShirtFoldedIcon,
   },
   {
-    collectionName: "users",
+    collectionName: USERS_COLLECTION,
     displayName: "Uporabniki",
     icon: UsersIcon,
   },
   {
-    collectionName: "orders",
+    collectionName: ORDERS_COLLECTION,
     displayName: "Naročila",
     icon: BasketIcon,
   },

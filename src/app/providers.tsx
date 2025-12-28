@@ -3,6 +3,7 @@
 import { HeroUIProvider, ToastProvider } from "@heroui/react";
 import FirebaseProvider from "@/components/firebase/FirebaseProvider";
 import { CheckoutContextProvider } from "@/components/contexts/CheckoutContext";
+import { CreateDesignContextProvider } from "@/components/contexts/CreateDesignContext";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -10,8 +11,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <ToastProvider placement="top-right" />
       <FirebaseProvider>
         <CheckoutContextProvider>
-          {/* <AppContextProvider>{children}</AppContextProvider> */}
-          {children}
+          <CreateDesignContextProvider>
+            {children}
+          </CreateDesignContextProvider>
         </CheckoutContextProvider>
       </FirebaseProvider>
     </HeroUIProvider>

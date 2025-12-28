@@ -23,7 +23,6 @@
     "firebase": "^12.6.0",
     "framer-motion": "^12.23.25",
     "next": "16.0.7",
-    "nextjs": "^0.0.3",
     "nodemailer": "^7.0.11",
     "openai": "^6.14.0",
     "react": "19.2.1",

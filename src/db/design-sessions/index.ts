@@ -1,58 +1,25 @@
-import db, { addDoc, updateDoc } from "@/lib/firebase/firestore";
-import {
-  DocumentData,
-  FirestoreDataConverter,
-  Timestamp,
-  WithFieldValue,
-  QueryDocumentSnapshot,
-  SnapshotOptions,
-  doc,
-} from "firebase/firestore";
-import {
-  useDocumentData,
-  useDocumentDataOnce,
-} from "react-firebase-hooks/firestore";
+import { createCollection } from "../createCollection";
+import { DesignSession } from "./types";
 
-export const DESIGN_SESSION_COLLECTION = "design_sessions";
+// Re-export types
+export type { DesignSession };
 
-export interface DesignSession {
-  id: string;
-  userId: string;
-  uploadedAssets: { url: string }[];
-  createdDesigns: { url: string; title: string }[];
-  createdAt: Timestamp;
-}
+const DESIGN_SESSIONS_COLLECTION = "design_sessions";
 
-export const createDesignSession = addDoc<DesignSession>(
-  DESIGN_SESSION_COLLECTION
+// Create the collection with full CRUD + hooks support
+const designSessionsCollection = createCollection<DesignSession>(
+  DESIGN_SESSIONS_COLLECTION
 );
 
-export const updateDesignSession = updateDoc<DesignSession>(
-  DESIGN_SESSION_COLLECTION
-);
+// Export collection metadata
+export { DESIGN_SESSIONS_COLLECTION };
+export const designSessionConverter = designSessionsCollection.converter;
 
-const converter: FirestoreDataConverter<DesignSession> = {
-  toFirestore(data: WithFieldValue<DesignSession>): DocumentData {
-    return data;
-  },
-  fromFirestore(
-    snapshot: QueryDocumentSnapshot,
-    options: SnapshotOptions
-  ): DesignSession {
-    const data = snapshot.data(options);
-    return {
-      id: snapshot.id,
-      ...data,
-    } as DesignSession;
-  },
-};
+// Export CRUD operations
+export const createDesignSession = designSessionsCollection.create;
+export const updateDesignSession = designSessionsCollection.update;
+export const getDesignSession = designSessionsCollection.get;
 
-export const useDesignSessionOnce = (id: string) => {
-  const d = doc(db, DESIGN_SESSION_COLLECTION, id).withConverter(converter);
-  return useDocumentDataOnce<DesignSession>(d);
-};
-
-export const useDesignSessionListener = (id: string) => {
-  const d = doc(db, DESIGN_SESSION_COLLECTION, id).withConverter(converter);
-  return useDocumentData<DesignSession>(d);
-};
+// React Firebase Hooks
+export const useDesignSessionOnce = designSessionsCollection.useDocOnce;
+export const useDesignSessionListener = designSessionsCollection.useDoc;

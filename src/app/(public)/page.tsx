@@ -10,11 +10,12 @@ import {
   ModalFooter,
   Button,
   useDisclosure,
-  CardHeader,
+  CardBody,
 } from "@heroui/react";
 import {
   CheckCircleIcon,
   PackageIcon,
+  PaintBrushIcon,
   PrinterIcon,
   XCircleIcon,
 } from "@phosphor-icons/react";
@@ -24,10 +25,7 @@ import { useEffect, useState } from "react";
 import { trackPageView, trackPurchaseComplete } from "@/lib/firebase/analytics";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useCheckoutContext } from "@/components/contexts/CheckoutContext";
-import PromptForm from "@/components/common/PromptForm";
-import { createDesignSession } from "@/db/design-sessions";
-import auth from "@/lib/firebase/auth";
-import ROUTES from "@/utils/routes.utils";
+import { useCreateDesignContext } from "@/components/contexts/CreateDesignContext";
 
 export default function Page() {
   const [selectedDesign] = useState<string>("");
@@ -38,7 +36,7 @@ export default function Page() {
     "success" | "error" | null
   >(null);
   const { item, totalAmount, totalQuantity } = useCheckoutContext();
-  const [isGenerating, setIsGenerating] = useState(false);
+  const { openModal } = useCreateDesignContext();
 
   useEffect(() => {
     // Track landing page view
@@ -80,21 +78,6 @@ export default function Page() {
   const handleCloseModal = () => {
     setPaymentStatus(null);
     onClose();
-  };
-
-  const onPromptSubmit = async (
-    prompt: string,
-    selectedDesigns?: { url: string }[]
-  ) => {
-    setIsGenerating(true);
-
-    const session = await createDesignSession({
-      userId: auth.currentUser!.uid,
-      uploadedAssets: selectedDesigns || [],
-      createdDesigns: [],
-    });
-
-    router.push(ROUTES.createDesign(session.id, { opis: prompt }));
   };
 
   return (
@@ -162,15 +145,22 @@ export default function Page() {
             <div className="w-full sm:max-w-md md:mt-7 lg:mt-22 px-4">
               <Card
                 shadow="sm"
-                className="border-1 border-primary p-2 py-5 px-6 "
+                className="border-1 border-primary p-2 py-5 px-6"
               >
-                <CardHeader className="text-primary font-bold text-xl pl-0 pt-0">
-                  Opiši Svoj Motiv
-                </CardHeader>
-                <PromptForm
-                  onSubmit={onPromptSubmit}
-                  isLoading={isGenerating}
-                />
+                <CardBody className="flex flex-col items-center gap-4 p-4">
+                  <p className="text-primary-900 text-center">
+                    Ustvari unikaten motiv v nekaj korakih. Izberi iz galerije, opiši svojo idejo ali naloži sliko.
+                  </p>
+                  <Button
+                    color="primary"
+                    size="lg"
+                    className="text-white font-bold w-full"
+                    startContent={<PaintBrushIcon weight="bold" size={24} />}
+                    onPress={openModal}
+                  >
+                    Ustvari Motiv
+                  </Button>
+                </CardBody>
               </Card>
               <div className="flex flex-col sm:flex-row gap-2 justify-center">
                 <Button
@@ -204,9 +194,6 @@ export default function Page() {
                   }
                 >
                   <span className="text-primary-900 font-semibold text-xs">
-                    {
-                      // TODO: move to config
-                    }
                     Brezplačna poštnina nad 50€
                   </span>
                 </Button>
@@ -220,115 +207,10 @@ export default function Page() {
                   frontPatternUrl={selectedDesign}
                 />
               </div>
-              {/* <div className="flex flex-row gap-4 max-w-[55%]">
-                {desings.map((design) => (
-                  <DesignCard
-                    key={design.imageUrl}
-                    title={design.title}
-                    isSelected={selectedDesign === design.imageUrl}
-                    designUrl={design.imageUrl}
-                    handleDesignSelect={setSelectedDesign}
-                  />
-                ))}
-              </div> */}
             </div>
           </div>
         </div>
       </section>
-
-      {/* Products Section */}
-      {/* <section id="produkti" className="py-8 lg:py-20 bg-white">
-        <div className="container mx-auto px-4 sm:text-center">
-          <h2 className="text-3xl font-bold text-primary mb-4">
-            Personaliziraj obstoječi motiv
-          </h2>
-          <p className="text-xl font-bold text-primary-900 mb-8 lg:mb-20 mx-auto">
-            Izberi motiv iz naše galerije in ga prilagodi svojim željam.
-          </p>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10 max-w-4xl mx-auto">
-            {[
-              // products["sadez-zelenjava"],
-              // products["silhueta-zivali"],
-              products["40-jih-mam-pa-kaj"],
-            ].map((product) => (
-              <Card
-                key={product.id}
-                className="bg-white hover:bg-white group text-start"
-                isPressable
-                shadow="md"
-                as={Link}
-                href={ROUTES.productDetails(product.slug)({
-                  query: { barva: product.defaultShirtColor.replace("#", "") },
-                })}
-                onPress={() =>
-                  trackCustomizeDesignClick(product.id, product.name)
-                }
-              >
-                <Image
-                  isZoomed
-                  src={product.designs[0].imageUrl}
-                  radius="none"
-                  alt={product.name}
-                  className="object-cover"
-                  style={{
-                    backgroundColor: product.defaultShirtColor,
-                  }}
-                />
-                <Divider />
-                <CardBody className="px-4 pt-4 pb-6 flex flex-col justify-between">
-                  <div>
-                    <h3 className="text-xl font-semibold mb-2 text-primary-900 group-hover:text-primary">
-                      {product.shortName}
-                    </h3>
-                  </div>
-                  <div className="flex items-center justify-end mt-3">
-                    <span className="flex flex-row items-center gap-2 text-primary text-sm">
-                      Personaliziraj
-                      <ArrowRightIcon />
-                    </span>
-                  </div>
-                </CardBody>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section> */}
-
-      {/* <footer className="text-default-900 py-12">
-        <div className="container mx-auto px-4 max-w-7xl">
-          <div className="grid md:grid-cols-3 gap-8">
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Kontakt</h3>
-              <div className="text-primary-900 space-y-2">
-                <p>info@moj-motiv.si</p>
-              </div>
-            </div>
-
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Pravne informacije</h3>
-              <div className="space-y-2">
-                <Link
-                  href="/politika-zasebnosti"
-                  className="block text-default-900 hover:text-primary transition-colors"
-                >
-                  Politika zasebnosti
-                </Link>
-                <Link
-                  href="/pogoji-uporabe"
-                  className="block text-default-900 hover:text-primary transition-colors"
-                >
-                  Pogoji uporabe
-                </Link>
-              </div>
-            </div>
-          </div>
-
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-default-900">
-            <p>&copy; 2025 Moj Motiv. Vse pravice pridržane.</p>
-          </div>
-        </div>
-      </footer> */}
     </div>
   );
 }

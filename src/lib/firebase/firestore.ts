@@ -3,6 +3,7 @@ import {
   addDoc as firestoreAddDoc,
   updateDoc as firestoreUpdateDoc,
   getDoc as firestoreGetDoc,
+  deleteDoc as firestoreDeleteDoc,
   collection,
   doc,
   DocumentData,
@@ -16,6 +17,7 @@ import {
   getDocs,
   orderBy,
   FirestoreDataConverter,
+  arrayUnion as firestoreArrayUnion,
 } from "firebase/firestore";
 
 const db = initializeFirestore(
@@ -24,7 +26,7 @@ const db = initializeFirestore(
   process.env.NEXT_PUBLIC_FIREBASE_DATABASE
 );
 
-export type AddDocumentData<T> = Omit<T, "id" | "createdAt">;
+export type AddDocumentData<T> = Omit<T, "id" | "createdAt" | "updatedAt">;
 
 function getDocReference(
   ref: string | DocumentReference<DocumentData>
@@ -48,7 +50,8 @@ export function addDoc<T>(
   ref: string | CollectionReference<DocumentData> | (() => string)
 ) {
   return async (data: AddDocumentData<T>) => {
-    const finalData = { ...data, createdAt: Timestamp.now() };
+    const now = Timestamp.now();
+    const finalData = { ...data, createdAt: now, updatedAt: now };
     const colRef = getCollectionReference(ref);
     const docRef = await firestoreAddDoc(colRef, finalData);
     return { ...finalData, id: docRef.id } as T;
@@ -56,20 +59,21 @@ export function addDoc<T>(
 }
 
 export function setDoc<T>(ref: string | DocumentReference<DocumentData>) {
-  return async (
-    data: WithFieldValue<DocumentData>
-  ): Promise<T & { id: string }> => {
+  return async (data: AddDocumentData<T>): Promise<T & { id: string }> => {
     const docRef = getDocReference(ref);
-    await firestoreSetDoc(docRef, data);
-    return { ...(data as T), id: docRef.id };
+    const now = Timestamp.now();
+    const finalData = { ...data, createdAt: now, updatedAt: now };
+    await firestoreSetDoc(docRef, finalData);
+    return { ...(finalData as T), id: docRef.id };
   };
 }
 
 export function updateDoc<T>(ref: string) {
   return async (id: string, data: Partial<WithFieldValue<T>>) => {
     const docRef = getDocReference(`${ref}/${id}`);
-    await firestoreUpdateDoc(docRef, data);
-    return { ...(data as T), id: docRef.id };
+    const finalData = { ...data, updatedAt: Timestamp.now() };
+    await firestoreUpdateDoc(docRef, finalData);
+    return { ...(finalData as T), id: docRef.id };
   };
 }
 
@@ -81,6 +85,13 @@ export function getDoc<T>(ref: string) {
       return { ...docSnap.data(), id: docSnap.id } as T;
     }
     return null;
+  };
+}
+
+export function deleteDoc(ref: string) {
+  return async (id: string): Promise<void> => {
+    const docRef = getDocReference(`${ref}/${id}`);
+    await firestoreDeleteDoc(docRef);
   };
 }
 
@@ -104,5 +115,8 @@ export async function getAllFromCollection<T>(
     return [];
   }
 }
+
+// Re-export arrayUnion for atomic array updates
+export const arrayUnion = firestoreArrayUnion;
 
 export default db;

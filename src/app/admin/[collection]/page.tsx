@@ -25,12 +25,15 @@ import { useCollectionDataOnce } from "react-firebase-hooks/firestore";
 import db from "@/lib/firebase/firestore";
 import { isObject } from "framer-motion";
 import { isArray } from "util";
-import { PlusIcon, PencilIcon } from "@phosphor-icons/react";
+import { PlusIcon, PencilIcon, TrashIcon } from "@phosphor-icons/react";
 import CreateProductCategoryForm from "@/components/forms/CreateProductCategoryForm";
 import CreateProductForm from "@/components/forms/CreateProductForm";
 import EditProductCategoryForm from "@/components/forms/EditProductCategoryForm";
 import EditProductForm from "@/components/forms/EditProductForm";
+import ConfirmDeleteModal from "@/components/common/ConfirmDeleteModal";
 import { createConverter } from "@/db/createCollection";
+import { deleteProduct } from "@/db/products";
+import { deleteProductCategory } from "@/db/product-categories";
 
 const converter = createConverter<DocumentData & { id: string }>();
 
@@ -63,6 +66,8 @@ export default function Page() {
   } = useDisclosure();
 
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [deletingItem, setDeletingItem] = useState<{ id: string; name: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const col = collection(db, collectionName as string).withConverter(converter);
   const [data] = useCollectionDataOnce<DocumentData>(
@@ -87,6 +92,33 @@ export default function Page() {
     setEditingItemId(null);
     onEditProductCategoryFormClose();
     onEditProductFormClose();
+  };
+
+  const handleDeleteClick = (item: DocumentData) => {
+    setDeletingItem({ id: item.id, name: item.name || item.slug || item.id });
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deletingItem) return;
+
+    setIsDeleting(true);
+    try {
+      if (collectionName === "product_categories") {
+        await deleteProductCategory(deletingItem.id);
+      } else if (collectionName === "products") {
+        await deleteProduct(deletingItem.id);
+      }
+      handleFormSuccess();
+    } catch (error) {
+      console.error("Error deleting item:", error);
+    } finally {
+      setIsDeleting(false);
+      setDeletingItem(null);
+    }
+  };
+
+  const handleDeleteClose = () => {
+    setDeletingItem(null);
   };
 
   const getCreateButton = () => {
@@ -238,15 +270,26 @@ export default function Page() {
                     <div className="flex gap-2">
                       {(collectionName === "product_categories" ||
                         collectionName === "products") && (
-                        <Button
-                          size="sm"
-                          variant="light"
-                          color="primary"
-                          isIconOnly
-                          onPress={() => handleEdit(item.id)}
-                        >
-                          <PencilIcon size={16} />
-                        </Button>
+                        <>
+                          <Button
+                            size="sm"
+                            variant="light"
+                            color="primary"
+                            isIconOnly
+                            onPress={() => handleEdit(item.id)}
+                          >
+                            <PencilIcon size={16} />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="light"
+                            color="danger"
+                            isIconOnly
+                            onPress={() => handleDeleteClick(item)}
+                          >
+                            <TrashIcon size={16} />
+                          </Button>
+                        </>
                       )}
                     </div>
                   ) : (
@@ -283,6 +326,14 @@ export default function Page() {
         onClose={handleEditClose}
         onSuccess={handleFormSuccess}
         productId={editingItemId || undefined}
+      />
+
+      <ConfirmDeleteModal
+        isOpen={!!deletingItem}
+        onClose={handleDeleteClose}
+        onConfirm={handleDeleteConfirm}
+        itemName={deletingItem?.name}
+        isLoading={isDeleting}
       />
     </div>
   );

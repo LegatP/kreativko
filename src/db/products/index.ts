@@ -3,7 +3,6 @@ import { createCollection } from "../createCollection";
 import {
   Product,
   ProductDesign,
-  ProductVariable,
   PromptSuggestion,
   PromptSuggestionVariable,
 } from "./types";
@@ -12,7 +11,6 @@ import {
 export type {
   Product,
   ProductDesign,
-  ProductVariable,
   PromptSuggestion,
   PromptSuggestionVariable,
 };
@@ -30,6 +28,7 @@ export const productConverter = productsCollection.converter;
 export const createProduct = productsCollection.create;
 export const updateProduct = productsCollection.update;
 export const getProduct = productsCollection.get;
+export const deleteProduct = productsCollection.delete;
 
 /**
  * Get all products from the database

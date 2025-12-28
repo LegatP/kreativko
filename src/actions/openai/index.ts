@@ -208,4 +208,119 @@ export async function generateResponse(
   };
 }
 
-export { createShirtPattern, editShirtPattern };
+export interface ImageAnalysisSuggestion {
+  id: string;
+  prompt: string;
+}
+
+export interface AnalyzeImageResponse {
+  suggestions: ImageAnalysisSuggestion[];
+}
+
+async function analyzeImageForSuggestions(
+  imageUrl: string
+): Promise<AnalyzeImageResponse> {
+  try {
+    // imageUrl should be a valid HTTPS URL (e.g., from Firebase Storage)
+    if (!imageUrl.startsWith("https://")) {
+      console.error("Invalid image URL format:", imageUrl.substring(0, 50));
+      throw new Error("Invalid image URL - must be HTTPS");
+    }
+
+    const systemPrompt = `You are a creative designer helping users transform their uploaded images into unique t-shirt prints.
+Analyze the uploaded image and provide exactly 4 creative prompt suggestions in Slovenian language.
+Each suggestion should describe a different creative way to transform or stylize the image for printing on apparel.
+Consider: artistic styles (geometric, watercolor, minimalist), mood changes (vintage, futuristic, playful),
+color treatments (monotone, vibrant, pastel), and creative interpretations.
+
+Additionally follow these rules:
+
+1. If image of a person is detected, suggest styles that focus on portraiture or character design.
+2. If the image contains scenery, suggest styles that enhance landscapes or abstract the environment.
+3. If no recognizable objects are detected, suggest abstract or pattern-based designs.
+4. If the image contains an existing design, suggest ways to reimagine or remix that design creatively and suggest to just recreate the design as-is.
+5. If the image is a sketch or a drawing, suggest ways to colorize or stylize the sketch for printing.
+6. If the design has a number suggest to recreate the design with another number.
+7. Avoid repeating similar styles across the 4 suggestions.
+
+Respond ONLY with a valid JSON array of 4 objects, each with an "id" (1-4) and "prompt" field.
+Example format:
+[
+  {"id": "1", "prompt": "Pretvori sliko v minimalistično silhueto z ostrimi linijami..."},
+  {"id": "2", "prompt": "Dodaj retro vintage občutek z zbledelimi barvami..."},
+  {"id": "3", "prompt": "Ustvari geometrično abstrakcijo z barvnimi trikotniki..."},
+  {"id": "4", "prompt": "Preoblikuj v pop-art slog z živahnimi barvami..."}
+]`;
+
+    // Use the responses API (same as generateResponse) which works with images
+    const response = await client.responses.create({
+      model: "gpt-4o",
+      input: [
+        {
+          role: "system",
+          content: systemPrompt,
+        },
+        {
+          role: "user",
+          content: [
+            {
+              type: "input_text",
+              text: "Analiziraj to sliko in predlagaj 4 kreativne načine za preoblikovanje v unikaten motiv za tisk na majico.",
+            },
+            {
+              type: "input_image",
+              image_url: imageUrl,
+              detail: "auto",
+            },
+          ],
+        },
+      ],
+    });
+
+    // Extract text content from response
+    const outputMessage = response.output?.find(
+      (item) => item.type === "message"
+    );
+    const textContent = (
+      outputMessage as { content?: Array<{ type: string; text?: string }> }
+    )?.content?.find((c) => c.type === "output_text");
+    const content = textContent?.text || "[]";
+
+    // Parse JSON from response
+    const jsonMatch = content.match(/\[[\s\S]*\]/);
+    if (!jsonMatch) {
+      throw new Error("No valid JSON found in response");
+    }
+    const suggestions = JSON.parse(jsonMatch[0]) as ImageAnalysisSuggestion[];
+    return { suggestions };
+  } catch (error) {
+    console.error("Error analyzing image:", error);
+    // Return fallback suggestions
+    return {
+      suggestions: [
+        {
+          id: "1",
+          prompt:
+            "Pretvori sliko v minimalistično silhueto z ostrimi geometrijskimi linijami in eno samo barvo.",
+        },
+        {
+          id: "2",
+          prompt:
+            "Dodaj retro vintage občutek z zbledelimi barvami in teksturo starega papirja.",
+        },
+        {
+          id: "3",
+          prompt:
+            "Ustvari abstrakcijo z razdrobljenimi oblikami in živahnimi kontrastnimi barvami.",
+        },
+        {
+          id: "4",
+          prompt:
+            "Preoblikuj v ilustracijo v slogu risanke z poudarjenimi obrisi in preprostimi barvnimi ploskvami.",
+        },
+      ],
+    };
+  }
+}
+
+export { createShirtPattern, editShirtPattern, analyzeImageForSuggestions };

@@ -35,7 +35,7 @@ export type OrderStatus =
   | "failed"; // Payment failed
 
 export interface Order {
-  id?: string;
+  id: string;
   orderNumber: string; // Human-readable order number (e.g., "ORD-2024-001")
   userId?: string; // Optional: if user is logged in
   items: OrderItem[];
@@ -47,9 +47,9 @@ export interface Order {
   paymentIntentId?: string; // Stripe payment intent ID
   stripeMetadata?: Record<string, string>;
   notes?: string;
-  createdAt?: Timestamp | Date;
-  updatedAt?: Timestamp | Date;
-  paidAt?: Timestamp | Date;
-  shippedAt?: Timestamp | Date;
-  deliveredAt?: Timestamp | Date;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+  paidAt?: Timestamp;
+  shippedAt?: Timestamp;
+  deliveredAt?: Timestamp;
 }

@@ -13,9 +13,13 @@ import {
   trackProductView,
   trackDesignSelected,
 } from "@/lib/firebase/analytics";
-import DesignConfigurator from "@/components/ProductConfigurator/DesignConfigurator";
-import { useImageGeneration } from "@/hooks/useImageGeneration";
 import { Design } from "@/components/common/DesignGallery/DesignGallery";
+import DesignGallery from "@/components/common/DesignGallery";
+import { Button, Card, CardBody, Divider } from "@heroui/react";
+import { useImageGeneration } from "@/hooks/useImageGeneration";
+import { EditDesignModal } from "@/components/features/product/DesignEditor";
+import { PaintBrushIcon } from "@phosphor-icons/react";
+import Image from "next/image";
 
 export default function Page({
   params,
@@ -43,6 +47,7 @@ export default function Page({
   const product = products?.[0] || null;
 
   const [generatedDesigns, setGeneratedDesigns] = useState<Design[]>([]);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   useEffect(() => {
     if (!product) return;
@@ -62,10 +67,10 @@ export default function Page({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product?.id]);
 
-  const featuredDesigns = useMemo(() => {
+  const allDesigns = useMemo(() => {
     if (!product || !product.designs || product.designs.length === 0) return [];
 
-    return [...generatedDesigns, product.designs[0]].slice(0, 3);
+    return [...generatedDesigns, ...product.designs];
   }, [generatedDesigns, product]);
 
   // Show error state if there's an error
@@ -95,26 +100,19 @@ export default function Page({
     }));
   };
 
-  const handleSubmit = async (
-    prompt: string,
-    promptType: "edit" | "create"
-  ) => {
-    // TODO: variables should consider original design while edit should take the current design
+  const handleEditSubmit = async (prompt: string, images?: File[]) => {
     try {
-      let result = undefined;
-      if (promptType === "create") {
-        // TODO: handle generating product prompts
-        throw new Error("Create is not implemented yet.");
-      } else if (promptType === "edit") {
-        result = await createImage(prompt, [designUrl]);
-      }
+      const result = await createImage(
+        prompt,
+        images?.map((f) => URL.createObjectURL(f))
+      );
       if (result?.url) {
         const newDesign = {
-          title: `Personaliziran motiv.`,
+          title: `Personaliziran motiv`,
           url: result.url,
         };
         setGeneratedDesigns((prev) => [newDesign, ...prev]);
-        handleDesignSelect(result.url); // Auto-select the generated design
+        handleDesignSelect(result.url);
       }
     } catch (error) {
       console.error("Failed to generate image:", error);
@@ -126,14 +124,72 @@ export default function Page({
       title={product.name}
       leftColumn={
         <div className="space-y-6">
-          <DesignConfigurator
-            product={product}
-            selectedDesignUrl={designUrl}
-            onDesignSelect={handleDesignSelect}
-            onSubmit={handleSubmit}
+          <Card>
+            <CardBody className="py-5 px-6 space-y-4">
+              <div className="mb-3">
+                <h3 className="text-md font-semibold text-default-900">
+                  MOTIV
+                </h3>
+                <p className="text-sm text-default-500">
+                  Spremeni motiv po svojih željah ali naroči takega kot je.
+                </p>
+              </div>
+
+              {/* Current design preview */}
+              <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-gradient-to-br from-default-100 to-default-200">
+                {designUrl && (
+                  <Image
+                    src={designUrl}
+                    alt={product.name}
+                    fill
+                    className="object-contain"
+                  />
+                )}
+              </div>
+
+              {/* Prilagodi motiv button */}
+              <Button
+                color="primary"
+                variant="flat"
+                fullWidth
+                startContent={<PaintBrushIcon size={20} weight="duotone" />}
+                onPress={() => setIsEditModalOpen(true)}
+                className="mt-4"
+              >
+                Prilagodi motiv
+              </Button>
+
+              {/* Design gallery for selecting variants */}
+              {(generatedDesigns.length > 0 || allDesigns.length > 1) && (
+                <>
+                  <Divider className="my-4" />
+                  <p className="text-sm text-default-500 mb-3">
+                    {generatedDesigns.length > 0
+                      ? "Ustvarjeni motivi:"
+                      : "Izberi drug motiv:"}
+                  </p>
+                  <DesignGallery
+                    designs={allDesigns}
+                    selectedDesignUrls={designUrl}
+                    onDesignSelect={handleDesignSelect}
+                    withPlaceholder={isGenerating}
+                  />
+                </>
+              )}
+            </CardBody>
+          </Card>
+
+          {/* Edit Design Modal */}
+          <EditDesignModal
+            isOpen={isEditModalOpen}
+            onClose={() => setIsEditModalOpen(false)}
+            designUrl={designUrl}
+            designName={product.name}
+            promptSuggestions={product.promptSuggestions}
+            onSubmit={handleEditSubmit}
             isLoading={isGenerating}
-            featuredDesigns={featuredDesigns}
-            allDesigns={[...generatedDesigns, ...product.designs]}
+            title="Prilagodi motiv"
+            subtitle="Opiši kaj želiš prilagoditi ali klini na enega izmed predlogov spodaj."
           />
           <ProductCustomization
             name={product.name}

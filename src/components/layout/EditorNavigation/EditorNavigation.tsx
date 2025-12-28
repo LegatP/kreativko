@@ -19,7 +19,7 @@ import {
   MagnifyingGlassIcon,
   UserCircleIcon,
 } from "@phosphor-icons/react";
-import { useCheckoutContext } from "@/components/contexts/AppContext/CheckoutContext";
+import { useCheckoutContext } from "@/components/contexts/CheckoutContext";
 import ROUTES from "@/utils/routes.utils";
 import cx from "classnames";
 import { useAppStateContext } from "@/components/contexts/AppContext";

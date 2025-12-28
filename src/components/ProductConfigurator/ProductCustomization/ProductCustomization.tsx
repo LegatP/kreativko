@@ -11,11 +11,6 @@ import {
 } from "@/lib/firebase/analytics";
 
 interface ProductCustomizationProps {
-  // product: {
-  //   name: string;
-  //   description: string;
-  //   sizes: string[];
-  // };
   quantities: Record<string, number>;
   onColorChange: (color: string) => void;
   onSizeChange: (size: string, value: number) => void;

@@ -5,7 +5,6 @@ import {
   updateProductCategory,
   getProductCategory,
 } from "@/db/product-categories";
-import { Timestamp } from "firebase/firestore";
 import { generateSlug } from "@/utils/slug.utils";
 import ProductCategoryFormModal from "./ProductCategoryFormModal";
 
@@ -62,7 +61,6 @@ export default function EditProductCategoryForm({
       await updateProductCategory(categoryId, {
         name: name.trim(),
         slug: slug,
-        updatedAt: Timestamp.now(),
       });
 
       // Reset form

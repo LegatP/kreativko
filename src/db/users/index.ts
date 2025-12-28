@@ -1,22 +1,26 @@
-import { setDoc } from "@/lib/firebase/firestore";
+import { setDoc, AddDocumentData } from "@/lib/firebase/firestore";
+import { createCollection } from "../createCollection";
+import { UserProfile } from "./types";
 
-export interface UserProfile {
-  firstName: string;
-  lastName: string;
-  phone: string;
-  deliveryAddress: {
-    address: string;
-    city: string;
-    postCode: string;
-    country: string;
-  };
-  termsAcceptedAt: Date;
-  newsletterSubscribed: boolean;
-}
+export const USERS_COLLECTION = "users";
 
+// Re-export types
+export type { UserProfile };
+
+const usersCollection = createCollection<UserProfile>(USERS_COLLECTION);
+
+// Custom function for user creation - uses setDoc to set specific doc ID (user's UID)
 export async function setUserProfile(
   userId: string,
-  profile: Partial<UserProfile>
+  profile: AddDocumentData<UserProfile>
 ) {
-  return setDoc(`users/${userId}`)(profile);
+  return setDoc<UserProfile>(`${USERS_COLLECTION}/${userId}`)(profile);
 }
+
+// Use collection methods for other operations
+export const updateUserProfile = usersCollection.update;
+export const getUserProfile = usersCollection.get;
+
+// React Firebase Hooks
+export const useUserProfile = usersCollection.useDoc;
+export const useUserProfileOnce = usersCollection.useDocOnce;

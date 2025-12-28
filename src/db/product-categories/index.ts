@@ -20,6 +20,7 @@ export const productCategoryConverter = categoriesCollection.converter;
 export const createProductCategory = categoriesCollection.create;
 export const updateProductCategory = categoriesCollection.update;
 export const getProductCategory = categoriesCollection.get;
+export const deleteProductCategory = categoriesCollection.delete;
 
 /**
  * Get all product categories from the database
@@ -33,5 +34,7 @@ export const useCategory = categoriesCollection.useDoc;
 export const useCategoryOnce = categoriesCollection.useDocOnce;
 export const useCategories = () =>
   categoriesCollection.useCollection([orderBy("createdAt", "desc")]);
+export const useCategoriesOnce = () =>
+  categoriesCollection.useCollectionOnce([orderBy("createdAt", "desc")]);
 export const useCategoryBySlug = (slug: string) =>
   categoriesCollection.useCollectionOnce([where("slug", "==", slug)]);

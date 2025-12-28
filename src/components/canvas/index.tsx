@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Environment, Center } from "@react-three/drei";
 
-import Shirt from "./Shirt";
+import Shirt, { ShirtView } from "./Shirt";
 import Backdrop from "./Backdrop";
 import CameraRig from "./CameraRig";
 import { Umbrella } from "./Umbrella";
@@ -16,22 +16,22 @@ const productToModel = {
 };
 
 interface CanvasModelProps {
-  // state: Configuration;
   product: Product | null;
   color: string;
-  frontPatternUrl: string;
+  frontPatternUrl?: string;
+  backPatternUrl?: string;
+  view?: ShirtView;
 }
 
 // TODO: imrove rendering
 const CanvasModel = React.memo(
-  ({ product, color, frontPatternUrl }: CanvasModelProps) => {
+  ({ product, color, frontPatternUrl, backPatternUrl, view = "front" }: CanvasModelProps) => {
     const canvas = useMemo(() => {
       if (!product) return null;
       const Model = productToModel[product];
       return (
         <Canvas
           shadows
-          // camera={{ position: [0, 0, 0], fov: 26 }}
           camera={{ position: [0, 0, 2], fov: 26 }}
           gl={{ preserveDrawingBuffer: true }}
           className="w-full h-full transition-all ease-in aspect-square"
@@ -49,13 +49,17 @@ const CanvasModel = React.memo(
           <CameraRig>
             <Backdrop />
             <Center>
-              <Model color={color} frontPatternUrl={frontPatternUrl} />
+              <Model
+                color={color}
+                frontPatternUrl={frontPatternUrl}
+                backPatternUrl={backPatternUrl}
+                view={view}
+              />
             </Center>
           </CameraRig>
-          {/* <OrbitControls /> */}
         </Canvas>
       );
-    }, [color, frontPatternUrl, product]);
+    }, [color, frontPatternUrl, backPatternUrl, product, view]);
     return canvas;
   }
 );

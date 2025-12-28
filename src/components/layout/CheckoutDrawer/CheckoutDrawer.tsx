@@ -3,9 +3,9 @@
 import ContactInfo from "@/components/checkout/ContactInfo";
 import Delivery from "@/components/checkout/Delivery";
 import {
-  BASE_PRODUCT_PRICE,
+  BASE_PRICE_PER_DESIGN,
   useCheckoutContext,
-} from "@/components/contexts/AppContext/CheckoutContext";
+} from "@/components/contexts/CheckoutContext";
 import {
   Button,
   Card,
@@ -150,10 +150,10 @@ export default function CheckoutDrawer() {
           {
             productId: item.productId,
             name: item.name,
-            designUrl: item.designUrl,
+            designUrls: item.designUrls,
             color: item.color,
             quantities: item.quantities,
-            price: BASE_PRODUCT_PRICE,
+            price: BASE_PRICE_PER_DESIGN,
           },
         ],
         shippingInfo: {
@@ -244,13 +244,12 @@ export default function CheckoutDrawer() {
   const overviewItems = useMemo(() => {
     const { quantities, name } = item;
     return [
-      // Example items - replace with actual cart items
       {
         name,
         sizes: quantities,
-        imageUrl: item.designUrl,
+        imageUrl: item.designUrls.front || item.designUrls.back || "",
         id: item.productId,
-        price: BASE_PRODUCT_PRICE,
+        price: BASE_PRICE_PER_DESIGN,
       },
     ];
   }, [item]);
