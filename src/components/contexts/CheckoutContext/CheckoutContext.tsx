@@ -6,11 +6,13 @@ import React, {
   useState,
   useMemo,
 } from "react";
-import { PrintPosition } from "@/products";
+import { PrintPosition, PriceBreakdown } from "@/types/pricing.types";
+import { garment } from "@/config/garment";
+import { SHIPPING } from "@/config/shipping";
+import { getPriceBreakdown } from "@/utils/pricing.utils";
 import { OrderItem, ShippingInfo } from "@/db/orders/types";
 
-export const BASE_PRICE_PER_DESIGN = 19.99;
-export const BASE_SHIPPING_COST = 4.9;
+export const BASE_SHIPPING_COST = SHIPPING.baseCost;
 
 export type DesignUrls = Partial<Record<PrintPosition, string>>;
 
@@ -27,6 +29,8 @@ interface CheckoutContextType {
   productsAmount: number;
   totalQuantity: number;
   isWithShipping: boolean;
+  priceBreakdown: PriceBreakdown;
+  pricePerItem: number;
 }
 
 const CheckoutContext = createContext<CheckoutContextType | undefined>(
@@ -44,6 +48,13 @@ export const CheckoutContextProvider = ({
     designUrls: {},
     color: "",
     quantities: {},
+    pricing: {
+      garmentType: garment.type,
+      basePrice: garment.pricing.basePrice,
+      printPositionPrice: garment.pricing.printPositionPrice,
+      numberOfPrintPositions: 0,
+      pricePerItem: garment.pricing.basePrice,
+    },
   });
   const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({
     firstName: "",
@@ -63,12 +74,19 @@ export const CheckoutContextProvider = ({
       : 0;
   }, [item]);
 
+  // Calculate price breakdown based on selected designs
+  const priceBreakdown = useMemo(() => {
+    return getPriceBreakdown(garment.pricing, item.designUrls);
+  }, [item.designUrls]);
+
+  const pricePerItem = priceBreakdown.totalPerItem;
+
   const productsAmount = useMemo(() => {
-    return totalQuantity * BASE_PRICE_PER_DESIGN;
-  }, [totalQuantity]);
+    return totalQuantity * pricePerItem;
+  }, [totalQuantity, pricePerItem]);
 
   const isWithShipping = useMemo(() => {
-    return productsAmount <= 50.0;
+    return productsAmount < SHIPPING.freeShippingThreshold;
   }, [productsAmount]);
 
   const totalAmount = useMemo(() => {
@@ -91,6 +109,8 @@ export const CheckoutContextProvider = ({
         productsAmount,
         totalQuantity,
         isWithShipping,
+        priceBreakdown,
+        pricePerItem,
       }}
     >
       {children}

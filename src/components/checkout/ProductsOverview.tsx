@@ -1,135 +1,102 @@
 import { Divider } from "@heroui/react";
 import SelectSizes from "../ProductConfigurator/SelectSizes";
 import Image from "next/image";
-import {
-  BASE_PRICE_PER_DESIGN,
-  BASE_SHIPPING_COST,
-} from "../contexts/CheckoutContext";
+import { SHIPPING } from "@/config/shipping";
 import { InfoIcon } from "@phosphor-icons/react";
+import { DesignUrls } from "@/db/orders/types";
 
-const sampleProducts = [
-  {
-    id: "1",
-    name: "Personalizirana majica - moj hobi, moj poklic",
-    price: BASE_PRICE_PER_DESIGN,
-    imageUrl: "/assets/shirt-sample.webp",
-    sizes: {
-      S: 10,
-      M: 5,
-      L: 0,
-    } as Record<string, number>,
-    // accessories: [
-    //   {
-    //     id: 1,
-    //     name: "Tisk na majico spredaj",
-    //     imageUrl: "/assets/shirt-sample.webp",
-    //     price: 5,
-    //     priceCalculation: "perItem",
-    //   },
-    // ],
-  },
-  //   {
-  //     id: 2,
-  //     name: "Product 2",
-  //     price: 200,
-  //     imageUrl: "/assets/hoodie-sample.webp",
-  //   },
-  //   {
-  //     id: 3,
-  //     name: "Product 3",
-  //     price: 300,
-  //     imageUrl: "/assets/umbrella-sample.jpg",
-  //     sizes: {
-  //       KOS: 10,
-  //     },
-  //   },
-];
+interface ProductOverviewItem {
+  id: string;
+  name: string;
+  price: number;
+  sizes: Record<string, number>;
+  designUrls: DesignUrls;
+}
 
 interface ProductsOverviewProps {
-  products: typeof sampleProducts;
+  products: ProductOverviewItem[];
   totalPrice: number;
   onSizeChange?: (size: string, value: number) => void;
   withShipping?: boolean;
 }
 
 export default function ProductsOverview({
-  products = sampleProducts,
+  products,
   onSizeChange,
   totalPrice,
   withShipping = true,
 }: ProductsOverviewProps) {
   return (
     <div>
-      {/* <h3>Košarica</h3> */}
       <div className="flex flex-col gap-4">
         {products.map((product) => (
           <div key={product.id} className="flex flex-col gap-4 relative">
-            <div className="flex flex-row gap-2 overflow-hidden items-start">
-              <Image
-                src={product.imageUrl}
-                alt={product.name}
-                width={70}
-                height={70}
-              />
-              <div className="flex flex-col gap-2">
-                <div className="flex flex-col min-h-[70px]">
-                  <span className="font-bold">{product.name}</span>
-                  <span>{product.price}€ / kos</span>
-                </div>
-                {product.sizes && (
+            <div className="flex flex-col gap-2">
+              <div className="flex flex-col">
+                <span className="font-bold">{product.name}</span>
+                <span>{product.price.toFixed(2)}€ / kos</span>
+              </div>
+
+              {/* Print position thumbnails */}
+              <div className="flex gap-3 mt-2">
+                {product.designUrls.front && (
+                  <div className="flex flex-col items-center gap-1">
+                    <Image
+                      src={product.designUrls.front}
+                      alt="Spredaj"
+                      width={60}
+                      height={60}
+                      className="rounded border border-gray-200"
+                      unoptimized
+                    />
+                    <span className="text-xs text-gray-500">Spredaj</span>
+                  </div>
+                )}
+                {product.designUrls.back && (
+                  <div className="flex flex-col items-center gap-1">
+                    <Image
+                      src={product.designUrls.back}
+                      alt="Zadaj"
+                      width={60}
+                      height={60}
+                      className="rounded border border-gray-200"
+                      unoptimized
+                    />
+                    <span className="text-xs text-gray-500">Zadaj</span>
+                  </div>
+                )}
+              </div>
+
+              {product.sizes && (
+                <div className="mt-2">
                   <SelectSizes
                     sizes={product.sizes}
                     setSize={(size, value) => onSizeChange?.(size, value)}
                   />
-                )}
-              </div>
-            </div>
-            {/* {product.accessories && (
-              <div className="flex flex-col gap-1">
-                <div className="flex flex-row gap-2">
-                  {product.accessories.map((acc) => (
-                    <div
-                      key={acc.id}
-                      className="flex flex-row gap-2 items-start"
-                    >
-                      <Image
-                        src={acc.imageUrl}
-                        alt={acc.name}
-                        width={70}
-                        height={70}
-                        className="rounded-sm"
-                        unoptimized
-                      />
-                      <div className="flex flex-col min-h-[70px]">
-                        <span className="text-sm font-bold">{acc.name}</span>
-                        <span className="text-sm">{acc.price}€ / kos</span>
-                      </div>
-                    </div>
-                  ))}
                 </div>
-              </div>
-            )} */}
-            {/* <Divider className="absolute bottom-0 w-full" /> */}
+              )}
+            </div>
           </div>
         ))}
       </div>
       <Divider className="my-4 bg-gray-400" />
       <div>
-        <div className="flex justify-between strike-through">
+        <div className="flex justify-between">
           <div className="flex flex-col">
             <span>Poštnina</span>
             <span className="text-xs mt-1.5 flex items-center gap-1 text-success-600">
               <InfoIcon className="w-4 h-4" /> Brezplačna poštnina ob naročilu
-              nad 50€
+              nad {SHIPPING.freeShippingThreshold}€
             </span>
           </div>
-          <span>{!withShipping ? "0" : BASE_SHIPPING_COST.toFixed(2)}€</span>
+          <span>
+            {withShipping ? SHIPPING.baseCost.toFixed(2) : "0.00"}€
+          </span>
         </div>
       </div>
       <Divider className="my-4 bg-gray-400" />
       <div className="flex justify-between">
         <span>Skupaj za plačilo</span>
-
         <span>{totalPrice.toFixed(2)}€</span>
       </div>
     </div>

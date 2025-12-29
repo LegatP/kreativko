@@ -3,7 +3,8 @@
 import { notFound, useSearchParams } from "next/navigation";
 import { use, useEffect, useMemo, useState } from "react";
 import { useCheckoutContext } from "@/components/contexts/CheckoutContext";
-import { garmet } from "@/products";
+import { garment } from "@/config/garment";
+import { getPriceBreakdown } from "@/utils/pricing.utils";
 import { useProductBySlug } from "@/db/products";
 import ProductPageLayout from "@/components/layout/ProductPageLayout";
 import CanvasModel from "@/components/canvas";
@@ -31,9 +32,9 @@ export default function Page({
   const searchParams = useSearchParams();
   const shirtColor = searchParams.get("barva")
     ? `#${searchParams.get("barva")}`
-    : garmet.colors[0].hex;
+    : garment.colors[0].hex;
   const { productSlug } = use(params);
-  const sizes = garmet.sizes;
+  const sizes = garment.sizes;
   const { createImage, isGenerating } = useImageGeneration();
 
   const {
@@ -60,12 +61,21 @@ export default function Page({
 
     // Initialize quantities for all sizes
     const quantities = Object.fromEntries(sizes.map((size) => [size, 0]));
+    const designUrls = { front: product.designs[0]?.url || "" };
+    const breakdown = getPriceBreakdown(garment.pricing, designUrls);
     setItem({
       productId: product.id,
       name: product.name,
       color: shirtColor,
-      designUrls: { front: product.designs[0]?.url || "" },
+      designUrls,
       quantities,
+      pricing: {
+        garmentType: garment.type,
+        basePrice: breakdown.basePrice,
+        printPositionPrice: breakdown.printPositionPrice,
+        numberOfPrintPositions: breakdown.numberOfPrintPositions,
+        pricePerItem: breakdown.totalPerItem,
+      },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product?.id]);

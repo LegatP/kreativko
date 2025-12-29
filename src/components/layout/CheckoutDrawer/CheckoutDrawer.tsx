@@ -2,10 +2,9 @@
 
 import ContactInfo from "@/components/checkout/ContactInfo";
 import Delivery from "@/components/checkout/Delivery";
-import {
-  BASE_PRICE_PER_DESIGN,
-  useCheckoutContext,
-} from "@/components/contexts/CheckoutContext";
+import { useCheckoutContext } from "@/components/contexts/CheckoutContext";
+import { SHIPPING } from "@/config/shipping";
+import { garment } from "@/config/garment";
 import {
   Button,
   Card,
@@ -34,6 +33,7 @@ import {
 import { PackageIcon } from "@phosphor-icons/react";
 import { createOrder, updateOrderPaymentIntent } from "@/db/orders";
 import type { Order } from "@/db/orders/types";
+import auth from "@/lib/firebase/auth";
 
 // Initialize Stripe
 const stripePromise = loadStripe(
@@ -66,9 +66,10 @@ export default function CheckoutDrawer() {
     totalAmount,
     item,
     setItem,
-    totalQuantity,
     isWithShipping,
     onClose,
+    priceBreakdown,
+    pricePerItem,
   } = useCheckoutContext();
   const [step, setStep] = useState(1);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
@@ -142,10 +143,12 @@ export default function CheckoutDrawer() {
 
     try {
       // Create order first
+      const shippingCost = isWithShipping ? SHIPPING.baseCost : 0;
       const orderData: Omit<
         Order,
         "id" | "orderNumber" | "createdAt" | "updatedAt"
       > = {
+        userId: auth.currentUser!.uid,
         items: [
           {
             productId: item.productId,
@@ -153,7 +156,13 @@ export default function CheckoutDrawer() {
             designUrls: item.designUrls,
             color: item.color,
             quantities: item.quantities,
-            price: BASE_PRICE_PER_DESIGN,
+            pricing: {
+              garmentType: garment.type,
+              basePrice: priceBreakdown.basePrice,
+              printPositionPrice: priceBreakdown.printPositionPrice,
+              numberOfPrintPositions: priceBreakdown.numberOfPrintPositions,
+              pricePerItem: priceBreakdown.totalPerItem,
+            },
           },
         ],
         shippingInfo: {
@@ -167,8 +176,8 @@ export default function CheckoutDrawer() {
           country: "Slovenija",
         },
         totalAmount,
-        shippingCost: totalQuantity < 2 ? 3.99 : 0,
-        subtotal: totalAmount - (totalQuantity < 2 ? 3.99 : 0),
+        shippingCost,
+        subtotal: totalAmount - shippingCost,
         status: "pending",
       };
 
@@ -247,12 +256,12 @@ export default function CheckoutDrawer() {
       {
         name,
         sizes: quantities,
-        imageUrl: item.designUrls.front || item.designUrls.back || "",
+        designUrls: item.designUrls,
         id: item.productId,
-        price: BASE_PRICE_PER_DESIGN,
+        price: pricePerItem,
       },
     ];
-  }, [item]);
+  }, [item, pricePerItem]);
 
   return (
     <Drawer

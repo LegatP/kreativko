@@ -12,7 +12,9 @@ import {
   useRouter,
   useSearchParams,
 } from "next/navigation";
-import { garmet, PrintPosition } from "@/products";
+import { garment } from "@/config/garment";
+import { PrintPosition } from "@/types/pricing.types";
+import { getPriceBreakdown } from "@/utils/pricing.utils";
 import { deleteField } from "firebase/firestore";
 import ProductDesignCreation, {
   ProductDesignCreationRef,
@@ -68,15 +70,24 @@ export default function Page() {
 
     setIsInitialized(true);
 
-    const sizes = garmet.sizes;
-    const initQuantities = Object.fromEntries(sizes.map((size) => [size, 0]));
+    const sizes = garment.sizes;
+    const initQuantities = Object.fromEntries(sizes.map((size: string) => [size, 0]));
+    const initDesignUrls = data.designUrls || {};
+    const breakdown = getPriceBreakdown(garment.pricing, initDesignUrls);
 
     setItem({
       productId,
       name: productName,
-      color: garmet.colors[0].hex,
-      designUrls: data.designUrls || {},
+      color: garment.colors[0].hex,
+      designUrls: initDesignUrls,
       quantities: initQuantities,
+      pricing: {
+        garmentType: garment.type,
+        basePrice: breakdown.basePrice,
+        printPositionPrice: breakdown.printPositionPrice,
+        numberOfPrintPositions: breakdown.numberOfPrintPositions,
+        pricePerItem: breakdown.totalPerItem,
+      },
     });
   }, [data, setItem, designSessionId, isInitialized]);
 

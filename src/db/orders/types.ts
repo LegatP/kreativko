@@ -5,13 +5,21 @@ export interface DesignUrls {
   back?: string;
 }
 
+export interface OrderItemPricing {
+  garmentType: string;
+  basePrice: number;
+  printPositionPrice: number;
+  numberOfPrintPositions: number;
+  pricePerItem: number;
+}
+
 export interface OrderItem {
   productId: string;
   name: string;
   designUrls: DesignUrls;
   color: string;
   quantities: Record<string, number>; // { S: 1, M: 2, L: 1 }
-  price?: number; // Price per design (optional, set at checkout)
+  pricing: OrderItemPricing;
 }
 
 export interface ShippingInfo {
@@ -37,7 +45,7 @@ export type OrderStatus =
 export interface Order {
   id: string;
   orderNumber: string; // Human-readable order number (e.g., "ORD-2024-001")
-  userId?: string; // Optional: if user is logged in
+  userId: string; // Firebase anonymous auth guarantees a UID
   items: OrderItem[];
   shippingInfo: ShippingInfo;
   totalAmount: number;

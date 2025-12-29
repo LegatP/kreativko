@@ -4,7 +4,7 @@ import { Card, Image, Tooltip, Select, SelectItem, Button } from "@heroui/react"
 import { motion } from "framer-motion";
 import NextImage from "next/image";
 import { Trash, PencilSimpleIcon } from "@phosphor-icons/react";
-import { PrintPosition } from "@/products";
+import { PrintPosition } from "@/types/pricing.types";
 
 interface BaseDesignCardProps {
   imageUrl: string;

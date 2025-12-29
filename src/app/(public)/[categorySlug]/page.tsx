@@ -1,10 +1,14 @@
 "use client";
 
 import ProductCard from "@/components/common/ProductCard";
-import { BASE_PRICE_PER_DESIGN } from "@/components/contexts/CheckoutContext";
+import { garment } from "@/config/garment";
 import { useParams } from "next/navigation";
 import { useProductsByCategoryOnce } from "@/db/products";
 import { useCategoryBySlug } from "@/db/product-categories";
+
+// Display price assumes 1 print position (minimum)
+const displayPrice =
+  garment.pricing.basePrice + garment.pricing.printPositionPrice;
 
 export default function Page() {
   const params = useParams();
@@ -51,7 +55,7 @@ export default function Page() {
             <ProductCard
               key={item.id || index}
               title={item.name}
-              price={BASE_PRICE_PER_DESIGN}
+              price={displayPrice}
               imageUrl={item.designs[0]?.url || ""}
               slug={item.slug}
             />

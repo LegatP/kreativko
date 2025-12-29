@@ -28,7 +28,7 @@ import {
 } from "@phosphor-icons/react";
 import Image from "next/image";
 import { DesignUrls } from "@/components/contexts/CheckoutContext";
-import { PrintPosition } from "@/products";
+import { PrintPosition } from "@/types/pricing.types";
 import { uploadFile } from "@/lib/firebase/storage";
 import { arrayUnion } from "@/lib/firebase/firestore";
 

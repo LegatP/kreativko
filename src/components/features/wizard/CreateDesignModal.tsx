@@ -18,7 +18,7 @@ import { useImageGeneration } from "@/hooks/useImageGeneration";
 import { createDesignSession, updateDesignSession } from "@/db/design-sessions";
 import { uploadFile } from "@/lib/firebase/storage";
 import auth from "@/lib/firebase/auth";
-import { PrintPosition } from "@/products";
+import { PrintPosition } from "@/types/pricing.types";
 import { useWizardNavigation } from "@/hooks/useWizardNavigation";
 
 type WizardPath = "templates" | "describe" | "upload";

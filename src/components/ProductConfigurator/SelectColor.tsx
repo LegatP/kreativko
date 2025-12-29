@@ -1,6 +1,6 @@
 import React from "react";
 import cx from "classnames";
-import { garmet } from "@/products";
+import { garment } from "@/config/garment";
 import { Tooltip } from "@heroui/react";
 
 interface SelectColorProps {
@@ -11,7 +11,7 @@ interface SelectColorProps {
 export default function SelectColor({ color, setColor }: SelectColorProps) {
   return (
     <div className="flex flex-row gap-3 flex-wrap">
-      {garmet.colors.map(({ name, hex }) => (
+      {garment.colors.map(({ name, hex }) => (
         <Tooltip key={name} content={name} placement="top">
           <button
             className={cx(
