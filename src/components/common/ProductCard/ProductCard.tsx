@@ -3,6 +3,7 @@ import { Button, Card, Image } from "@heroui/react";
 import { FadersHorizontalIcon, HeartIcon } from "@phosphor-icons/react";
 import NextImage from "next/image";
 import Link from "next/link";
+import { formatPrice } from "@/utils/currency.utils";
 
 interface ProductCardProps {
   title: string;
@@ -31,7 +32,7 @@ const ProductCard = ({ title, price, imageUrl, slug }: ProductCardProps) => {
         <div className="pt-2 flex flex-1 flex-col gap-2 justify-between">
           <div className="flex flex-col justify-between items-start">
             <h2 className="text-sm md:text-medium">{title}</h2>
-            <div className="text text-primary">{price}€</div>
+            <div className="text text-primary">{formatPrice(price)}€</div>
           </div>
           <div className="flex flex-row gap-2">
             <Button

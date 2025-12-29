@@ -4,6 +4,7 @@ import Image from "next/image";
 import { SHIPPING } from "@/config/shipping";
 import { InfoIcon } from "@phosphor-icons/react";
 import { DesignUrls } from "@/db/orders/types";
+import { formatPrice } from "@/utils/currency.utils";
 
 interface ProductOverviewItem {
   id: string;
@@ -34,7 +35,7 @@ export default function ProductsOverview({
             <div className="flex flex-col gap-2">
               <div className="flex flex-col">
                 <span className="font-bold">{product.name}</span>
-                <span>{product.price.toFixed(2)}€ / kos</span>
+                <span>{formatPrice(product.price)}€ / kos</span>
               </div>
 
               {/* Print position thumbnails */}
@@ -86,18 +87,18 @@ export default function ProductsOverview({
             <span>Poštnina</span>
             <span className="text-xs mt-1.5 flex items-center gap-1 text-success-600">
               <InfoIcon className="w-4 h-4" /> Brezplačna poštnina ob naročilu
-              nad {SHIPPING.freeShippingThreshold}€
+              nad {formatPrice(SHIPPING.freeShippingThreshold)}€
             </span>
           </div>
           <span>
-            {withShipping ? SHIPPING.baseCost.toFixed(2) : "0.00"}€
+            {withShipping ? formatPrice(SHIPPING.baseCost) : "0.00"}€
           </span>
         </div>
       </div>
       <Divider className="my-4 bg-gray-400" />
       <div className="flex justify-between">
         <span>Skupaj za plačilo</span>
-        <span>{totalPrice.toFixed(2)}€</span>
+        <span>{formatPrice(totalPrice)}€</span>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 /**
- * Garment configuration including pricing
+ * Garment configuration including pricing.
+ * All prices are in cents (e.g., 1500 = 15.00 EUR).
  */
 
 import { GarmentConfig } from "@/types/pricing.types";
@@ -7,8 +8,8 @@ import { GarmentConfig } from "@/types/pricing.types";
 export const garment: GarmentConfig = {
   type: "shirt",
   pricing: {
-    basePrice: 15.0,
-    printPositionPrice: 4.9,
+    basePrice: 1500,
+    printPositionPrice: 490,
   },
   colors: [
     { name: "Bela", hex: "#F0F1F6" },

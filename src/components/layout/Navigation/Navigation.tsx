@@ -1,7 +1,6 @@
 "use client";
 
 import { Button, Navbar, NavbarBrand, NavbarContent } from "@heroui/react";
-import React from "react";
 import logo from "@/../public/assets/moj-motiv.png";
 import Image from "next/image";
 import Link from "next/link";
@@ -28,8 +27,10 @@ export default function Navigation() {
           <Image className="w-[150px]" src={logo} alt="Moj Motiv - Logo" />
         </Link>
       </NavbarBrand>
-      <NavbarContent className="hidden sm:flex gap-4" justify="center">
-      </NavbarContent>
+      <NavbarContent
+        className="hidden sm:flex gap-4"
+        justify="center"
+      ></NavbarContent>
       <NavbarContent justify="end" className="flex gap-2">
         {!isOnDesignSessionPage && (
           <Button

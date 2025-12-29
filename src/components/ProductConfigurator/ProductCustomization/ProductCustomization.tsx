@@ -4,6 +4,7 @@ import { Button, Card, CardBody } from "@heroui/react";
 import { ShoppingCartIcon } from "@phosphor-icons/react";
 import SelectColor from "@/components/ProductConfigurator/SelectColor";
 import SelectSizes from "@/components/ProductConfigurator/SelectSizes";
+import { formatPrice } from "@/utils/currency.utils";
 
 interface ProductCustomizationProps {
   quantities: Record<string, number>;
@@ -18,14 +19,11 @@ interface ProductCustomizationProps {
 }
 
 export default function ProductCustomization({
-  // product,
   quantities,
   onColorChange,
   onSizeChange,
   productsAmount,
   onCheckout,
-  name,
-  productId = "unknown",
   color = "#FFFFFF",
   isCheckoutDisabled,
 }: ProductCustomizationProps) {
@@ -50,7 +48,7 @@ export default function ProductCustomization({
             <h3 className="text-md font-semibold mb-4 text-default-900">
               BARVA
             </h3>
-            <SelectColor setColor={handleColorChange} />
+            <SelectColor color={color} setColor={handleColorChange} />
           </div>
 
           {/* Size Selection */}
@@ -71,7 +69,7 @@ export default function ProductCustomization({
               Skupaj za majice in tisk
             </div>
             <div className="text-2xl font-bold text-primary">
-              €{productsAmount.toFixed(2)}
+              €{formatPrice(productsAmount)}
             </div>
           </div>
 

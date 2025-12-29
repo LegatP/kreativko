@@ -27,6 +27,8 @@ import { PackageIcon } from "@phosphor-icons/react";
 import { createOrder, updateOrderPaymentIntent } from "@/db/orders";
 import type { Order } from "@/db/orders/types";
 import auth from "@/lib/firebase/auth";
+import { createPaymentIntent } from "@/api";
+import { formatPrice } from "@/utils/currency.utils";
 
 // Initialize Stripe
 const stripePromise = loadStripe(
@@ -73,7 +75,6 @@ export default function CheckoutDrawer() {
   const [formError, setFormError] = useState<string | null>(null);
   const [isCashOnDelivery, setIsCashOnDelivery] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
-
 
   function onBack() {
     if (step === 1) {
@@ -158,20 +159,15 @@ export default function CheckoutDrawer() {
       const createdOrder = await createOrder(orderData);
       setOrderId(createdOrder.id!);
 
-      // Create payment intent with orderId
-      const response = await fetch("/api/create-payment-intent", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          amount: Math.round(totalAmount * 100), // amount in cents
-          orderId: createdOrder.id,
-        }),
-      });
+      // Create payment intent with orderId (backend calculates amount from order)
+      const { data, error } = await createPaymentIntent(createdOrder.id!);
 
-      const { client_secret, payment_intent_id } = await response.json();
-      setClientSecret(client_secret);
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      setClientSecret(data!.client_secret);
+      const payment_intent_id = data!.payment_intent_id;
 
       // Update order with payment intent ID
       if (createdOrder.id && payment_intent_id) {
@@ -338,7 +334,6 @@ export default function CheckoutDrawer() {
                               postalCode={postalCode}
                               city={city}
                               line1={address}
-                              totalAmount={totalAmount}
                             />
                             <div className="mt-6"></div>
                           </Elements>
@@ -403,7 +398,7 @@ export default function CheckoutDrawer() {
                   onPress={handlePayment}
                   isLoading={isCreatingPaymentIntent}
                 >
-                  Plačaj {totalAmount.toFixed(2)} €
+                  Plačaj {formatPrice(totalAmount)} €
                 </Button>
               )}
               <Button

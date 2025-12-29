@@ -12,7 +12,6 @@ interface PaymentFormProps {
   city: string;
   line1: string;
   name: string;
-  totalAmount?: number;
 }
 
 export interface PaymentFormRef {
@@ -20,7 +19,7 @@ export interface PaymentFormRef {
 }
 
 const PaymentForm = forwardRef<PaymentFormRef, PaymentFormProps>(
-  ({ email, phone, postalCode, city, line1, name, totalAmount = 0 }, ref) => {
+  ({ email, phone, postalCode, city, line1, name }, ref) => {
     const stripe = useStripe();
     const elements = useElements();
 

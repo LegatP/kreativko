@@ -11,6 +11,8 @@ import {
   Divider,
   Button,
   useDisclosure,
+  Select,
+  SelectItem,
 } from "@heroui/react";
 import {
   collection,
@@ -19,8 +21,10 @@ import {
   orderBy,
   query,
   Timestamp,
+  where,
+  QueryConstraint,
 } from "firebase/firestore";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useCollectionDataOnce } from "react-firebase-hooks/firestore";
 import db from "@/lib/firebase/firestore";
 import { isObject } from "framer-motion";
@@ -36,6 +40,7 @@ import { createConverter } from "@/db/createCollection";
 import { deleteProduct } from "@/db/products";
 import { deleteProductCategory } from "@/db/product-categories";
 import { CONFIG_COLLECTION } from "@/db/config";
+import { formatPrice } from "@/utils/currency.utils";
 
 const converter = createConverter<DocumentData & { id: string }>();
 
@@ -77,9 +82,25 @@ export default function Page() {
   const [deletingItem, setDeletingItem] = useState<{ id: string; name: string } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  const searchParams = useSearchParams();
+  const statusFilter = searchParams.get("status") || "all";
+
   const col = collection(db, collectionName as string).withConverter(converter);
+
+  // Build query constraints based on collection and filters
+  const getQueryConstraints = (): QueryConstraint[] => {
+    const constraints: QueryConstraint[] = [limit(50), orderBy("createdAt", "desc")];
+
+    // Add status filter for orders collection
+    if (collectionName === "orders" && statusFilter !== "all") {
+      constraints.unshift(where("status", "==", statusFilter));
+    }
+
+    return constraints;
+  };
+
   const [data] = useCollectionDataOnce<DocumentData>(
-    collectionName ? query(col, limit(20), orderBy("createdAt", "desc")) : null
+    collectionName ? query(col, ...getQueryConstraints()) : null
   );
 
   const handleFormSuccess = () => {
@@ -234,6 +255,10 @@ export default function Page() {
           );
         case "duration":
           return `${((item.duration || 0) / 1000).toFixed(2)} s`;
+        case "totalAmount":
+        case "subtotal":
+        case "shippingCost":
+          return `${formatPrice(item[key])} €`;
         case "image":
         case "imageUrl":
           return (
@@ -260,9 +285,28 @@ export default function Page() {
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">
-          {collectionName} ({data?.length || 0})
-        </h1>
+        <div className="flex items-center gap-4">
+          <h1 className="text-2xl font-bold">
+            {collectionName} ({data?.length || 0})
+          </h1>
+          {collectionName === "orders" && (
+            <Select
+              size="sm"
+              label="Status"
+              selectedKeys={[statusFilter]}
+              onChange={(e) => {
+                window.location.href = `?status=${e.target.value}`;
+              }}
+              className="w-40"
+            >
+              <SelectItem key="all">Vsi</SelectItem>
+              <SelectItem key="paid">Plačani</SelectItem>
+              <SelectItem key="pending">Neplačani</SelectItem>
+              <SelectItem key="processing">V obdelavi</SelectItem>
+              <SelectItem key="shipped">Poslani</SelectItem>
+            </Select>
+          )}
+        </div>
         {getCreateButton()}
       </div>
 
