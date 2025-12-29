@@ -4,11 +4,6 @@ import { Button, Card, CardBody } from "@heroui/react";
 import { ShoppingCartIcon } from "@phosphor-icons/react";
 import SelectColor from "@/components/ProductConfigurator/SelectColor";
 import SelectSizes from "@/components/ProductConfigurator/SelectSizes";
-import {
-  trackCheckoutInitiated,
-  trackColorChange,
-  trackSizeQuantityChange,
-} from "@/lib/firebase/analytics";
 
 interface ProductCustomizationProps {
   quantities: Record<string, number>;
@@ -35,32 +30,14 @@ export default function ProductCustomization({
   isCheckoutDisabled,
 }: ProductCustomizationProps) {
   const handleCheckout = () => {
-    // Calculate total quantity
-    const totalQuantity = Object.values(quantities).reduce(
-      (sum, qty) => sum + qty,
-      0
-    );
-
-    // Track checkout initiation
-    trackCheckoutInitiated(
-      productId,
-      name,
-      productsAmount,
-      totalQuantity,
-      color,
-      quantities
-    );
-
     onCheckout();
   };
 
   const handleColorChange = (newColor: string) => {
-    trackColorChange(newColor, productId);
     onColorChange(newColor);
   };
 
   const handleSizeChange = (size: string, value: number) => {
-    trackSizeQuantityChange(size, value, productId);
     onSizeChange(size, value);
   };
 

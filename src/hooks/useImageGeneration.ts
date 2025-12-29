@@ -5,7 +5,6 @@ import { addToast, closeToast } from "@heroui/react";
 import { CreateShirtPatternResponse, generateResponse } from "@/actions/openai";
 import { uploadFile } from "@/lib/firebase/storage";
 import { createAiReponse } from "@/db/ai-reponses";
-import { trackDesignGenerationError } from "@/lib/firebase/analytics";
 import auth from "@/lib/firebase/auth";
 
 export const useImageGeneration = () => {
@@ -93,7 +92,6 @@ export const useImageGeneration = () => {
 
       const errorInstance =
         error instanceof Error ? error : new Error("Unknown error");
-      trackDesignGenerationError(errorInstance.message);
 
       throw errorInstance;
     } finally {

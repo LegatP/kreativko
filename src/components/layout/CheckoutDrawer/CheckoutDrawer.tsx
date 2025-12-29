@@ -17,19 +17,12 @@ import {
   DrawerHeader,
   Spacer,
 } from "@heroui/react";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import PaymentForm from "@/components/forms/PaymentForm/PaymentForm";
 import ProductsOverview from "@/components/checkout/ProductsOverview";
-import {
-  trackCheckoutStep,
-  trackContactInfoCompleted,
-  trackPaymentInitiated,
-  trackCheckoutAbandoned,
-  trackCashOnDeliverySelected,
-} from "@/lib/firebase/analytics";
 import { PackageIcon } from "@phosphor-icons/react";
 import { createOrder, updateOrderPaymentIntent } from "@/db/orders";
 import type { Order } from "@/db/orders/types";
@@ -81,14 +74,6 @@ export default function CheckoutDrawer() {
   const [isCashOnDelivery, setIsCashOnDelivery] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
 
-  // Track when drawer opens
-  useEffect(() => {
-    if (isOpen) {
-      const stepTitle = getStepTitle();
-      trackCheckoutStep(step, stepTitle);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, step]);
 
   function onBack() {
     if (step === 1) {
@@ -99,8 +84,6 @@ export default function CheckoutDrawer() {
   }
 
   function onCashOnDelivery() {
-    // Handle cash on delivery option
-    trackCashOnDeliverySelected();
     setIsCashOnDelivery(true);
   }
 
@@ -122,24 +105,15 @@ export default function CheckoutDrawer() {
         return;
       }
 
-      // Track contact info completion
-      trackContactInfoCompleted();
-
       // Create order before payment
       await createOrderAndPaymentIntent();
     }
 
     setStep((s) => s + 1);
-
-    // Track the new step
-    trackCheckoutStep(step + 1, getStepTitle());
   }
 
   const createOrderAndPaymentIntent = async () => {
     setIsCreatingPaymentIntent(true);
-
-    // Track payment initiation
-    trackPaymentInitiated(totalAmount);
 
     try {
       // Create order first
@@ -215,11 +189,6 @@ export default function CheckoutDrawer() {
 
   function onOpenChangePrivate(isOpen: boolean) {
     if (!isOpen) {
-      // Track checkout abandonment if user closes without completing
-      if (step < 3 || !clientSecret) {
-        trackCheckoutAbandoned(step, getStepTitle(), totalAmount);
-      }
-
       setStep(1);
       setClientSecret(null);
       setIsCreatingPaymentIntent(false);

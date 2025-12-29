@@ -12,10 +12,6 @@ import PreviewToolbar from "@/components/canvas/PreviewToolbar";
 import { useCanvasControls } from "@/components/canvas/useCanvasControls";
 import { Product as ProductType } from "@/types/product.types";
 import ProductCustomization from "@/components/ProductConfigurator/ProductCustomization";
-import {
-  trackProductView,
-  trackDesignSelected,
-} from "@/lib/firebase/analytics";
 import { Design } from "@/components/common/DesignGallery/DesignGallery";
 import DesignGallery from "@/components/common/DesignGallery";
 import { Button, Card, CardBody, Divider } from "@heroui/react";
@@ -55,9 +51,6 @@ export default function Page({
 
   useEffect(() => {
     if (!product) return;
-
-    // Track product view
-    trackProductView(product.id, product.name);
 
     // Initialize quantities for all sizes
     const quantities = Object.fromEntries(sizes.map((size) => [size, 0]));
@@ -106,7 +99,6 @@ export default function Page({
   const designUrl = designUrls.front || "";
 
   const handleDesignSelect = (imageUrl: string) => {
-    trackDesignSelected(product.id, imageUrl);
     setItem((i) => ({
       ...i,
       designUrls: { ...i.designUrls, front: imageUrl },

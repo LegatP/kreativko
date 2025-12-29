@@ -4,7 +4,6 @@ import {
   useStripe,
 } from "@stripe/react-stripe-js";
 import { useImperativeHandle, forwardRef } from "react";
-import { trackPaymentSubmitted } from "@/lib/firebase/analytics";
 
 interface PaymentFormProps {
   email: string;
@@ -29,9 +28,6 @@ const PaymentForm = forwardRef<PaymentFormRef, PaymentFormProps>(
       if (!stripe || !elements) {
         return;
       }
-
-      // Track payment submission attempt
-      trackPaymentSubmitted(totalAmount);
 
       const { error } = await stripe.confirmPayment({
         elements,

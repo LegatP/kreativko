@@ -21,7 +21,6 @@ import {
 import CanvasModel from "@/components/canvas";
 import { Product } from "@/types/product.types";
 import { useEffect, useState } from "react";
-import { trackPageView, trackPurchaseComplete } from "@/lib/firebase/analytics";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useCheckoutContext } from "@/components/contexts/CheckoutContext";
 import { useCreateDesignContext } from "@/components/contexts/CreateDesignContext";
@@ -38,9 +37,6 @@ export default function Page() {
   const { openModal } = useCreateDesignContext();
 
   useEffect(() => {
-    // Track landing page view
-    trackPageView("Landing Page", window.location.href);
-
     // Check for payment status in URL
     const paymentIntent = searchParams.get("payment_intent");
     const paymentIntentClientSecret = searchParams.get(
@@ -50,15 +46,6 @@ export default function Page() {
 
     // Stripe redirects with payment_intent and payment_intent_client_secret on success
     if (paymentIntent && paymentIntentClientSecret) {
-      // Track successful purchase with Google Analytics
-      trackPurchaseComplete(
-        paymentIntent,
-        totalAmount,
-        item.productId,
-        item.name,
-        totalQuantity
-      );
-
       setPaymentStatus("success");
       onOpen();
 

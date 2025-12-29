@@ -8,7 +8,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { PaintBrushIcon } from "@phosphor-icons/react";
 import ROUTES from "@/utils/routes.utils";
-import { trackCreateDesignFromHeader } from "@/lib/firebase/analytics";
 import { useCreateDesignContext } from "@/components/contexts/CreateDesignContext";
 
 export default function Navigation() {
@@ -19,7 +18,6 @@ export default function Navigation() {
   const isOnDesignSessionPage = pathname?.startsWith("/ustvari/");
 
   function handleCreateDesign() {
-    trackCreateDesignFromHeader();
     openModal();
   }
 
