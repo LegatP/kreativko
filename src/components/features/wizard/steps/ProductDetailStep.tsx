@@ -8,7 +8,7 @@ import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 interface ProductDetailStepProps {
   productId: string;
-  onCustomize: (prompt?: string, images?: File[]) => void;
+  onCustomize: (prompt?: string, images?: File[], templateUrl?: string) => void;
   onContinue: (designUrl: string) => void;
   isSubmitting?: boolean;
 }
@@ -21,8 +21,8 @@ export default function ProductDetailStep({
 }: ProductDetailStepProps) {
   const [product, loading] = useProductOnce(productId);
 
-  const handleSubmit = (prompt: string, images?: File[]) => {
-    onCustomize(prompt, images);
+  const handleSubmit = (prompt: string, images?: File[], templateUrl?: string) => {
+    onCustomize(prompt, images, templateUrl);
   };
 
   const handleContinue = () => {

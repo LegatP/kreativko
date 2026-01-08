@@ -13,7 +13,7 @@ interface DesignEditorProps {
   designUrl: string;
   designName: string;
   promptSuggestions?: PromptSuggestion[];
-  onSubmit: (prompt: string, images?: File[]) => void;
+  onSubmit: (prompt: string, images?: File[], templateUrl?: string) => void;
   isLoading?: boolean;
 }
 
@@ -162,23 +162,8 @@ export default function DesignEditor({
   const [promptValue, setPromptValue] = useState("");
 
   const handlePromptSubmit = async (prompt: string, images?: File[]) => {
-    // Always include the current design as a reference image for high fidelity
-    if (designUrl) {
-      try {
-        const response = await fetch(designUrl);
-        const blob = await response.blob();
-        const designFile = new File([blob], "design-reference.png", {
-          type: "image/png",
-        });
-        // Combine design reference with any user-provided images
-        const allImages = [designFile, ...(images || [])];
-        onSubmit(prompt, allImages);
-        return;
-      } catch (error) {
-        console.error("Failed to fetch design image:", error);
-      }
-    }
-    onSubmit(prompt, images);
+    // Pass template URL directly for edit mode (instead of fetching as File)
+    onSubmit(prompt, images, designUrl || undefined);
   };
 
   const handleSuggestionUse = (prompt: string) => {

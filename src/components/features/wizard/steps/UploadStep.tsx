@@ -4,10 +4,7 @@ import { useState, useMemo } from "react";
 import { Button } from "@heroui/react";
 import { SparkleIcon } from "@phosphor-icons/react";
 import PromptInput from "@/components/common/PromptInput";
-import {
-  analyzeImageForSuggestions,
-  type ImageAnalysisSuggestion,
-} from "@/actions/openai";
+import { analyzeImageForSuggestions } from "@/actions/openai";
 import { uploadFile } from "@/lib/firebase/storage";
 import LabeledDivider from "@/components/common/LabeledDivider";
 import SuggestionList from "@/components/common/SuggestionList";
@@ -23,7 +20,7 @@ export default function UploadStep({
   initialFile,
   isSubmitting = false,
 }: UploadStepProps) {
-  const [suggestions, setSuggestions] = useState<ImageAnalysisSuggestion[]>([]);
+  const [suggestions, setSuggestions] = useState<{ id: string; prompt: string }[]>([]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedPrompt, setSelectedPrompt] = useState("");
@@ -38,7 +35,11 @@ export default function UploadStep({
       const imageUrl = await uploadFile(initialFile);
       setUploadedImageUrl(imageUrl);
       const result = await analyzeImageForSuggestions(imageUrl);
-      setSuggestions(result.suggestions);
+      const suggestionsWithIds = result.suggestions.map((prompt, i) => ({
+        id: String(i + 1),
+        prompt,
+      }));
+      setSuggestions(suggestionsWithIds);
     } catch (error) {
       console.error("Error analyzing image:", error);
     } finally {

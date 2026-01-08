@@ -98,17 +98,6 @@ export default function Page() {
     // If Firestore has design URLs that we don't have locally, update
     const serverUrls = data.designUrls || {};
 
-    // Check if server has new designs we don't have
-    // Skip positions that are being removed locally (prevents race condition)
-    const serverHasNewFront =
-      serverUrls.front &&
-      serverUrls.front !== designUrls.front &&
-      !removingPositionsRef.current.has("front");
-    const serverHasNewBack =
-      serverUrls.back &&
-      serverUrls.back !== designUrls.back &&
-      !removingPositionsRef.current.has("back");
-
     // Clear removing flags once server reflects the removal
     if (!serverUrls.front) {
       removingPositionsRef.current.delete("front");
@@ -117,17 +106,35 @@ export default function Page() {
       removingPositionsRef.current.delete("back");
     }
 
-    if (serverHasNewFront || serverHasNewBack) {
-      setItem((i) => ({
-        ...i,
+    // Use functional update to compare with current state (avoids stale closure)
+    setItem((currentItem) => {
+      const currentUrls = currentItem.designUrls;
+
+      // Check if server has new designs we don't have
+      // Skip positions that are being removed locally (prevents race condition)
+      const serverHasNewFront =
+        serverUrls.front &&
+        serverUrls.front !== currentUrls.front &&
+        !removingPositionsRef.current.has("front");
+      const serverHasNewBack =
+        serverUrls.back &&
+        serverUrls.back !== currentUrls.back &&
+        !removingPositionsRef.current.has("back");
+
+      if (!serverHasNewFront && !serverHasNewBack) {
+        return currentItem; // No change needed
+      }
+
+      return {
+        ...currentItem,
         designUrls: {
-          ...i.designUrls,
+          ...currentUrls,
           ...(serverHasNewFront ? { front: serverUrls.front } : {}),
           ...(serverHasNewBack ? { back: serverUrls.back } : {}),
         },
-      }));
-    }
-  }, [data, designUrls, setItem, isInitialized]);
+      };
+    });
+  }, [data, setItem, isInitialized]);
 
   useEffect(() => {
     // Skip if not initialized yet

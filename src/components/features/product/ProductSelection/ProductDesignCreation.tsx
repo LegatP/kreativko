@@ -281,9 +281,9 @@ const ProductDesignCreation = forwardRef<
 
         const { url } = result;
 
+        // Use arrayUnion for atomic update to avoid race conditions with concurrent generations
         await updateDesignSession(designSession.id, {
-          ...designSession,
-          createdDesigns: [...createdDesigns, { title: prompt, url }],
+          createdDesigns: arrayUnion({ title: prompt, url }),
         });
 
         // Add to local designs so it shows in the design cards
@@ -302,7 +302,7 @@ const ProductDesignCreation = forwardRef<
 
         onDesignSelect(position, url);
       },
-      [createImage, onDesignSelect, designSession, createdDesigns]
+      [createImage, onDesignSelect, designSession.id]
     );
 
     const addDesign = useCallback(
@@ -434,11 +434,12 @@ const ProductDesignCreation = forwardRef<
           );
           referenceUrls = uploadedUrls;
 
-          // Save uploaded images to session
-          const newAssets = uploadedUrls.map((url) => ({ url }));
-          await updateDesignSession(designSession.id, {
-            uploadedAssets: [...designSession.uploadedAssets, ...newAssets],
-          });
+          // Save uploaded images to session using arrayUnion for atomic updates
+          for (const url of uploadedUrls) {
+            await updateDesignSession(designSession.id, {
+              uploadedAssets: arrayUnion({ url }),
+            });
+          }
         } catch (error) {
           console.error("Failed to upload images:", error);
           return;
@@ -452,8 +453,9 @@ const ProductDesignCreation = forwardRef<
 
       const { url } = result;
 
+      // Use arrayUnion for atomic update to avoid race conditions
       await updateDesignSession(designSession.id, {
-        createdDesigns: [...createdDesigns, { title: prompt, url }],
+        createdDesigns: arrayUnion({ title: prompt, url }),
       });
 
       // Update the design in place with the new URL (keeps order stable)

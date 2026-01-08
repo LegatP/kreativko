@@ -74,9 +74,9 @@ export default function Page({
   }, [product?.id]);
 
   const allDesigns = useMemo(() => {
-    if (!product || !product.designs || product.designs.length === 0) return [];
+    if (!product) return generatedDesigns;
 
-    return [...generatedDesigns, ...product.designs];
+    return [...generatedDesigns, ...(product.designs || [])];
   }, [generatedDesigns, product]);
 
   // Show error state if there's an error

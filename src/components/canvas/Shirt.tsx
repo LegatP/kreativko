@@ -1,4 +1,4 @@
-import React, { useRef, useMemo } from "react";
+import { useRef, useMemo, useEffect } from "react";
 import { easing } from "maath";
 import { useFrame } from "@react-three/fiber";
 import { Decal, useGLTF, useTexture } from "@react-three/drei";
@@ -56,7 +56,7 @@ const Shirt = ({ color, frontPatternUrl, backPatternUrl, view = "front" }: Shirt
       : dashedBorderTexture;
 
   // Set anisotropy for better texture quality
-  useMemo(() => {
+  useEffect(() => {
     const maxAnisotropy = gl.capabilities.getMaxAnisotropy();
     if (frontLogoTexture) {
       frontLogoTexture.anisotropy = maxAnisotropy;

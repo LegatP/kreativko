@@ -10,12 +10,12 @@ const EXAMPLE_PROMPTS = [
   {
     id: "1",
     prompt:
-      "Stiliziran volk z geometrijskimi oblikami in ostrimi linijami, ki izžareva moč, svobodo in urbano energijo sodobne ulične kulture.",
+      "Ilustracija bobra v urbanem streetwear slogu, stoje in sprednji pogled. Bober nosi temna sončna očala, turkizno modro jakno s kapuco in rumeno podlogo, pod njo živahno grafično majico z ilustriranim motivom. Slog je čista vektorska ilustracija z ostrimi linijami, visokim kontrastom in nasičenimi barvami (turkizna, oranžna, roza). Rahli barvni madeži in pršci okoli figure, belo ozadje, sodoben, igriv in trendovski videz.",
   },
   {
     id: "2",
     prompt:
-      "Temen vesoljski motiv z luno in zvezdami ter preprostim, a močnim napisom »NO LIMITS«, ki daje občutek širine, sanj in poguma.",
+      "Stiliziran volk z geometrijskimi oblikami in ostrimi linijami, ki izžareva moč, svobodo in urbano energijo sodobne ulične kulture.",
   },
   {
     id: "3",
@@ -39,7 +39,10 @@ interface DescribeStepProps {
   isSubmitting?: boolean;
 }
 
-export default function DescribeStep({ onPromptSubmit, isSubmitting = false }: DescribeStepProps) {
+export default function DescribeStep({
+  onPromptSubmit,
+  isSubmitting = false,
+}: DescribeStepProps) {
   const [selectedPrompt, setSelectedPrompt] = useState("");
 
   return (

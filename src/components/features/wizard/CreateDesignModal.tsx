@@ -14,9 +14,13 @@ import DescribeStep from "./steps/DescribeStep";
 import UploadStep from "./steps/UploadStep";
 import ProductDetailStep from "./steps/ProductDetailStep";
 import { ImageSquareIcon } from "@phosphor-icons/react/dist/ssr";
-import { useImageGeneration } from "@/hooks/useImageGeneration";
+import {
+  useImageGeneration,
+  type GenerationMode,
+} from "@/hooks/useImageGeneration";
 import { createDesignSession, updateDesignSession } from "@/db/design-sessions";
 import { uploadFile } from "@/lib/firebase/storage";
+import { arrayUnion } from "@/lib/firebase/firestore";
 import auth from "@/lib/firebase/auth";
 import { PrintPosition } from "@/types/pricing.types";
 import { useWizardNavigation } from "@/hooks/useWizardNavigation";
@@ -42,7 +46,10 @@ const STEP_HISTORY: Partial<Record<WizardStep, WizardStep | null>> = {
 
 // Step configuration for titles and subtitles
 const STEP_CONFIG: Record<WizardStep, { title: string; subtitle?: string }> = {
-  "select-path": { title: "Ustvari motiv", subtitle: "Do unikatnega motiva v nekaj korakih" },
+  "select-path": {
+    title: "Ustvari motiv",
+    subtitle: "Do unikatnega motiva v nekaj korakih",
+  },
   templates: { title: "Izberi kategorijo" },
   "templates-products": { title: "Izberi motiv" },
   "product-detail": { title: "Prilagodi motiv" },
@@ -66,26 +73,29 @@ export default function CreateDesignModal({
   onDesignAdded,
 }: CreateDesignModalProps) {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(
+    null
+  );
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [isCreatingSession, setIsCreatingSession] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { currentStep, setStep, goBack, reset, canGoBack } = useWizardNavigation({
-    initialStep: "select-path" as WizardStep,
-    stepHistory: STEP_HISTORY,
-    onStepChange: (step, prevStep) => {
-      // Clear related state when navigating back
-      if (step === "templates-products" && prevStep === "product-detail") {
-        setSelectedProductId(null);
-      } else if (step === "templates" && prevStep === "templates-products") {
-        setSelectedCategory(null);
-      } else if (step === "select-path" && prevStep === "upload") {
-        setUploadedFile(null);
-      }
-    },
-  });
+  const { currentStep, setStep, goBack, reset, canGoBack } =
+    useWizardNavigation({
+      initialStep: "select-path" as WizardStep,
+      stepHistory: STEP_HISTORY,
+      onStepChange: (step, prevStep) => {
+        // Clear related state when navigating back
+        if (step === "templates-products" && prevStep === "product-detail") {
+          setSelectedProductId(null);
+        } else if (step === "templates" && prevStep === "templates-products") {
+          setSelectedCategory(null);
+        } else if (step === "select-path" && prevStep === "upload") {
+          setUploadedFile(null);
+        }
+      },
+    });
 
   const { createImage } = useImageGeneration();
 
@@ -127,8 +137,9 @@ export default function CreateDesignModal({
       });
       onSessionCreated?.(newSessionId);
     } else {
+      // Use arrayUnion for atomic update to avoid overwriting existing designs
       await updateDesignSession(sessionId, {
-        createdDesigns: [{ title, url: designUrl }],
+        createdDesigns: arrayUnion({ title, url: designUrl }),
         designUrls: { front: designUrl },
       });
     }
@@ -179,7 +190,12 @@ export default function CreateDesignModal({
   };
 
   // Unified handler for prompt-based generation
-  const handlePromptSubmit = async (prompt: string, images?: File[], existingUrl?: string) => {
+  const handlePromptSubmit = async (
+    prompt: string,
+    images?: File[],
+    existingUrl?: string,
+    mode?: GenerationMode
+  ) => {
     setIsSubmitting(true);
 
     // Upload images if provided (reuse existing URL if available)
@@ -197,6 +213,14 @@ export default function CreateDesignModal({
       );
     }
 
+    // For edit mode, use the existingUrl directly (template URL)
+    const imageUrls =
+      mode === "edit" && existingUrl
+        ? [existingUrl]
+        : uploadedAssets.length > 0
+        ? uploadedAssets.map((a) => a.url)
+        : undefined;
+
     const isNewSession = !sessionId;
     let finalSessionId = sessionId;
 
@@ -210,15 +234,13 @@ export default function CreateDesignModal({
       onClose();
     }
 
-    // Capture values for background task
-    const imageUrls = uploadedAssets.length > 0 ? uploadedAssets.map((a) => a.url) : undefined;
-
     // Start background generation (fire and forget)
     setTimeout(() => {
-      createImage(prompt, imageUrls).then(async (result) => {
+      createImage(prompt, imageUrls, mode).then(async (result) => {
         if (result?.url && finalSessionId) {
+          // Use arrayUnion for atomic update to avoid overwriting existing designs
           await updateDesignSession(finalSessionId, {
-            createdDesigns: [{ title: prompt, url: result.url }],
+            createdDesigns: arrayUnion({ title: prompt, url: result.url }),
             designUrls: { front: result.url },
           });
         }
@@ -232,8 +254,13 @@ export default function CreateDesignModal({
   };
 
   // Templates path: user customizes a product and generates
-  const handleProductCustomize = (prompt?: string, images?: File[]) => {
-    handlePromptSubmit(prompt || "", images);
+  const handleProductCustomize = (
+    prompt?: string,
+    images?: File[],
+    templateUrl?: string
+  ) => {
+    // Use edit mode for template customization (high fidelity to original)
+    handlePromptSubmit(prompt || "", images, templateUrl, "edit");
   };
 
   // Templates path: user continues with existing design (no generation needed)
@@ -242,8 +269,16 @@ export default function CreateDesignModal({
   };
 
   // Upload path: user uploads an image with optional prompt
-  const handleImageUpload = (file: File, prompt?: string, uploadedUrl?: string) => {
-    handlePromptSubmit(prompt || "Ustvari motiv za majico iz te slike.", [file], uploadedUrl);
+  const handleImageUpload = (
+    file: File,
+    prompt?: string,
+    uploadedUrl?: string
+  ) => {
+    handlePromptSubmit(
+      prompt || "Ustvari motiv za majico iz te slike.",
+      [file],
+      uploadedUrl
+    );
   };
 
   const { title, subtitle } = STEP_CONFIG[currentStep];
@@ -312,7 +347,12 @@ export default function CreateDesignModal({
         ) : null;
 
       case "describe":
-        return <DescribeStep onPromptSubmit={handlePromptSubmit} isSubmitting={isSubmitting} />;
+        return (
+          <DescribeStep
+            onPromptSubmit={handlePromptSubmit}
+            isSubmitting={isSubmitting}
+          />
+        );
 
       case "upload":
         return uploadedFile ? (
@@ -329,12 +369,7 @@ export default function CreateDesignModal({
   };
 
   const backButton = canGoBack ? (
-    <Button
-      variant="light"
-      size="sm"
-      isIconOnly
-      onPress={goBack}
-    >
+    <Button variant="light" size="sm" isIconOnly onPress={goBack}>
       <ArrowLeftIcon size={20} />
     </Button>
   ) : undefined;

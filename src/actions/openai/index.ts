@@ -1,48 +1,71 @@
 "use server";
 
-import { getAuthenticatedAppForUser } from "@/lib/firebase/serverApp";
-import { DesignStyle } from "@/types/product.types";
+import { PROMPTS } from "@/lib/prompts";
+import {
+  ImageAnalysisResponseSchema,
+  type ImageAnalysisResponse,
+} from "@/lib/prompts/schemas";
 import OpenAI from "openai";
 
 const client = new OpenAI({
-  apiKey: process.env["OPENAI_API_KEY"], // This is the default and can be omitted
+  apiKey: process.env["OPENAI_API_KEY"],
 });
 
-function getScreenPrintingPromot(prompt: string): string {
-  return `You are a designer creating images specifically for screen printing. The image must follow these rules:
+// ============================================================================
+// Helper Functions
+// ============================================================================
 
-  1. It should be easy to trace in Adobe Illustrator. Avoid any thin lines or overly intricate details.  
-  2. The design should use **only one color**, unless the description explicitly specifies multiple colors and which color should be used where.  
-  3. The image should not contain any text, unless the design description explicitly says text is needed.  
-  4. The background must be transparent.  
-  5. The image should clearly represent the user’s design description in a bold, simple, and clean style suitable for screen printing.
-
-  Design description: ${prompt}
-  `;
+/**
+ * Wraps an async operation and returns the result with execution duration.
+ */
+async function withTiming<T>(
+  fn: () => Promise<T>
+): Promise<{ result: T; duration: number }> {
+  const start = Date.now();
+  const result = await fn();
+  const duration = Date.now() - start;
+  return { result, duration };
 }
 
-function getDigitalPrintPromot(prompt: string): string {
-  return `You are a designer creating images specifically for DTF printing (Direct-to-Film). The image must follow these rules:
-
-    1. The design must be suitable for printing – avoid very thin lines or overly intricate details.  
-    2. The image should not contain any text, unless the design description explicitly requires it.  
-    
-    Design description: ${prompt}
-    `;
+/**
+ * Builds a standardized image response object.
+ */
+function buildImageResponse(params: {
+  b64_json?: string;
+  duration: number;
+  prompt: string;
+  finalPrompt: string;
+  model: string;
+  size: string;
+  quality: string;
+}): CreateDesignResponse {
+  return {
+    api: "openai",
+    ...params,
+  };
 }
-// 3. The design must clearly represent the user's description, suitable for DTF printing.
-// 4. The background must be transparent if it does not contain elements that cover the entire canvas.
-// 2. If the design description specifies multiple colors, the colors should be clearly defined and visually harmonious.
 
-// Create a screen-print-ready image based on the following design description (in Slovenian). The image must follow these rules: it should be easy to trace in Adobe Illustrator with no thin lines or overly intricate details; use only one color unless the description explicitly specifies multiple colors and their placement; do not include any text unless the description explicitly says so; the background must be transparent; and the design should be bold, simple, and clean, suitable for screen printing.
+/**
+ * Fetches an image from URL and converts it to a File object.
+ */
+async function fetchImageAsFile(
+  url: string,
+  filename: string = "image.png"
+): Promise<File> {
+  const response = await fetch(url);
+  const buffer = await response.arrayBuffer();
+  return new File([buffer], filename, { type: "image/png" });
+}
 
-// Design description: "Slogovni orel z razprtim krili"
+function getDigitalPrintPrompt(prompt: string): string {
+  return `${PROMPTS.generation.dtfPrintSystem}\n\n
+  Even thought the design description is provided below you MUST add randomness to the output by varying colors, shapes, and composition so that the design is unique.
+  Don't overdo it with colors and details, keep it balanced for printing.
+  
+  Design description: ${prompt}`;
+}
 
-const digitalPrintingSystemPrompt = `You are a designer creating images specifically for DTF printing (Direct-to-Film). The image must follow these rules:
-    1. The design must be suitable for printing – avoid very thin lines or overly intricate details.  
-    2. The image should not contain any text, unless the design description explicitly requires it.`;
-
-export interface CreateShirtPatternResponse {
+export interface CreateDesignResponse {
   api: string;
   b64_json?: string;
   duration: number;
@@ -54,7 +77,7 @@ export interface CreateShirtPatternResponse {
 }
 
 const IMAGE_GENERATE_CONFIG = {
-  model: "gpt-image-1",
+  model: "gpt-image-1.5",
   size: "1024x1024",
   quality: "high",
   background: "transparent",
@@ -63,41 +86,26 @@ const IMAGE_GENERATE_CONFIG = {
   inputFidelity: "high",
 } as const;
 
-async function createShirtPattern(
-  prompt: string,
-  designStyle: DesignStyle = DesignStyle.Colorful
-): Promise<CreateShirtPatternResponse | undefined> {
-  const { user } = await getAuthenticatedAppForUser();
-
-  const finalPrompt =
-    designStyle === DesignStyle.Monotone
-      ? getScreenPrintingPromot(prompt)
-      : getDigitalPrintPromot(prompt);
+async function createDesign(
+  prompt: string
+): Promise<CreateDesignResponse | undefined> {
+  const finalPrompt = getDigitalPrintPrompt(prompt);
+  const { model, size, quality, moderation, background, n } =
+    IMAGE_GENERATE_CONFIG;
 
   try {
-    if (!user) {
-      throw new Error("User not authenticated");
-    }
-    const model = "gpt-image-1";
-    const size = "1024x1024";
-    const quality = "high";
-    // const model = "dall-e-3";
-    // const size = "1024x1024";
-    // const quality = "standard";
-    const start = Date.now();
-    const response = await client.images.generate({
-      model,
-      prompt: finalPrompt,
-      size,
-      n: 1,
-      background: "transparent",
-      // TODO: remove when in production
-      quality,
-      moderation: "low",
-    });
-    const duration = Date.now() - start;
-    return {
-      api: "openai",
+    const { result: response, duration } = await withTiming(() =>
+      client.images.generate({
+        model,
+        prompt: finalPrompt,
+        size,
+        n,
+        background,
+        quality,
+        moderation,
+      })
+    );
+    return buildImageResponse({
       b64_json: response?.data?.[0].b64_json || undefined,
       duration,
       prompt,
@@ -105,52 +113,47 @@ async function createShirtPattern(
       model,
       size,
       quality,
-    };
+    });
   } catch (error) {
     console.error("Error generating image:", error);
     return undefined;
   }
 }
 
-async function editShirtPattern({
+async function editDesign({
   prompt,
   existingDesignUrl,
 }: {
   prompt: string;
   existingDesignUrl: string;
-}): Promise<CreateShirtPatternResponse | undefined> {
+}): Promise<CreateDesignResponse | undefined> {
+  const { model, size, quality, background, inputFidelity } =
+    IMAGE_GENERATE_CONFIG;
+
   try {
-    const { model, size, quality, background, inputFidelity } =
-      IMAGE_GENERATE_CONFIG;
-    const start = Date.now();
-    const fileResp = await fetch(existingDesignUrl);
-    const imageBuffer = await fileResp.arrayBuffer();
-    const imageFile = new File([imageBuffer], "image.png", {
-      type: "image/png",
+    const { result: response, duration } = await withTiming(async () => {
+      const imageFile = await fetchImageAsFile(existingDesignUrl);
+      return client.images.edit({
+        prompt,
+        image: imageFile,
+        n: 1,
+        size,
+        model,
+        background,
+        quality,
+        input_fidelity: inputFidelity,
+      });
     });
 
-    const response = await client.images.edit({
-      prompt,
-      image: imageFile,
-      n: 1,
-      size,
-      model,
-      background,
-      quality,
-      input_fidelity: inputFidelity,
-    });
-
-    const duration = Date.now() - start;
-    return {
-      api: "openai",
+    return buildImageResponse({
       b64_json: response?.data?.[0].b64_json || undefined,
       duration,
-      prompt: "",
-      finalPrompt: "",
+      prompt: prompt,
+      finalPrompt: prompt,
       model,
       size,
       quality,
-    };
+    });
   } catch (error) {
     console.error("Error generating image variation:", error);
     return undefined;
@@ -160,101 +163,32 @@ async function editShirtPattern({
 export async function generateResponse(
   prompt: string,
   imageUrls?: string[]
-): Promise<CreateShirtPatternResponse> {
-  const { model, size, quality, background, inputFidelity, moderation } =
+): Promise<CreateDesignResponse> {
+  const { size, quality, background, inputFidelity, moderation } =
     IMAGE_GENERATE_CONFIG;
+  const systemPrompt = PROMPTS.generation.dtfPrintSystem;
   const referenceImages = (imageUrls || []).map((url) => ({
     type: "input_image" as const,
     detail: "auto" as const,
     image_url: url,
   }));
-  const start = Date.now();
-  const response = await client.responses.create({
-    model: "gpt-5.1",
-    tools: [
-      {
-        type: "image_generation",
-        input_fidelity: inputFidelity,
-        background,
-        quality,
-        size,
-        model,
-        moderation,
-      },
-    ],
-    input: [
-      {
-        role: "system",
-        content: digitalPrintingSystemPrompt,
-      },
-      {
-        role: "user",
-        content: [{ type: "input_text", text: prompt }, ...referenceImages],
-      },
-    ],
-  });
-  const duration = Date.now() - start;
-  console.log("OpenAI generateResponse response:", response);
-  return {
-    api: "openai",
-    // @ts-expect-error – b64_json is missing in types
-    b64_json: response?.output?.[0]?.result || undefined,
-    prompt,
-    model: "gpt-5.1",
-    size,
-    quality,
-    duration,
-    finalPrompt: `System: ${digitalPrintingSystemPrompt}, User: ${prompt}`,
-  };
-}
 
-export interface ImageAnalysisSuggestion {
-  id: string;
-  prompt: string;
-}
-
-export interface AnalyzeImageResponse {
-  suggestions: ImageAnalysisSuggestion[];
-}
-
-async function analyzeImageForSuggestions(
-  imageUrl: string
-): Promise<AnalyzeImageResponse> {
-  try {
-    // imageUrl should be a valid HTTPS URL (e.g., from Firebase Storage)
-    if (!imageUrl.startsWith("https://")) {
-      console.error("Invalid image URL format:", imageUrl.substring(0, 50));
-      throw new Error("Invalid image URL - must be HTTPS");
-    }
-
-    const systemPrompt = `You are a creative designer helping users transform their uploaded images into unique t-shirt prints.
-Analyze the uploaded image and provide exactly 4 creative prompt suggestions in Slovenian language.
-Each suggestion should describe a different creative way to transform or stylize the image for printing on apparel.
-Consider: artistic styles (geometric, watercolor, minimalist), mood changes (vintage, futuristic, playful),
-color treatments (monotone, vibrant, pastel), and creative interpretations.
-
-Additionally follow these rules:
-
-1. If image of a person is detected, suggest styles that focus on portraiture or character design.
-2. If the image contains scenery, suggest styles that enhance landscapes or abstract the environment.
-3. If no recognizable objects are detected, suggest abstract or pattern-based designs.
-4. If the image contains an existing design, suggest ways to reimagine or remix that design creatively and suggest to just recreate the design as-is.
-5. If the image is a sketch or a drawing, suggest ways to colorize or stylize the sketch for printing.
-6. If the design has a number suggest to recreate the design with another number.
-7. Avoid repeating similar styles across the 4 suggestions.
-
-Respond ONLY with a valid JSON array of 4 objects, each with an "id" (1-4) and "prompt" field.
-Example format:
-[
-  {"id": "1", "prompt": "Pretvori sliko v minimalistično silhueto z ostrimi linijami..."},
-  {"id": "2", "prompt": "Dodaj retro vintage občutek z zbledelimi barvami..."},
-  {"id": "3", "prompt": "Ustvari geometrično abstrakcijo z barvnimi trikotniki..."},
-  {"id": "4", "prompt": "Preoblikuj v pop-art slog z živahnimi barvami..."}
-]`;
-
-    // Use the responses API (same as generateResponse) which works with images
-    const response = await client.responses.create({
+  const { result: response, duration } = await withTiming(() =>
+    client.responses.create({
       model: "gpt-4o",
+      tool_choice: "required",
+      tools: [
+        {
+          type: "image_generation",
+          input_fidelity: inputFidelity,
+          background,
+          quality,
+          size,
+          // gpt-image-1.5 is not supported for responses api yet
+          model: "gpt-image-1",
+          moderation,
+        },
+      ],
       input: [
         {
           role: "system",
@@ -262,11 +196,50 @@ Example format:
         },
         {
           role: "user",
+          content: [{ type: "input_text", text: prompt }, ...referenceImages],
+        },
+      ],
+    })
+  );
+
+  return buildImageResponse({
+    // @ts-expect-error – b64_json is missing in types
+    b64_json: response?.output?.[0]?.result || undefined,
+    prompt,
+    model: "gpt-4o",
+    size,
+    quality,
+    duration,
+    finalPrompt: `System: ${systemPrompt}, User: ${prompt}`,
+  });
+}
+
+const FALLBACK_SUGGESTIONS: string[] = [
+  "Pretvori sliko v minimalistično silhueto z ostrimi geometrijskimi linijami in eno samo barvo.",
+  "Preoblikuj v ilustracijo v slogu risanke z poudarjenimi obrisi in preprostimi barvnimi ploskvami.",
+  "Ustvari abstrakcijo z razdrobljenimi oblikami in živahnimi kontrastnimi barvami.",
+  "Dodaj retro vintage občutek z zbledelimi barvami in teksturo starega papirja.",
+];
+
+async function analyzeImageForSuggestions(
+  imageUrl: string
+): Promise<ImageAnalysisResponse> {
+  try {
+    if (!imageUrl.startsWith("https://")) {
+      console.error("Invalid image URL format:", imageUrl.substring(0, 50));
+      throw new Error("Invalid image URL - must be HTTPS");
+    }
+
+    const response = await client.responses.create({
+      model: "gpt-4o",
+      input: [
+        {
+          role: "system",
+          content: PROMPTS.analysis.imageSuggestions,
+        },
+        {
+          role: "user",
           content: [
-            {
-              type: "input_text",
-              text: "Analiziraj to sliko in predlagaj 4 kreativne načine za preoblikovanje v unikaten motiv za tisk na majico.",
-            },
             {
               type: "input_image",
               image_url: imageUrl,
@@ -275,6 +248,25 @@ Example format:
           ],
         },
       ],
+      text: {
+        format: {
+          type: "json_schema",
+          name: "image_analysis",
+          schema: {
+            type: "object",
+            properties: {
+              suggestions: {
+                type: "array",
+                items: { type: "string" },
+                minItems: 4,
+                maxItems: 4,
+              },
+            },
+            required: ["suggestions"],
+            additionalProperties: false,
+          },
+        },
+      },
     });
 
     // Extract text content from response
@@ -284,43 +276,19 @@ Example format:
     const textContent = (
       outputMessage as { content?: Array<{ type: string; text?: string }> }
     )?.content?.find((c) => c.type === "output_text");
-    const content = textContent?.text || "[]";
+    const jsonText = textContent?.text;
 
-    // Parse JSON from response
-    const jsonMatch = content.match(/\[[\s\S]*\]/);
-    if (!jsonMatch) {
-      throw new Error("No valid JSON found in response");
+    if (!jsonText) {
+      throw new Error("No text content in response");
     }
-    const suggestions = JSON.parse(jsonMatch[0]) as ImageAnalysisSuggestion[];
-    return { suggestions };
+
+    // Parse and validate with Zod (structured output guarantees valid JSON)
+    const parsed = ImageAnalysisResponseSchema.parse(JSON.parse(jsonText));
+    return parsed;
   } catch (error) {
     console.error("Error analyzing image:", error);
-    // Return fallback suggestions
-    return {
-      suggestions: [
-        {
-          id: "1",
-          prompt:
-            "Pretvori sliko v minimalistično silhueto z ostrimi geometrijskimi linijami in eno samo barvo.",
-        },
-        {
-          id: "2",
-          prompt:
-            "Dodaj retro vintage občutek z zbledelimi barvami in teksturo starega papirja.",
-        },
-        {
-          id: "3",
-          prompt:
-            "Ustvari abstrakcijo z razdrobljenimi oblikami in živahnimi kontrastnimi barvami.",
-        },
-        {
-          id: "4",
-          prompt:
-            "Preoblikuj v ilustracijo v slogu risanke z poudarjenimi obrisi in preprostimi barvnimi ploskvami.",
-        },
-      ],
-    };
+    return { suggestions: FALLBACK_SUGGESTIONS };
   }
 }
 
-export { createShirtPattern, editShirtPattern, analyzeImageForSuggestions };
+export { createDesign, editDesign, analyzeImageForSuggestions };

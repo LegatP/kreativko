@@ -2,36 +2,48 @@
 
 import { useState } from "react";
 import { addToast, closeToast } from "@heroui/react";
-import { CreateShirtPatternResponse, generateResponse } from "@/actions/openai";
+import {
+  createDesign,
+  CreateDesignResponse,
+  editDesign,
+  generateResponse,
+} from "@/actions/openai";
 import { uploadFile } from "@/lib/firebase/storage";
 import { createAiReponse } from "@/db/ai-reponses";
 import auth from "@/lib/firebase/auth";
 
+export type GenerationMode = "create" | "edit" | "response";
+
 export const useImageGeneration = () => {
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const createImage = async (prompt: string, referenceImageUrls?: string[]) => {
-    if (!referenceImageUrls || referenceImageUrls.length === 0) {
-      // return await createShirtPattern(prompt, DesignStyle.Colorful);
+  const createImage = async (
+    prompt: string,
+    referenceImageUrls?: string[],
+    mode?: GenerationMode
+  ) => {
+    const effectiveMode =
+      mode ?? (referenceImageUrls?.length ? "response" : "create");
+
+    switch (effectiveMode) {
+      case "create":
+        return generateImage(() => createDesign(prompt));
+      case "edit":
+        return generateImage(() =>
+          editDesign({
+            prompt,
+            existingDesignUrl: referenceImageUrls![0],
+          })
+        );
+      case "response":
+        return generateImage(() =>
+          generateResponse(prompt, referenceImageUrls)
+        );
     }
-    return generateImage(async () =>
-      generateResponse(prompt, referenceImageUrls)
-    );
   };
 
-  // const editImage = async (prompt: string, existingDesignUrl: string) => {
-  // TODO: implement
-  // };
-
-  // const createImageWithResponses = async (prompt: string) => {
-  //   // TODO: implement
-
-  //   const responsesApi = async () => generateResponse(prompt);
-  //   await generateImage(responsesApi);
-  // };
-
   const generateImage = async (
-    serverAction: () => Promise<CreateShirtPatternResponse>
+    serverAction: () => Promise<CreateDesignResponse | undefined>
   ) => {
     if (isGenerating) return;
 
@@ -47,27 +59,22 @@ export const useImageGeneration = () => {
     });
 
     try {
-      const response: CreateShirtPatternResponse | undefined =
-        await serverAction();
+      const response = await serverAction();
 
+      console.log("Image generation response:", response);
       if (!response?.b64_json) {
         throw new Error("No image generated");
       }
 
       const url = await uploadFile(response.b64_json);
-      // TODO: do i need to create asset here?
-      // const asset = await createAsset({ url, type: "image/png" });
+      console.log("Uploaded image URL:", url);
 
-      if (toastId) {
-        closeToast(toastId);
-      }
-
-      // Save AI response for analytics/history. No need to await.
-      // TODO: a better way to handle b64_json?
-      delete response.b64_json;
+      // Save AI response for analytics/history without b64_json. No need to await.
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { b64_json: _b64, ...rest } = response;
       createAiReponse({
         userId: auth.currentUser?.uid || "anonymous",
-        ...response,
+        ...rest,
         imageUrl: url,
       });
 
@@ -81,10 +88,6 @@ export const useImageGeneration = () => {
     } catch (error) {
       console.error("Error generating image:", error);
 
-      if (toastId) {
-        closeToast(toastId);
-      }
-
       addToast({
         title: "Napaka pri generiranju motiva.",
         color: "danger",
@@ -95,14 +98,13 @@ export const useImageGeneration = () => {
 
       throw errorInstance;
     } finally {
+      if (toastId) closeToast(toastId);
       setIsGenerating(false);
     }
   };
 
   return {
     createImage,
-    // editImage,
-    // generateImageWithResponses,
     isGenerating,
   };
 };
