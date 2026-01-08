@@ -17,7 +17,12 @@ interface ShirtProps {
   view?: ShirtView;
 }
 
-const Shirt = ({ color, frontPatternUrl, backPatternUrl, view = "front" }: ShirtProps) => {
+const Shirt = ({
+  color,
+  frontPatternUrl,
+  backPatternUrl,
+  view = "front",
+}: ShirtProps) => {
   const groupRef = useRef<Group>(null);
 
   const { gl } = useThree();
@@ -56,7 +61,7 @@ const Shirt = ({ color, frontPatternUrl, backPatternUrl, view = "front" }: Shirt
       : dashedBorderTexture;
 
   // Set anisotropy for better texture quality
-  useEffect(() => {
+  useMemo(() => {
     const maxAnisotropy = gl.capabilities.getMaxAnisotropy();
     if (frontLogoTexture) {
       frontLogoTexture.anisotropy = maxAnisotropy;
@@ -103,9 +108,9 @@ const Shirt = ({ color, frontPatternUrl, backPatternUrl, view = "front" }: Shirt
         {/* Back design */}
         {!!backPatternUrl && (
           <Decal
-            position={[0.02, 0.02, -0.15]}
+            position={[-0.02, 0.02, -0.15]}
             rotation={[0, Math.PI, 0]}
-            scale={0.265}
+            scale={0.25}
             map={backDisplayTexture!}
             depthTest={false}
           />

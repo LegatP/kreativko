@@ -1,7 +1,7 @@
 "use client";
 
-import { notFound, useSearchParams } from "next/navigation";
-import { use, useEffect, useMemo, useState } from "react";
+import { notFound, useRouter, useSearchParams } from "next/navigation";
+import { use, useEffect, useState } from "react";
 import { useCheckoutContext } from "@/components/contexts/CheckoutContext";
 import { garment } from "@/config/garment";
 import { getPriceBreakdown } from "@/utils/pricing.utils";
@@ -12,26 +12,25 @@ import PreviewToolbar from "@/components/canvas/PreviewToolbar";
 import { useCanvasControls } from "@/components/canvas/useCanvasControls";
 import { Product as ProductType } from "@/types/product.types";
 import ProductCustomization from "@/components/ProductConfigurator/ProductCustomization";
-import { Design } from "@/components/common/DesignGallery/DesignGallery";
 import DesignGallery from "@/components/common/DesignGallery";
 import { Button, Card, CardBody, Divider } from "@heroui/react";
-import { useImageGeneration } from "@/hooks/useImageGeneration";
 import { EditDesignModal } from "@/components/features/product/DesignEditor";
 import { PaintBrushIcon } from "@phosphor-icons/react";
 import Image from "next/image";
+import { uploadFile } from "@/lib/firebase/storage";
 
 export default function Page({
   params,
 }: {
   params: Promise<{ productSlug: string }>;
 }) {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const shirtColor = searchParams.get("barva")
     ? `#${searchParams.get("barva")}`
     : garment.colors[0].hex;
   const { productSlug } = use(params);
   const sizes = garment.sizes;
-  const { createImage, isGenerating } = useImageGeneration();
 
   const {
     onOpen: openCheckout,
@@ -45,8 +44,8 @@ export default function Page({
   // Get the first product from the results (should only be one with matching slug)
   const product = products?.[0] || null;
 
-  const [generatedDesigns, setGeneratedDesigns] = useState<Design[]>([]);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
   const { view: shirtView, toggleView: toggleShirtView } = useCanvasControls();
 
   useEffect(() => {
@@ -72,12 +71,6 @@ export default function Page({
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product?.id]);
-
-  const allDesigns = useMemo(() => {
-    if (!product) return generatedDesigns;
-
-    return [...generatedDesigns, ...(product.designs || [])];
-  }, [generatedDesigns, product]);
 
   // Show error state if there's an error
   if (error) {
@@ -107,20 +100,24 @@ export default function Page({
 
   const handleEditSubmit = async (prompt: string, images?: File[]) => {
     try {
-      const result = await createImage(
-        prompt,
-        images?.map((f) => URL.createObjectURL(f))
-      );
-      if (result?.url) {
-        const newDesign = {
-          title: `Personaliziran motiv`,
-          url: result.url,
-        };
-        setGeneratedDesigns((prev) => [newDesign, ...prev]);
-        handleDesignSelect(result.url);
+      setIsRedirecting(true);
+
+      // Build reference URLs - current design + any uploaded images
+      const referenceUrls = [designUrl];
+      if (images?.length) {
+        const uploadedUrls = await Promise.all(images.map(uploadFile));
+        referenceUrls.push(...uploadedUrls);
       }
+
+      // Redirect to auto-session creation route
+      const params = new URLSearchParams({
+        opis: prompt,
+        reference: referenceUrls.join(","),
+      });
+      router.push(`/ustvari?${params}`);
     } catch (error) {
-      console.error("Failed to generate image:", error);
+      console.error("Failed to redirect:", error);
+      setIsRedirecting(false);
     }
   };
 
@@ -165,19 +162,16 @@ export default function Page({
               </Button>
 
               {/* Design gallery for selecting variants */}
-              {(generatedDesigns.length > 0 || allDesigns.length > 1) && (
+              {product.designs.length > 1 && (
                 <>
                   <Divider className="my-4" />
                   <p className="text-sm text-default-500 mb-3">
-                    {generatedDesigns.length > 0
-                      ? "Ustvarjeni motivi:"
-                      : "Izberi drug motiv:"}
+                    Izberi drug motiv:
                   </p>
                   <DesignGallery
-                    designs={allDesigns}
+                    designs={product.designs}
                     selectedDesignUrls={designUrl}
                     onDesignSelect={handleDesignSelect}
-                    withPlaceholder={isGenerating}
                   />
                 </>
               )}
@@ -192,7 +186,7 @@ export default function Page({
             designName={product.name}
             promptSuggestions={product.promptSuggestions}
             onSubmit={handleEditSubmit}
-            isLoading={isGenerating}
+            isLoading={isRedirecting}
             title="Prilagodi motiv"
             subtitle="Opiši kaj želiš prilagoditi ali klini na enega izmed predlogov spodaj."
           />
