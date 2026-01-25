@@ -21,7 +21,11 @@ export default function ProductDetailStep({
 }: ProductDetailStepProps) {
   const [product, loading] = useProductOnce(productId);
 
-  const handleSubmit = (prompt: string, images?: File[], templateUrl?: string) => {
+  const handleSubmit = (
+    prompt: string,
+    images?: File[],
+    templateUrl?: string,
+  ) => {
     onCustomize(prompt, images, templateUrl);
   };
 
@@ -61,17 +65,16 @@ export default function ProductDetailStep({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="pt-2 flex justify-end"
+        className="flex justify-end pt-4"
       >
         <Button
           color="primary"
-          variant="shadow"
+          variant="bordered"
           size="md"
           onPress={handleContinue}
-          className="text-white"
           isDisabled={isSubmitting}
         >
-          Nadaljuj s trenutnim motivom
+          Nadaljuj brez sprememb
         </Button>
       </motion.div>
     </div>

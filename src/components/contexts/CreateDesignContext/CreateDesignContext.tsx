@@ -1,10 +1,8 @@
 "use client";
 
-import { createContext, useContext, ReactNode } from "react";
+import { createContext, useContext, ReactNode, useCallback } from "react";
 import { useDisclosure } from "@heroui/react";
-import { useRouter } from "next/navigation";
 import CreateDesignModal from "@/components/features/wizard/CreateDesignModal";
-import ROUTES from "@/utils/routes.utils";
 
 interface CreateDesignContextType {
   isOpen: boolean;
@@ -21,28 +19,20 @@ export const CreateDesignContextProvider = ({
 }: {
   children: ReactNode;
 }) => {
-  const { isOpen, onOpen: openModal, onClose: closeModal } = useDisclosure();
-  const router = useRouter();
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const handleSessionCreated = (sessionId: string) => {
-    const route = ROUTES.createDesign(sessionId);
-    // Close modal first, then navigate after modal animation completes
-    closeModal();
-    // Wait for modal to fully close before navigating
-    // HeroUI modal animation is ~300ms
-    setTimeout(() => {
-      router.push(route);
-    }, 350);
-  };
+  const openModal = useCallback(() => {
+    onOpen();
+  }, [onOpen]);
+
+  const closeModal = useCallback(() => {
+    onClose();
+  }, [onClose]);
 
   return (
     <CreateDesignContext.Provider value={{ isOpen, openModal, closeModal }}>
       {children}
-      <CreateDesignModal
-        isOpen={isOpen}
-        onClose={closeModal}
-        onSessionCreated={handleSessionCreated}
-      />
+      <CreateDesignModal isOpen={isOpen} onClose={closeModal} />
     </CreateDesignContext.Provider>
   );
 };

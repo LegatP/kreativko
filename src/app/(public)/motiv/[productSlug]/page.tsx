@@ -188,7 +188,7 @@ export default function Page({
             onSubmit={handleEditSubmit}
             isLoading={isRedirecting}
             title="Prilagodi motiv"
-            subtitle="Opiši kaj želiš prilagoditi ali klini na enega izmed predlogov spodaj."
+            subtitle="Opiši kaj želiš prilagoditi ali izberi enega izmed predlogov spodaj."
           />
           <ProductCustomization
             name={product.name}

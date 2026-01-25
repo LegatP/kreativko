@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { Button, Spinner } from "@heroui/react";
 import {
   ArrowLeftIcon,
@@ -14,16 +15,14 @@ import DescribeStep from "./steps/DescribeStep";
 import UploadStep from "./steps/UploadStep";
 import ProductDetailStep from "./steps/ProductDetailStep";
 import { ImageSquareIcon } from "@phosphor-icons/react/dist/ssr";
-import {
-  useImageGeneration,
-  type GenerationMode,
-} from "@/hooks/useImageGeneration";
+import { type GenerationMode } from "@/hooks/useImageGeneration";
 import { createDesignSession, updateDesignSession } from "@/db/design-sessions";
-import { uploadFile } from "@/lib/firebase/storage";
 import { arrayUnion } from "@/lib/firebase/firestore";
 import auth from "@/lib/firebase/auth";
 import { PrintPosition } from "@/types/pricing.types";
 import { useWizardNavigation } from "@/hooks/useWizardNavigation";
+import { useCreateDesign } from "@/hooks/useCreateDesign";
+import ROUTES from "@/utils/routes.utils";
 
 type WizardPath = "templates" | "describe" | "upload";
 type WizardStep =
@@ -72,13 +71,13 @@ export default function CreateDesignModal({
   onSessionCreated,
   onDesignAdded,
 }: CreateDesignModalProps) {
+  const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(
     null
   );
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [isCreatingSession, setIsCreatingSession] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { currentStep, setStep, goBack, reset, canGoBack } =
@@ -97,9 +96,17 @@ export default function CreateDesignModal({
       },
     });
 
-  const { createImage } = useImageGeneration();
+  // Use the unified hook for prompt-based design creation
+  const { createDesign, isSubmitting } = useCreateDesign({
+    generationDelay: 500,
+    onBeforeRedirect: () => {
+      resetState();
+      onClose(); // Close modal before navigation
+    },
+    onSessionCreated,
+  });
 
-  // Helper to create a new session with loading state management
+  // Helper to create a new session (for existing design selection without generation)
   const createNewSession = async (data: {
     uploadedAssets?: { url: string }[];
     createdDesigns?: { title: string; url: string }[];
@@ -135,18 +142,26 @@ export default function CreateDesignModal({
         createdDesigns: [{ title, url: designUrl }],
         designUrls: { front: designUrl },
       });
+
+      // Navigate to new session first for instant feedback
+      router.replace(ROUTES.createDesign(newSessionId));
       onSessionCreated?.(newSessionId);
+
+      // Close modal after navigation starts
+      setTimeout(() => {
+        resetState();
+        onClose();
+      }, 50);
     } else {
       // Use arrayUnion for atomic update to avoid overwriting existing designs
       await updateDesignSession(sessionId, {
         createdDesigns: arrayUnion({ title, url: designUrl }),
         designUrls: { front: designUrl },
       });
+      onDesignAdded?.(designUrl, "front");
+      resetState();
+      onClose();
     }
-
-    onDesignAdded?.(designUrl, "front");
-    resetState();
-    onClose();
   };
 
   const handleSelect = (path: WizardPath) => {
@@ -171,7 +186,6 @@ export default function CreateDesignModal({
     setSelectedCategory(null);
     setSelectedProductId(null);
     setUploadedFile(null);
-    setIsSubmitting(false);
   }, [reset]);
 
   const handleClose = () => {
@@ -189,63 +203,20 @@ export default function CreateDesignModal({
     setStep("product-detail");
   };
 
-  // Unified handler for prompt-based generation
-  const handlePromptSubmit = async (
+  // Unified handler for prompt-based generation using the hook
+  const handlePromptSubmit = (
     prompt: string,
     images?: File[],
     existingUrl?: string,
     mode?: GenerationMode
   ) => {
-    setIsSubmitting(true);
-
-    // Upload images if provided (reuse existing URL if available)
-    let uploadedAssets: { url: string }[] = [];
-    if (images && images.length > 0) {
-      uploadedAssets = await Promise.all(
-        images.map(async (file, index) => {
-          // Reuse the existing URL for the first image if provided
-          if (index === 0 && existingUrl) {
-            return { url: existingUrl };
-          }
-          const url = await uploadFile(file);
-          return { url };
-        })
-      );
-    }
-
-    // For edit mode, use the existingUrl directly (template URL)
-    const imageUrls =
-      mode === "edit" && existingUrl
-        ? [existingUrl]
-        : uploadedAssets.length > 0
-        ? uploadedAssets.map((a) => a.url)
-        : undefined;
-
-    const isNewSession = !sessionId;
-    let finalSessionId = sessionId;
-
-    // If no session, create one first and redirect immediately
-    if (isNewSession) {
-      finalSessionId = await createNewSession({ uploadedAssets });
-      resetState();
-      onSessionCreated?.(finalSessionId);
-    } else {
-      resetState();
-      onClose();
-    }
-
-    // Start background generation (fire and forget)
-    setTimeout(() => {
-      createImage(prompt, imageUrls, mode).then(async (result) => {
-        if (result?.url && finalSessionId) {
-          // Use arrayUnion for atomic update to avoid overwriting existing designs
-          await updateDesignSession(finalSessionId, {
-            createdDesigns: arrayUnion({ title: prompt, url: result.url }),
-            designUrls: { front: result.url },
-          });
-        }
-      });
-    }, 0);
+    createDesign({
+      prompt,
+      images,
+      existingImageUrl: existingUrl,
+      mode,
+      sessionId,
+    });
   };
 
   // Handler for selecting an existing design (no generation needed)
@@ -293,18 +264,8 @@ export default function CreateDesignModal({
               description="Izberi obstoječi motivi in ga prilagodi po svojih željah"
               icon={<SwatchesIcon size={32} weight="duotone" />}
               onClick={() => handleSelect("templates")}
-            >
-              <div className="flex gap-2 mt-4">
-                {[1, 2, 3].map((i) => (
-                  <div
-                    key={i}
-                    className="w-14 h-14 rounded-lg bg-default-100 overflow-hidden"
-                  >
-                    <div className="w-full h-full bg-gradient-to-br from-default-200 to-default-300" />
-                  </div>
-                ))}
-              </div>
-            </PathCard>
+              className="md:min-h-[200px]"
+            />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <PathCard

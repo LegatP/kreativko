@@ -3,32 +3,41 @@
 import { useState } from "react";
 import PromptInput from "@/components/common/PromptInput";
 import LabeledDivider from "@/components/common/LabeledDivider";
-import SuggestionList from "@/components/common/SuggestionList";
 
-// Example prompts in Slovenian for cool t-shirt designs
+// Example prompts with labels
 const EXAMPLE_PROMPTS = [
   {
-    id: "1",
+    label: "Motiv za dekliščino",
+    prompt:
+      "Ilustracija za dekliščino z osrednjim motivom silhuete neveste v dolgi obleki, poudarjene z roza barvo, ob njej stojita dve ženski silhueti v zapeljivih pozah z majhnimi hudičevimi rogovi in vilami. Okoli zgornjega dela so raztreseni majhni srčki. Spodaj je dekorativen tipografski napis »Nevestina straža« v igrivi, ženstveni pisavi. Barvna paleta je omejena na črno, roza in belo, čiste linije, raven vektorski slog, jasen kontrast.",
+  },
+  {
+    label: "Urbani bober",
     prompt:
       "Ilustracija bobra v urbanem streetwear slogu, stoje in sprednji pogled. Bober nosi temna sončna očala, turkizno modro jakno s kapuco in rumeno podlogo, pod njo živahno grafično majico z ilustriranim motivom. Slog je čista vektorska ilustracija z ostrimi linijami, visokim kontrastom in nasičenimi barvami (turkizna, oranžna, roza). Rahli barvni madeži in pršci okoli figure, belo ozadje, sodoben, igriv in trendovski videz.",
   },
   {
-    id: "2",
+    label: "Letnik rojstva",
     prompt:
-      "Stiliziran volk z geometrijskimi oblikami in ostrimi linijami, ki izžareva moč, svobodo in urbano energijo sodobne ulične kulture.",
+      "Tipografski dizajn majice z velikim napisom »LETNIK 1985«. Krepka vintage pisava, rahlo obrabljen tisk, brez ilustracij, centrirana postavitev. Barvna paleta: črna in bela, čist vektorski slog.",
   },
   {
-    id: "3",
+    label: "Prometni znak",
+    prompt:
+      "Grafičen dizajn majice z velikim okroglim prometnim znakom, v sredini letnica 40, pod znakom majhen ročno narisan napis »jih imam, pa kaj!«. Barve: rdeča, črna, bela; čisti flat vektorski slog.",
+  },
+  {
+    label: "Ognjena lobanja",
     prompt:
       "Kul lobanja z sončnimi očali, obdana z živahnimi barvnimi plameni in preprostimi grafičnimi oblikami, z močnim kontrastom in jasnimi linijami na svetlem ozadju.",
   },
   {
-    id: "4",
+    label: "Mestni kolesar",
     prompt:
       "Minimalistična silhueta mestnega kolesarja se zliva z abstraktnimi linijami vetra in svetlobe, ki ustvarjajo občutek hitrosti, svobode in urbanega utripa.",
   },
   {
-    id: "5",
+    label: "Digitalni tiger",
     prompt:
       "Divji tiger iz digitalnih fragmentov rjovi skozi eksplozijo barv, pikslov in dinamičnih oblik, ki izražajo moč, upor in sodobni slog.",
   },
@@ -59,11 +68,18 @@ export default function DescribeStep({
       {/* Divider */}
       <LabeledDivider label="preizkusi spodnje ideje" />
 
-      {/* Example prompts */}
-      <SuggestionList
-        suggestions={EXAMPLE_PROMPTS}
-        onSelect={setSelectedPrompt}
-      />
+      {/* Suggestion chips */}
+      <div className="flex flex-wrap justify-center gap-2">
+        {EXAMPLE_PROMPTS.map((suggestion, index) => (
+          <button
+            key={index}
+            onClick={() => setSelectedPrompt(suggestion.prompt)}
+            className="px-3 py-1.5 rounded-full text-sm font-medium transition-all cursor-pointer bg-primary/10 text-primary hover:bg-primary/20"
+          >
+            {suggestion.label}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

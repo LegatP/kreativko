@@ -2,7 +2,11 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Button, Tooltip } from "@heroui/react";
-import { XIcon, ImageSquareIcon, PaperPlaneTiltIcon } from "@phosphor-icons/react";
+import {
+  XIcon,
+  ImageSquareIcon,
+  PaperPlaneTiltIcon,
+} from "@phosphor-icons/react";
 import Image from "next/image";
 import { useImageUpload } from "@/hooks/useImageUpload";
 
@@ -13,6 +17,7 @@ interface PromptInputProps {
   allowImages?: boolean;
   initialValue?: string;
   initialImages?: File[];
+  rows?: number;
 }
 
 export default function PromptInput({
@@ -22,6 +27,7 @@ export default function PromptInput({
   allowImages = true,
   initialValue = "",
   initialImages = [],
+  rows = 5,
 }: PromptInputProps) {
   const [prompt, setPrompt] = useState(initialValue);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -67,7 +73,7 @@ export default function PromptInput({
       textareaRef.current.style.height = "auto";
       textareaRef.current.style.height = `${Math.min(
         textareaRef.current.scrollHeight,
-        120
+        120,
       )}px`;
     }
   };
@@ -105,36 +111,38 @@ export default function PromptInput({
           </div>
         )}
 
-        {/* Input row */}
-        <div className="flex items-start gap-2 p-2">
-          {/* Image upload button */}
-          {allowImages && (
+        {/* Text input */}
+        <textarea
+          ref={textareaRef}
+          value={prompt}
+          onChange={handleTextareaInput}
+          onKeyDown={handleKeyDown}
+          placeholder={placeholder}
+          rows={rows}
+          disabled={disabled}
+          className="w-full bg-transparent border-none outline-none resize-none text-foreground text-sm placeholder:text-default-400 p-3 pb-0 min-h-[40px] max-h-[180px]"
+        />
+
+        {/* Bottom action row */}
+        <div className="flex items-center justify-between p-2 pt-1">
+          {/* Left: Image upload button */}
+          {allowImages ? (
             <Tooltip content="Dodaj slike" placement="top">
               <Button
                 isIconOnly
                 variant="light"
                 size="sm"
                 onPress={triggerInput}
-                className="text-default-400 hover:text-default-600 flex-shrink-0 mt-1"
+                className="text-default-400 hover:text-default-600"
               >
                 <ImageSquareIcon size={22} weight="duotone" />
               </Button>
             </Tooltip>
+          ) : (
+            <div />
           )}
 
-          {/* Text input */}
-          <textarea
-            ref={textareaRef}
-            value={prompt}
-            onChange={handleTextareaInput}
-            onKeyDown={handleKeyDown}
-            placeholder={placeholder}
-            rows={3}
-            disabled={disabled}
-            className="flex-1 bg-transparent border-none outline-none resize-none text-foreground text-sm placeholder:text-default-400 py-2 px-1 min-h-[40px] max-h-[120px]"
-          />
-
-          {/* Submit button */}
+          {/* Right: Submit button */}
           <Button
             isIconOnly
             color="primary"
@@ -143,7 +151,7 @@ export default function PromptInput({
             isDisabled={!canSubmit}
             isLoading={disabled}
             onPress={handleSubmit}
-            className="rounded-full flex-shrink-0 self-end mb-1 text-white"
+            className="rounded-full text-white"
           >
             <PaperPlaneTiltIcon size={18} weight="fill" />
           </Button>

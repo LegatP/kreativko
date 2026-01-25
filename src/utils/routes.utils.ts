@@ -47,6 +47,7 @@ const ROUTES = {
     }),
   productDetails: (slug: string) =>
     createRouteBuilder(`/motiv/[slug]`)({ path: { slug } }),
+  category: (slug: string) => `/${slug}`,
 } as const;
 
 export default ROUTES;

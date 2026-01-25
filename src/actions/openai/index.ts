@@ -1,6 +1,6 @@
 "use server";
 
-import { PROMPTS } from "@/lib/prompts";
+import PROMPTS from "@/lib/prompts";
 import {
   ImageAnalysisResponseSchema,
   type ImageAnalysisResponse,
@@ -59,10 +59,9 @@ async function fetchImageAsFile(
 
 function getDigitalPrintPrompt(prompt: string): string {
   return `${PROMPTS.generation.dtfPrintSystem}\n\n
-  Even thought the design description is provided below you MUST add randomness to the output by varying colors, shapes, and composition so that the design is unique.
-  Don't overdo it with colors and details, keep it balanced for printing.
-  
-  Design description: ${prompt}`;
+
+  # User Provided Design Description 
+  ${prompt}`;
 }
 
 export interface CreateDesignResponse {
@@ -175,7 +174,7 @@ export async function generateResponse(
 
   const { result: response, duration } = await withTiming(() =>
     client.responses.create({
-      model: "gpt-4o",
+      model: "gpt-5.2",
       tool_choice: "required",
       tools: [
         {
@@ -184,7 +183,6 @@ export async function generateResponse(
           background,
           quality,
           size,
-          // gpt-image-1.5 is not supported for responses api yet
           model: "gpt-image-1",
           moderation,
         },
@@ -206,7 +204,7 @@ export async function generateResponse(
     // @ts-expect-error – b64_json is missing in types
     b64_json: response?.output?.[0]?.result || undefined,
     prompt,
-    model: "gpt-4o",
+    model: "gpt-5.2",
     size,
     quality,
     duration,

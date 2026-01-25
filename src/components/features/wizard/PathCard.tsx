@@ -13,6 +13,7 @@ interface PathCardProps {
   onClick?: () => void;
   children?: React.ReactNode;
   align?: "center" | "left";
+  className?: string;
 }
 
 export default function PathCard({
@@ -24,6 +25,7 @@ export default function PathCard({
   onClick,
   children,
   align = "center",
+  className,
 }: PathCardProps) {
   const cardProps = href
     ? { as: Link, href }
@@ -44,7 +46,7 @@ export default function PathCard({
         {...cardProps}
         isPressable
         onPress={onClick}
-        className="p-6 border-2 border-transparent hover:border-primary transition-colors bg-content1 h-full w-full"
+        className={`p-6 border-2 border-transparent hover:border-primary transition-colors bg-content1 h-full w-full ${className || ""}`}
       >
         <CardBody className={`flex gap-4 ${isLeft ? "flex-row items-center" : "flex-col items-center text-center"}`}>
           {icon && (
