@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Button, Spinner } from "@heroui/react";
+import { Button } from "@heroui/react";
 import {
   ArrowLeftIcon,
   LightbulbFilamentIcon,
@@ -19,7 +19,6 @@ import { type GenerationMode } from "@/hooks/useImageGeneration";
 import { createDesignSession, updateDesignSession } from "@/db/design-sessions";
 import { arrayUnion } from "@/lib/firebase/firestore";
 import auth from "@/lib/firebase/auth";
-import { PrintPosition } from "@/types/pricing.types";
 import { useWizardNavigation } from "@/hooks/useWizardNavigation";
 import { useCreateDesign } from "@/hooks/useCreateDesign";
 import ROUTES from "@/utils/routes.utils";
@@ -61,7 +60,6 @@ interface CreateDesignModalProps {
   onClose: () => void;
   sessionId?: string; // If undefined, creates new session
   onSessionCreated?: (sessionId: string) => void; // Called when new session is created (for redirect)
-  onDesignAdded?: (designUrl: string, position: PrintPosition) => void;
 }
 
 export default function CreateDesignModal({
@@ -69,7 +67,6 @@ export default function CreateDesignModal({
   onClose,
   sessionId,
   onSessionCreated,
-  onDesignAdded,
 }: CreateDesignModalProps) {
   const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -77,7 +74,6 @@ export default function CreateDesignModal({
     null
   );
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  const [isCreatingSession, setIsCreatingSession] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { currentStep, setStep, goBack, reset, canGoBack } =
@@ -106,61 +102,31 @@ export default function CreateDesignModal({
     onSessionCreated,
   });
 
-  // Helper to create a new session (for existing design selection without generation)
-  const createNewSession = async (data: {
-    uploadedAssets?: { url: string }[];
-    createdDesigns?: { title: string; url: string }[];
-    designUrls?: { front: string };
-  }) => {
-    setIsCreatingSession(true);
-    try {
-      const session = await createDesignSession({
-        userId: auth.currentUser?.uid || "guest",
-        uploadedAssets: data.uploadedAssets || [],
-        createdDesigns: data.createdDesigns || [],
-        ...(data.designUrls && { designUrls: data.designUrls }),
-      });
-      return session.id;
-    } finally {
-      setIsCreatingSession(false);
-    }
-  };
-
-  // Helper to handle session creation/update, modal closing, and redirect
-  const handleDesignComplete = async (
-    designUrl: string,
-    title: string,
-    options?: {
-      uploadedAssets?: { url: string }[];
-    }
-  ) => {
+  // Helper to handle existing design selection (no generation needed)
+  const handleDesignComplete = async (designUrl: string, title: string) => {
     const isNewSession = !sessionId;
 
+    // Close modal immediately for instant feedback
+    resetState();
+    onClose();
+
     if (isNewSession) {
-      const newSessionId = await createNewSession({
-        uploadedAssets: options?.uploadedAssets,
+      // Create session and navigate
+      const session = await createDesignSession({
+        userId: auth.currentUser?.uid || "guest",
+        uploadedAssets: [],
         createdDesigns: [{ title, url: designUrl }],
         designUrls: { front: designUrl },
       });
 
-      // Navigate to new session first for instant feedback
-      router.replace(ROUTES.createDesign(newSessionId));
-      onSessionCreated?.(newSessionId);
-
-      // Close modal after navigation starts
-      setTimeout(() => {
-        resetState();
-        onClose();
-      }, 50);
+      router.replace(ROUTES.createDesign(session.id));
+      onSessionCreated?.(session.id);
     } else {
-      // Use arrayUnion for atomic update to avoid overwriting existing designs
+      // Update existing session - real-time listener will sync the design
       await updateDesignSession(sessionId, {
         createdDesigns: arrayUnion({ title, url: designUrl }),
         designUrls: { front: designUrl },
       });
-      onDesignAdded?.(designUrl, "front");
-      resetState();
-      onClose();
     }
   };
 
@@ -353,14 +319,7 @@ export default function CreateDesignModal({
         subtitle={subtitle}
         headerLeft={backButton}
       >
-        {isCreatingSession ? (
-          <div className="flex flex-col items-center justify-center py-16 gap-4">
-            <Spinner size="lg" color="primary" />
-            <p className="text-sm text-default-500">Pripravljamo...</p>
-          </div>
-        ) : (
-          renderStepContent()
-        )}
+        {renderStepContent()}
       </BaseDesignModal>
     </>
   );

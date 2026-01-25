@@ -192,11 +192,6 @@ export default function Page() {
     }
   };
 
-  // Handle design added (generated or selected)
-  const handleDesignAdded = (designUrl: string, position: PrintPosition) => {
-    createPromptRef.current?.addDesign(designUrl, position);
-  };
-
   const handleRemoveDesign = (position: PrintPosition) => {
     // Mark position as being removed to prevent sync-from-server race condition
     removingPositionsRef.current.add(position);
@@ -212,7 +207,6 @@ export default function Page() {
         isOpen={isWizardOpen}
         onClose={handleWizardClose}
         sessionId={designSessionId}
-        onDesignAdded={handleDesignAdded}
       />
       <ProductPageLayout
         title="Ustvari svoj motiv"

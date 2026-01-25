@@ -41,6 +41,13 @@ export function useCreateDesign(options: UseCreateDesignOptions = {}) {
 
       setIsSubmitting(true);
 
+      const isNewSession = !sessionId;
+
+      // Close modal immediately for instant feedback
+      if (isNewSession) {
+        options.onBeforeRedirect?.();
+      }
+
       try {
         // Upload images if provided (reuse existing URL if available)
         let uploadedAssets: { url: string }[] = [];
@@ -64,10 +71,9 @@ export function useCreateDesign(options: UseCreateDesignOptions = {}) {
             ? uploadedAssets.map((a) => a.url)
             : undefined;
 
-        const isNewSession = !sessionId;
         let finalSessionId = sessionId;
 
-        // If no session, create one first and redirect
+        // If no session, create one and redirect
         if (isNewSession) {
           const session = await createDesignSession({
             userId: auth.currentUser?.uid || "guest",
@@ -76,18 +82,11 @@ export function useCreateDesign(options: UseCreateDesignOptions = {}) {
           });
           finalSessionId = session.id;
 
-          // Navigate FIRST for instant feedback, then close modal
-          // Use replace() to prevent back button returning to homepage
+          // Navigate to the new session
           router.replace(ROUTES.createDesign(finalSessionId));
           options.onSessionCreated?.(finalSessionId);
-
-          // Close modal after navigation starts (runs in background)
-          // Small delay ensures navigation has begun before modal unmounts
-          setTimeout(() => {
-            options.onBeforeRedirect?.();
-          }, 50);
         } else {
-          // Existing session - call onBeforeRedirect (close modal)
+          // Existing session - close modal
           options.onBeforeRedirect?.();
         }
 
