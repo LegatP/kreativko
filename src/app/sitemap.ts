@@ -3,6 +3,8 @@ import { getAllProducts } from "@/db/products";
 import { getAllProductCategories } from "@/db/product-categories";
 import ROUTES from "@/utils/routes.utils";
 
+export const dynamic = "force-dynamic";
+
 /**
  * Get the base URL for the application
  */
