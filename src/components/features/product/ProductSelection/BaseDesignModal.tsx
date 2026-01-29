@@ -51,9 +51,9 @@ export default function BaseDesignModal({
       isOpen={isOpen}
       onClose={onClose}
       size={size}
-      placement="center"
+      placement="auto"
       backdrop="blur"
-      scrollBehavior="inside"
+      scrollBehavior="outside"
     >
       <ModalContent>
         <ModalHeader className="flex flex-row items-center gap-3 pt-6">

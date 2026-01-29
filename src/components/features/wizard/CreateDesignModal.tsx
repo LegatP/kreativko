@@ -224,27 +224,27 @@ export default function CreateDesignModal({
     switch (currentStep) {
       case "select-path":
         return (
-          <div className="w-full space-y-4">
+          <div className="w-full space-y-3 md:space-y-4">
             <PathCard
               title="Izberi in prilagodi"
               description="Izberi obstoječi motivi in ga prilagodi po svojih željah"
-              icon={<SwatchesIcon size={32} weight="duotone" />}
+              icon={<SwatchesIcon size={20} weight="duotone" />}
               onClick={() => handleSelect("templates")}
               className="md:min-h-[200px]"
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
               <PathCard
                 title="Opiši idejo"
                 description="Opiši svojo idejo in ustvari popolnoma unikaten motiv"
-                icon={<LightbulbFilamentIcon size={32} weight="duotone" />}
+                icon={<LightbulbFilamentIcon size={20} weight="duotone" />}
                 onClick={() => handleSelect("describe")}
               />
 
               <PathCard
                 title="Naloži sliko"
                 description="Naloži sliko obstoječega motiva, osebe ali risbe in jo prilagodi po svojih željah"
-                icon={<ImageSquareIcon size={32} weight="duotone" />}
+                icon={<ImageSquareIcon size={20} weight="duotone" />}
                 onClick={() => handleSelect("upload")}
               />
             </div>

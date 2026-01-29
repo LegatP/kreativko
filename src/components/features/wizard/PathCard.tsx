@@ -12,7 +12,6 @@ interface PathCardProps {
   href?: string;
   onClick?: () => void;
   children?: React.ReactNode;
-  align?: "center" | "left";
   className?: string;
 }
 
@@ -24,14 +23,11 @@ export default function PathCard({
   href,
   onClick,
   children,
-  align = "center",
   className,
 }: PathCardProps) {
   const cardProps = href
     ? { as: Link, href }
     : {};
-
-  const isLeft = align === "left";
 
   return (
     <motion.div
@@ -46,22 +42,22 @@ export default function PathCard({
         {...cardProps}
         isPressable
         onPress={onClick}
-        className={`p-6 border-2 border-transparent hover:border-primary transition-colors bg-content1 h-full w-full ${className || ""}`}
+        className={`p-1.5 md:p-6 border-2 border-transparent hover:border-primary transition-colors bg-content1 h-full w-full ${className || ""}`}
       >
-        <CardBody className={`flex gap-4 ${isLeft ? "flex-row items-center" : "flex-col items-center text-center"}`}>
+        <CardBody className="flex flex-row items-center gap-3 md:flex-col md:items-center md:text-center md:gap-4">
           {icon && (
-            <div className="w-16 h-16 rounded-full flex items-center justify-center bg-primary/10 text-primary flex-shrink-0">
+            <div className="w-10 h-10 md:w-16 md:h-16 rounded-full flex items-center justify-center bg-primary/10 text-primary flex-shrink-0 [&>svg]:w-5 [&>svg]:h-5 md:[&>svg]:w-8 md:[&>svg]:h-8">
               {icon}
             </div>
           )}
-          <div className={isLeft ? "text-left" : ""}>
-            <h3 className="text-xl font-bold mb-1 text-foreground">
+          <div className="flex flex-col md:items-center">
+            <h3 className="text-base md:text-xl font-bold mb-1 text-foreground">
               {title}
             </h3>
             {subtitle && (
-              <p className="text-sm text-default-400 mb-2">{subtitle}</p>
+              <p className="text-sm md:text-sm text-default-400 mb-2 md:text-center">{subtitle}</p>
             )}
-            <p className="text-default-500 text-sm">{description}</p>
+            <p className="text-default-500 text-sm md:text-sm md:text-center">{description}</p>
           </div>
           {children}
         </CardBody>
