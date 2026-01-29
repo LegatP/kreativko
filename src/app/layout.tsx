@@ -46,9 +46,6 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
-  alternates: {
-    canonical: "https://mojmotiv.si",
-  },
 };
 
 const structuredData = {
