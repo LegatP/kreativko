@@ -71,7 +71,9 @@ export default function Page() {
     setIsInitialized(true);
 
     const sizes = garment.sizes;
-    const initQuantities = Object.fromEntries(sizes.map((size: string) => [size, 0]));
+    const initQuantities = Object.fromEntries(
+      sizes.map((size: string) => [size, 0]),
+    );
     const initDesignUrls = data.designUrls || {};
     const breakdown = getPriceBreakdown(garment.pricing, initDesignUrls);
 

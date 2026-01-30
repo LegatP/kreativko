@@ -29,7 +29,7 @@ const EXAMPLE_PROMPTS = [
   {
     label: "Ognjena lobanja",
     prompt:
-      "Kul lobanja z sončnimi očali, obdana z živahnimi barvnimi plameni in preprostimi grafičnimi oblikami, z močnim kontrastom in jasnimi linijami na svetlem ozadju.",
+      "Kul lobanja s sončnimi očali, obdana z živahnimi barvnimi plameni in preprostimi grafičnimi oblikami, z močnim kontrastom in jasnimi linijami na svetlem ozadju.",
   },
   {
     label: "Mestni kolesar",
