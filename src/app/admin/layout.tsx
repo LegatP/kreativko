@@ -18,6 +18,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     }
   }, [replace, user]);
 
+  if (!user || user.isAnonymous) {
+    return null;
+  }
+
   return (
     <div className="pl-20 py-10 pr-10">
       <AdminNavigation />
